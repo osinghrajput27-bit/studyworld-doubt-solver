@@ -1,0 +1,84 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>StudyWorld AI Doubt Solver</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,sans-serif;background:#f1f5ff;color:#172554}
+header{background:#2457d6;color:white;padding:22px;text-align:center}
+header h1{margin:0;font-size:25px}
+main{max-width:700px;margin:25px auto;padding:18px}
+.card{background:white;padding:20px;border-radius:16px;box-shadow:0 5px 20px #0001}
+textarea{width:100%;height:130px;padding:14px;border:1px solid #ccd5e5;border-radius:10px;font-size:16px;resize:vertical}
+input[type=file]{margin:15px 0;width:100%}
+button{background:#2457d6;color:white;border:0;padding:14px 20px;border-radius:10px;font-size:16px;width:100%;cursor:pointer}
+button:disabled{opacity:.6}
+#answer{margin-top:20px;padding:15px;background:#f1f5ff;border-radius:10px;white-space:pre-wrap;line-height:1.6;display:none}
+footer{text-align:center;color:#64748b;font-size:13px;margin:20px}
+</style>
+</head>
+<body>
+<header>
+<h1>StudyWorld AI</h1>
+<p>Your Smart Doubt Solver</p>
+</header>
+
+<main>
+<div class="card">
+<h2>Ask Your Doubt</h2>
+<p>Apna question likho ya question ki photo upload karo.</p>
+
+<textarea id="question" placeholder="Type your question here..."></textarea>
+<input type="file" id="image" accept="image/*">
+
+<button id="solveBtn" onclick="solveDoubt()">Solve My Doubt</button>
+
+<div id="answer"></div>
+</div>
+<footer>StudyWorld AI • Learn Smart, Learn Better</footer>
+</main>
+
+<script>
+async function solveDoubt(){
+  const question=document.getElementById("question").value.trim();
+  const image=document.getElementById("image").files[0];
+  const button=document.getElementById("solveBtn");
+  const answer=document.getElementById("answer");
+
+  if(!question && !image){
+    alert("Please type a question or upload an image.");
+    return;
+  }
+
+  const formData=new FormData();
+  formData.append("question",question);
+  if(image) formData.append("image",image);
+
+  button.disabled=true;
+  button.textContent="Solving...";
+  answer.style.display="block";
+  answer.textContent="Please wait, AI is solving your doubt...";
+
+  try{
+    const response=await fetch("/api/solve",{
+      method:"POST",
+      body:formData
+    });
+
+    const data=await response.json();
+    if(!response.ok) throw new Error(data.error || "Something went wrong");
+
+    answer.textContent=data.answer || "No answer received.";
+  }catch(error){
+    answer.textContent="Error: "+error.message;
+  }finally{
+    button.disabled=false;
+    button.textContent="Solve My Doubt";
+  }
+}
+</script>
+</body>
+</html>
