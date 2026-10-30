@@ -4,101 +4,56 @@ import multer from "multer";
 import { GoogleGenAI } from "@google/genai";
 
 const app = express();
-const upload = multer({
-  storage: multer.memoryStorage(),
-  limits: { fileSize: 5 * 1024 * 1024 },
-  fileFilter: (req, file, cb) => {
-    if (file.mimetype.startsWith("image/")) {
-      cb(null, true);
-    } else {
-      cb(new Error("Please upload an image file."));
-    }
-  }
+const upload = multer({ storage: multer.memoryStorage() });
+
+app.use(express.json());
+
+const ai = new GoogleGenAI({
+  apiKey: process.env.GEMINI_API_KEY
 });
 
-app.use(express.json({ limit: "1mb" }));
-
-app.get("/", (req, res) => {
-  res.send("StudyWorld AI backend is running!");
+app.get("/health", (req, res) => {
+  res.json({ status: "StudyWorld AI is running" });
 });
 
-app.post("/api/solve", upload.single("photo"), async (req, res) => {
+app.post("/api/solve", upload.single("image"), async (req, res) => {
   try {
-    const apiKey = process.env.GEMINI_API_KEY;
+    const question = req.body.question || "";
 
-    if (!apiKey) {
-      return res.status(500).json({
-        error: "Server API key is not configured yet."
+    if (!question.trim() && !req.file) {
+      return res.status(400).json({ error: "Question ya photo bhejo." });
+    }
+
+    const contents = [];
+
+    if (question.trim()) {
+      contents.push({
+        text: `Student ka doubt simple Hindi/Hinglish mein step-by-step samjhao. Zaroorat par exam-ready English answer bhi do.\n\nQuestion: ${question}`
       });
     }
 
-    const ai = new GoogleGenAI({ apiKey });
-    const question = (req.body.question || "").trim();
-    const language = req.body.language || "Hindi";
-    const photo = req.file;
-
-    if (!question && !photo) {
-      return res.status(400).json({
-        error: "Please enter a question or upload a photo."
-      });
-    }
-
-    const allowedLanguages = ["Hindi", "English", "Hinglish"];
-    const answerLanguage = allowedLanguages.includes(language)
-      ? language
-      : "Hindi";
-
-    const prompt = `
-You are StudyWorld AI, a helpful school doubt-solving tutor.
-
-Solve the student's question accurately.
-Answer in ${answerLanguage}.
-Explain the solution step by step in simple language.
-For maths, show calculations and the final answer.
-For science, explain the concept clearly.
-If the image is unclear or information is missing, say so.
-Never invent unreadable text from an image.
-
-Student's question:
-${question || "Please read and solve the question in the attached image."}
-`;
-
-    const contents = [{ text: prompt }];
-
-    if (photo) {
+    if (req.file) {
       contents.push({
         inlineData: {
-          mimeType: photo.mimetype,
-          data: photo.buffer.toString("base64")
+          mimeType: req.file.mimetype,
+          data: req.file.buffer.toString("base64")
         }
       });
     }
 
-    const result = await ai.models.generateContent({
+    const response = await ai.models.generateContent({
       model: "gemini-2.5-flash",
       contents
     });
 
-    res.json({
-      answer: result.text || "No answer was returned. Please try again."
-    });
+    res.json({ answer: response.text });
   } catch (error) {
-    console.error("Solve error:", error.message);
-    res.status(500).json({
-      error: "Could not solve the question. Please try again."
-    });
+    console.error(error);
+    res.status(500).json({ error: "AI se answer nahi mil paya. Dobara try karo." });
   }
 });
 
-app.use((error, req, res, next) => {
-  console.error(error.message);
-  res.status(400).json({
-    error: error.message || "Invalid request."
-  });
-});
-
 const PORT = process.env.PORT || 3000;
-
-app.listen(PORT, "0.0.0.0", () => {
-  console.log(`StudyWorld backend listening on port ${PORT}`);
+app.listen(PORT, () => {
+  console.log(`StudyWorld AI running on port ${PORT}`);
 });
