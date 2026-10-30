@@ -7,7 +7,7 @@ const app = express();
 const upload = multer({ storage: multer.memoryStorage() });
 
 app.use(express.json());
-
+app.use(express.static("public"));
 const ai = new GoogleGenAI({
   apiKey: process.env.GEMINI_API_KEY
 });
