@@ -224,6 +224,46 @@ const messages = document.getElementById("messages");
 const question = document.getElementById("question");
 const sendBtn = document.getElementById("sendBtn");
 
+function cleanMath(text){
+ if(typeof text !== "string") return "";
+
+ return text
+  // Remove LaTeX math delimiters
+  .replace(/\$\$([\s\S]*?)\$\$/g, "$1")
+  .replace(/\$([^$\n]+)\$/g, "$1")
+  .replace(/\\\[([\s\S]*?)\\\]/g, "$1")
+  .replace(/\\\(([\s\S]*?)\\\)/g, "$1")
+
+  // Convert chemical subscripts
+  .replace(/_\{(\d+)\}/g, "$1")
+  .replace(/_(\d+)/g, "$1")
+
+  // Convert common LaTeX commands
+  .replace(/\\text\s*\{([^{}]*)\}/g, "$1")
+  .replace(/\\mathrm\s*\{([^{}]*)\}/g, "$1")
+  .replace(/\\mathbf\s*\{([^{}]*)\}/g, "$1")
+  .replace(/\\xrightarrow\s*\{([^{}]*)\}/g, " → $1 → ")
+  .replace(/\\rightarrow|\\to/g, " → ")
+  .replace(/\\Rightarrow/g, " ⇒ ")
+  .replace(/\\times/g, " × ")
+  .replace(/\\div/g, " ÷ ")
+  .replace(/\\cdot/g, " · ")
+  .replace(/\\pm/g, " ± ")
+  .replace(/\\leq/g, " ≤ ")
+  .replace(/\\geq/g, " ≥ ")
+  .replace(/\\neq/g, " ≠ ")
+  .replace(/\\approx/g, " ≈ ")
+  .replace(/\\pi/g, "π")
+  .replace(/\\sqrt\s*\{([^{}]*)\}/g, "√($1)")
+
+  // Remove remaining formatting commands
+  .replace(/\\(left|right|displaystyle|textstyle|quad|qquad)/g, "")
+  .replace(/\\[a-zA-Z]+/g, "")
+  .replace(/[{}]/g, "")
+  .replace(/[ \t]{2,}/g, " ")
+  .trim();
+}
+
 document.getElementById("language").value =
  localStorage.getItem("zaqtivo_language") || "Auto";
 
