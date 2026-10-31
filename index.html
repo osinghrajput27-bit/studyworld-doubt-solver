@@ -4,6 +4,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#171923">
 <title>ZAQTIVO AI</title>
 
 <style>
@@ -15,12 +16,17 @@ body{
  background:#f5f6fa;
  color:#202123;
  height:100vh;
+ height:100dvh;
  display:flex;
  overflow:hidden
 }
 
+button,textarea,select{font:inherit}
+button{cursor:pointer}
+
 .sidebar{
  width:260px;
+ flex-shrink:0;
  background:#171923;
  color:white;
  padding:16px;
@@ -31,7 +37,8 @@ body{
 .logo{
  font-size:23px;
  font-weight:bold;
- margin:12px 0 25px
+ margin:12px 0 25px;
+ letter-spacing:.5px
 }
 
 .newchat{
@@ -40,10 +47,11 @@ body{
  color:white;
  border:1px solid #444;
  border-radius:10px;
- cursor:pointer;
  text-align:left;
  font-size:15px
 }
+
+.newchat:hover{background:#353a4c}
 
 .sidebar h4{
  color:#aab0c0;
@@ -64,13 +72,14 @@ body{
  color:#ddd;
  text-align:left;
  border-radius:8px;
- cursor:pointer;
  overflow:hidden;
  text-overflow:ellipsis;
- white-space:nowrap
+ white-space:nowrap;
+ margin-bottom:3px
 }
 
-.history button:hover{
+.history button:hover,
+.history button.active{
  background:#292d3b
 }
 
@@ -85,19 +94,20 @@ body{
  background:transparent;
  color:white;
  border:0;
- text-align:left;
- cursor:pointer
+ text-align:left
 }
 
 .main{
  flex:1;
  display:flex;
  flex-direction:column;
- min-width:0
+ min-width:0;
+ position:relative
 }
 
 .topbar{
  height:65px;
+ flex-shrink:0;
  background:white;
  border-bottom:1px solid #eee;
  display:flex;
@@ -120,9 +130,10 @@ body{
  padding:9px 12px;
  border:1px solid #ddd;
  background:white;
- border-radius:8px;
- cursor:pointer
+ border-radius:8px
 }
+
+.top-actions button:hover{background:#f1f2f6}
 
 .messages{
  flex:1;
@@ -130,17 +141,20 @@ body{
  padding:25px 15px;
  display:flex;
  flex-direction:column;
- gap:22px
+ gap:22px;
+ scroll-behavior:smooth
 }
 
 .welcome{
  text-align:center;
  margin:auto;
- max-width:550px
+ max-width:550px;
+ padding:20px
 }
 
 .welcome h1{
- font-size:32px
+ font-size:32px;
+ margin-bottom:12px
 }
 
 .welcome p{
@@ -154,8 +168,7 @@ body{
  margin:0 auto;
  display:flex;
  gap:12px;
- line-height:1.65;
- white-space:pre-wrap;
+ line-height:1.7;
  overflow-wrap:anywhere
 }
 
@@ -174,44 +187,109 @@ body{
 
 .message-content{
  flex:1;
- padding-top:5px;
- min-width:0
+ min-width:0;
+ padding-top:3px;
+ overflow-wrap:anywhere
+}
+
+.message-content p{margin:0 0 12px}
+
+.message-content h1,
+.message-content h2,
+.message-content h3{
+ line-height:1.35;
+ margin:18px 0 9px
+}
+
+.message-content h1{font-size:23px}
+.message-content h2{font-size:20px}
+.message-content h3{font-size:17px}
+
+.message-content ul,
+.message-content ol{
+ padding-left:25px;
+ margin:8px 0 15px
+}
+
+.message-content li{margin:5px 0}
+
+.message-content blockquote{
+ border-left:3px solid #9ba3b5;
+ padding:5px 13px;
+ margin:12px 0;
+ color:#596174
+}
+
+.message-content hr{
+ border:0;
+ border-top:1px solid #ddd;
+ margin:15px 0
 }
 
 .message-content pre{
- white-space:pre-wrap;
- overflow-wrap:anywhere;
+ position:relative;
+ white-space:pre;
+ overflow-x:auto;
  background:#171923;
  color:#f5f5f5;
- padding:14px;
+ padding:16px;
  border-radius:10px;
- overflow-x:auto
+ margin:12px 0;
+ font-size:13px;
+ line-height:1.6
+}
+
+.message-content pre code{
+ color:inherit;
+ background:transparent;
+ padding:0;
+ white-space:pre
 }
 
 .message-content code{
- font-family:monospace;
+ font-family:Consolas,monospace;
+ background:#e9eaf0;
+ padding:2px 5px;
+ border-radius:4px;
+ font-size:.92em
+}
+
+.code-copy{
+ position:absolute;
+ top:7px;
+ right:7px;
+ padding:6px 9px;
+ background:#383d4c;
+ color:white;
+ border:0;
+ border-radius:6px;
+ font-size:11px
 }
 
 .message img{
- max-width:220px;
+ max-width:min(260px,100%);
  border-radius:12px;
  margin-top:8px
 }
 
 .message-actions{
- margin-top:8px
+ margin-top:9px
 }
 
 .message-actions button{
  border:0;
  background:transparent;
  color:#697386;
- cursor:pointer;
- padding:5px
+ padding:6px 0;
+ margin-right:12px;
+ font-size:12px
 }
 
+.message-actions button:hover{color:#3949ab}
+
 .composer-area{
- padding:12px 15px 18px;
+ flex-shrink:0;
+ padding:12px 15px 15px;
  background:#f5f6fa
 }
 
@@ -248,21 +326,22 @@ textarea{
 .composer-bottom button{
  border:0;
  border-radius:9px;
- padding:10px 13px;
- cursor:pointer
+ padding:10px 13px
 }
 
-.attach{
- background:#eee
-}
+.attach{background:#eee;color:#222}
+.attach:hover{background:#e2e2e2}
 
 .send{
  background:#252b45;
  color:white
 }
 
+.send:hover{background:#39415f}
+
 .send:disabled{
- opacity:.5
+ opacity:.5;
+ cursor:not-allowed
 }
 
 .hint{
@@ -280,8 +359,9 @@ textarea{
 
 #typing{
  color:#777;
- font-size:14px;
- text-align:center
+ font-size:13px;
+ text-align:center;
+ padding:4px
 }
 
 #settingsPanel{
@@ -303,10 +383,21 @@ textarea{
  padding:10px;
  margin-top:10px;
  border:1px solid #ddd;
- border-radius:8px
+ border-radius:8px;
+ background:white
+}
+
+#settingsPanel button{
+ margin-top:10px;
+ padding:8px 15px;
+ border:0;
+ border-radius:7px;
+ background:#252b45;
+ color:white
 }
 
 @media(max-width:650px){
+
  .sidebar{
   width:65px;
   padding:8px
@@ -345,17 +436,31 @@ textarea{
   font-size:18px
  }
 
- .welcome h1{
-  font-size:26px
+ .welcome h1{font-size:26px}
+
+ .messages{padding:18px 10px}
+
+ .topbar{padding:0 12px}
+
+ .brand{font-size:16px}
+
+ .top-actions button{
+  padding:8px;
+  font-size:12px
  }
 
- .messages{
-  padding:18px 10px
+ .message{gap:8px}
+
+ .avatar{
+  width:30px;
+  height:30px
  }
 
- .topbar{
-  padding:0 12px
+ .composer-area{
+  padding:8px 9px 10px
  }
+
+ .hint{font-size:11px}
 }
 </style>
 </head>
@@ -385,14 +490,12 @@ textarea{
 <main class="main">
 
  <header class="topbar">
-
   <div class="brand">ZAQTIVO AI</div>
 
   <div class="top-actions">
    <button onclick="newChat()">＋ New</button>
    <button onclick="toggleSettings()">🌐 Language</button>
   </div>
-
  </header>
 
  <div id="settingsPanel">
@@ -442,11 +545,9 @@ textarea{
   </p>
 
   <button onclick="toggleSettings()">Done</button>
-
  </div>
 
  <section class="messages" id="messages">
-
   <div class="welcome" id="welcome">
    <h1>What can I help with?</h1>
    <p>
@@ -454,7 +555,6 @@ textarea{
     ZAQTIVO AI is ready to help you.
    </p>
   </div>
-
  </section>
 
  <div id="typing"></div>
@@ -484,7 +584,7 @@ textarea{
      <input
       type="file"
       id="image"
-      accept="image/*"
+      accept="image/jpeg,image/png,image/webp"
       hidden
       onchange="showFile()"
      >
@@ -499,22 +599,30 @@ textarea{
     </button>
 
    </div>
-
   </div>
 
   <div class="hint">
-   ZAQTIVO AI can make mistakes.
-   Check important information.
+   ZAQTIVO AI can make mistakes. Check important information.
   </div>
 
  </section>
-
 </main>
 
 <script>
-let chats = JSON.parse(
- localStorage.getItem("zaqtivo_chats") || "[]"
-);
+
+/* APP STATE */
+
+let chats = [];
+
+try{
+ chats = JSON.parse(
+  localStorage.getItem("zaqtivo_chats") || "[]"
+ );
+
+ if(!Array.isArray(chats)) chats = [];
+}catch(error){
+ chats = [];
+}
 
 let currentChat = [];
 let selectedImage = null;
@@ -526,10 +634,22 @@ const question = document.getElementById("question");
 const sendBtn = document.getElementById("sendBtn");
 
 
-/* LATEX CLEANER
-   IMPORTANT: CODE BLOCKS ARE PRESERVED
-   CSS/HTML/JS BRACES WILL NOT BE REMOVED
-*/
+/* SAFE TEXT ESCAPING */
+
+function escapeHTML(text){
+
+ return String(text).replace(/[&<>"']/g,char=>({
+  "&":"&amp;",
+  "<":"&lt;",
+  ">":"&gt;",
+  '"':"&quot;",
+  "'":"&#39;"
+ }[char]));
+
+}
+
+
+/* LATEX CLEANER */
 
 function cleanMath(text){
 
@@ -541,10 +661,7 @@ function cleanMath(text){
 
  return parts.map((part,index)=>{
 
-  // Preserve code blocks and inline code exactly
-  if(index % 2 === 1){
-   return part;
-  }
+  if(index % 2 === 1) return part;
 
   const sub = "₀₁₂₃₄₅₆₇₈₉";
   const sup = "⁰¹²³⁴⁵⁶⁷⁸⁹";
@@ -557,20 +674,17 @@ function cleanMath(text){
 
   return part
 
-   // Remove LaTeX math wrappers
    .replace(/\$\$([\s\S]*?)\$\$/g,"$1")
    .replace(/\\\[([\s\S]*?)\\\]/g,"$1")
    .replace(/\\\(([\s\S]*?)\\\)/g,"$1")
    .replace(/\$([^$\n]+)\$/g,"$1")
 
-   // Convert common LaTeX commands
    .replace(/\\text\s*\{([^{}]*)\}/g,"$1")
    .replace(/\\mathrm\s*\{([^{}]*)\}/g,"$1")
    .replace(/\\mathbf\s*\{([^{}]*)\}/g,"$1")
    .replace(/\\mathit\s*\{([^{}]*)\}/g,"$1")
    .replace(/\\operatorname\s*\{([^{}]*)\}/g,"$1")
 
-   // Convert arrows and symbols
    .replace(/\\xrightarrow\s*\{([^{}]*)\}/g," --$1--> ")
    .replace(/\\longrightarrow|\\rightarrow|\\to/g," → ")
    .replace(/\\Rightarrow/g," ⇒ ")
@@ -588,17 +702,13 @@ function cleanMath(text){
    .replace(/\\degree/g,"°")
    .replace(/\\sqrt\s*\{([^{}]*)\}/g,"√($1)")
 
-   // Convert subscripts and superscripts
    .replace(/_\{(\d+)\}/g,(_,n)=>toSub(n))
    .replace(/_(\d+)/g,(_,n)=>toSub(n))
    .replace(/\^\{(\d+)\}/g,(_,n)=>toSup(n))
    .replace(/\^(\d+)/g,(_,n)=>toSup(n))
 
-   // Remove common layout commands
    .replace(/\\(left|right|displaystyle|textstyle|quad|qquad)/g,"")
    .replace(/\\[a-zA-Z]+/g,"")
-
-   // IMPORTANT: Do not remove curly braces
    .replace(/[ \t]{2,}/g," ")
    .replace(/ *\n */g,"\n")
    .trim();
@@ -607,26 +717,184 @@ function cleanMath(text){
 }
 
 
+/* MARKDOWN RENDERER */
+
+function renderMarkdown(text){
+
+ const codeBlocks = [];
+
+ // Extract fenced code blocks before processing normal text
+ let safe = String(text).replace(
+  /```([a-zA-Z0-9_+-]*)[ \t]*\n?([\s\S]*?)```/g,
+  (match,language,code)=>{
+
+   const id = codeBlocks.length;
+
+   codeBlocks.push(
+    `<pre><code>${escapeHTML(code.replace(/^\n|\n$/g,""))}</code></pre>`
+   );
+
+   return `%%CODEBLOCK${id}%%`;
+  }
+ );
+
+ // Escape all normal text
+ safe = escapeHTML(safe);
+
+ // Inline formatting
+ safe = safe
+  .replace(/`([^`\n]+)`/g,"<code>$1</code>")
+  .replace(/\*\*(.*?)\*\*/g,"<strong>$1</strong>")
+  .replace(/__(.*?)__/g,"<strong>$1</strong>")
+  .replace(/\*(.*?)\*/g,"<em>$1</em>");
+
+ const lines = safe.split("\n");
+
+ let output = [];
+ let paragraph = [];
+ let listType = null;
+
+ function flushParagraph(){
+
+  if(paragraph.length){
+   output.push(
+    `<p>${paragraph.join("<br>")}</p>`
+   );
+   paragraph = [];
+  }
+
+ }
+
+ function closeList(){
+
+  if(listType){
+   output.push(
+    listType === "ul" ? "</ul>" : "</ol>"
+   );
+   listType = null;
+  }
+
+ }
+
+ for(const line of lines){
+
+  const trimmed = line.trim();
+
+  if(!trimmed){
+   flushParagraph();
+   closeList();
+   continue;
+  }
+
+  // Code block placeholder
+  if(/^%%CODEBLOCK\d+%%$/.test(trimmed)){
+   flushParagraph();
+   closeList();
+   output.push(trimmed);
+   continue;
+  }
+
+  // Headings
+  const heading = trimmed.match(/^(#{1,3})\s+(.+)$/);
+
+  if(heading){
+   flushParagraph();
+   closeList();
+
+   const level = heading[1].length;
+   output.push(`<h${level}>${heading[2]}</h${level}>`);
+   continue;
+  }
+
+  // Horizontal line
+  if(/^([-*_])\1\1+$/.test(trimmed)){
+   flushParagraph();
+   closeList();
+   output.push("<hr>");
+   continue;
+  }
+
+  // Blockquote
+  if(trimmed.startsWith("&gt; ")){
+   flushParagraph();
+   closeList();
+   output.push(`<blockquote>${trimmed.slice(5)}</blockquote>`);
+   continue;
+  }
+
+  // Unordered list
+  const unordered = trimmed.match(/^[-*+]\s+(.+)$/);
+
+  if(unordered){
+   flushParagraph();
+
+   if(listType !== "ul"){
+    closeList();
+    output.push("<ul>");
+    listType = "ul";
+   }
+
+   output.push(`<li>${unordered[1]}</li>`);
+   continue;
+  }
+
+  // Ordered list
+  const ordered = trimmed.match(/^\d+[.)]\s+(.+)$/);
+
+  if(ordered){
+   flushParagraph();
+
+   if(listType !== "ol"){
+    closeList();
+    output.push("<ol>");
+    listType = "ol";
+   }
+
+   output.push(`<li>${ordered[1]}</li>`);
+   continue;
+  }
+
+  closeList();
+  paragraph.push(trimmed);
+ }
+
+ flushParagraph();
+ closeList();
+
+ let result = output.join("");
+
+ // Restore safe code blocks
+ result = result.replace(
+  /%%CODEBLOCK(\d+)%%/g,
+  (match,id)=>codeBlocks[Number(id)] || ""
+ );
+
+ return result;
+}
+
+
 /* LANGUAGE SETTINGS */
 
-document.getElementById("language").value =
+const languageSelect = document.getElementById("language");
+
+languageSelect.value =
  localStorage.getItem("zaqtivo_language") || "Auto";
 
 function saveLanguage(){
 
  localStorage.setItem(
   "zaqtivo_language",
-  document.getElementById("language").value
+  languageSelect.value
  );
 
 }
 
 function toggleSettings(){
 
- const p = document.getElementById("settingsPanel");
+ const panel = document.getElementById("settingsPanel");
 
- p.style.display =
-  p.style.display === "block" ? "none" : "block";
+ panel.style.display =
+  panel.style.display === "block" ? "none" : "block";
 
 }
 
@@ -635,8 +903,21 @@ function toggleSettings(){
 
 function showFile(){
 
- selectedImage =
-  document.getElementById("image").files[0] || null;
+ const file = document.getElementById("image").files[0] || null;
+
+ selectedImage = file;
+
+ if(file && !["image/jpeg","image/png","image/webp"].includes(file.type)){
+  alert("Please upload JPG, PNG or WEBP image.");
+  selectedImage = null;
+  document.getElementById("image").value = "";
+ }
+
+ if(file && file.size > 10 * 1024 * 1024){
+  alert("Image size must be below 10 MB.");
+  selectedImage = null;
+  document.getElementById("image").value = "";
+ }
 
  document.getElementById("fileName").textContent =
   selectedImage ? "📎 " + selectedImage.name : "";
@@ -644,17 +925,21 @@ function showFile(){
 }
 
 
-/* CHAT DISPLAY */
+/* WELCOME SCREEN */
 
 function renderWelcome(){
 
  messages.innerHTML = `
- <div class="welcome" id="welcome">
-  <h1>What can I help with?</h1>
-  <p>Ask anything. Learn anything. ZAQTIVO AI is ready to help you.</p>
- </div>`;
+  <div class="welcome" id="welcome">
+   <h1>What can I help with?</h1>
+   <p>Ask anything. Learn anything. ZAQTIVO AI is ready to help you.</p>
+  </div>
+ `;
 
 }
+
+
+/* MESSAGE DISPLAY */
 
 function addMessage(role,text,imageUrl){
 
@@ -668,15 +953,27 @@ function addMessage(role,text,imageUrl){
  const content = document.createElement("div");
  content.className = "message-content";
 
- // Clean normal text but preserve code blocks
  const cleanText = cleanMath(text);
 
- content.textContent = cleanText;
+ if(role === "ai"){
+  content.innerHTML = renderMarkdown(cleanText);
+ }else{
+  content.textContent = cleanText;
+ }
 
  if(imageUrl){
 
   const img = document.createElement("img");
   img.src = imageUrl;
+  img.alt = "Uploaded image";
+
+  img.onload = ()=>{
+   URL.revokeObjectURL(imageUrl);
+  };
+
+  img.onerror = ()=>{
+   URL.revokeObjectURL(imageUrl);
+  };
 
   content.appendChild(document.createElement("br"));
   content.appendChild(img);
@@ -689,14 +986,14 @@ function addMessage(role,text,imageUrl){
   actions.className = "message-actions";
 
   const copy = document.createElement("button");
-  copy.textContent = "Copy answer";
+  copy.textContent = "📋 Copy answer";
 
   copy.onclick = async ()=>{
 
    try{
     await navigator.clipboard.writeText(cleanText);
     copy.textContent = "Copied!";
-    setTimeout(()=>copy.textContent="Copy answer",1500);
+    setTimeout(()=>copy.textContent="📋 Copy answer",1500);
    }catch(error){
     alert("Copy failed. Please select and copy the answer.");
    }
@@ -706,11 +1003,37 @@ function addMessage(role,text,imageUrl){
   actions.appendChild(copy);
   content.appendChild(actions);
 
+  // Add copy buttons to code blocks
+  content.querySelectorAll("pre").forEach(pre=>{
+
+   const code = pre.querySelector("code");
+   if(!code) return;
+
+   const button = document.createElement("button");
+   button.className = "code-copy";
+   button.textContent = "Copy code";
+
+   button.onclick = async ()=>{
+
+    try{
+     await navigator.clipboard.writeText(code.textContent);
+     button.textContent = "Copied!";
+     setTimeout(()=>button.textContent="Copy code",1500);
+    }catch(error){
+     alert("Unable to copy code.");
+    }
+
+   };
+
+   pre.appendChild(button);
+
+  });
+
  }
 
  wrap.append(avatar,content);
-
  messages.appendChild(wrap);
+
  messages.scrollTop = messages.scrollHeight;
 
 }
@@ -722,16 +1045,10 @@ function saveChat(){
 
  if(!currentChat.length) return;
 
- // Code blocks remain unchanged during saving
- currentChat = currentChat.map(m=>({
-  ...m,
-  text:cleanMath(m.text)
- }));
-
  const first = currentChat.find(m=>m.role==="user");
 
  const title = first
-  ? first.text.slice(0,45)
+  ? first.text.slice(0,45) || "Image question"
   : "New Chat";
 
  const oldIndex = chats.findIndex(
@@ -749,6 +1066,9 @@ function saveChat(){
  }else{
   chats.unshift(item);
  }
+
+ // Keep the latest 50 chats
+ chats = chats.slice(0,50);
 
  try{
 
@@ -779,13 +1099,17 @@ function renderHistory(){
 
  chats.forEach(chat=>{
 
-  const b = document.createElement("button");
+  const button = document.createElement("button");
 
-  b.textContent = chat.title;
+  button.textContent = chat.title || "New Chat";
 
-  b.onclick = ()=>openChat(chat.id);
+  if(chat.id === activeChatId){
+   button.classList.add("active");
+  }
 
-  box.appendChild(b);
+  button.onclick = ()=>openChat(chat.id);
+
+  box.appendChild(button);
 
  });
 
@@ -808,15 +1132,11 @@ function openChat(id){
 
  renderWelcome();
 
- currentChat.forEach(m=>{
-
-  addMessage(
-   m.role,
-   m.text,
-   null
-  );
-
+ currentChat.forEach(message=>{
+  addMessage(message.role,message.text,null);
  });
+
+ renderHistory();
 
 }
 
@@ -832,12 +1152,12 @@ function newChat(){
  selectedImage = null;
 
  document.getElementById("image").value = "";
-
  document.getElementById("fileName").textContent = "";
 
  question.value = "";
 
  renderWelcome();
+ renderHistory();
 
 }
 
@@ -851,10 +1171,8 @@ async function sendMessage(){
  const text = question.value.trim();
 
  if(!text && !selectedImage){
-
   alert("Please write a question or select a photo.");
   return;
-
  }
 
  const image = selectedImage;
@@ -865,24 +1183,22 @@ async function sendMessage(){
 
  currentChat.push({
   role:"user",
-  text,
+  text:text || "Please inspect the uploaded image.",
   imageData:null
  });
 
  addMessage(
   "user",
-  text || "Please solve this image question.",
+  text || "Please inspect the uploaded image.",
   imageUrl
  );
 
  saveChat();
 
  question.value = "";
-
  selectedImage = null;
 
  document.getElementById("image").value = "";
-
  document.getElementById("fileName").textContent = "";
 
  busy = true;
@@ -893,35 +1209,32 @@ async function sendMessage(){
  document.getElementById("typing").textContent =
   "ZAQTIVO AI is thinking...";
 
-
  try{
 
-  const language =
-   document.getElementById("language").value;
+  const language = languageSelect.value;
 
   // Keep recent conversation context
-  const history = currentChat.slice(-12).map(m=>
-   (m.role==="user" ? "User: " : "Assistant: ") +
-   cleanMath(m.text)
+  const history = currentChat.slice(-12).map(message=>
+   (message.role==="user" ? "User: " : "Assistant: ") +
+   cleanMath(message.text)
   ).join("\n\n");
 
   const formattingRules = `
-IMPORTANT ANSWER FORMATTING:
+ANSWER FORMATTING:
 
-1. Answer the latest user question first.
-2. Never use LaTeX formatting.
-3. Never use $$, $, \\text{}, \\mathrm{}, \\frac{}, or other LaTeX commands.
-4. Write formulas in normal readable text.
-5. Use Unicode subscripts and superscripts where possible.
-6. Write chemical formulas like H₂O, CO₂, O₂ and C₆H₁₂O₆.
-7. Write equations using normal arrows like →.
-8. Do not put mathematical expressions inside dollar signs.
-9. Keep the answer clean and easy to read.
-10. Preserve all programming syntax.
-11. CSS selectors must have correct opening and closing braces.
-12. HTML, CSS, JavaScript and JSON code must be complete and valid.
-13. If the user requests only code, return only the code.
-14. Do not remove required symbols, brackets or braces.
+- Answer the latest question first.
+- Use natural paragraphs, headings, bullets or numbered steps when useful.
+- Use Markdown for bold text, headings, lists and code blocks.
+- Do not use LaTeX.
+- Write formulas in readable normal text.
+- Use Unicode subscripts and superscripts where possible.
+- Write chemical formulas like H₂O, CO₂, O₂ and C₆H₁₂O₆.
+- Use normal arrows such as →.
+- Preserve programming syntax exactly.
+- Put programming code inside fenced code blocks.
+- If the user requests only code, return only code.
+- Do not remove required symbols, brackets or braces.
+- Keep simple answers concise and explain complex answers clearly.
 `;
 
   const prompt =
@@ -929,14 +1242,15 @@ IMPORTANT ANSWER FORMATTING:
     ? ""
     : "Please answer in " + language + ". ") +
 
-   "Continue this conversation naturally. " +
+   "You are ZAQTIVO AI. Continue this conversation naturally. " +
    "Use previous messages only when relevant. " +
-   "Prioritize the latest user question.\n" +
+   "Prioritize the latest user question.\n\n" +
 
-   formattingRules + "\n" +
+   formattingRules + "\n\n" +
 
-   history + "\n\nAssistant:";
-
+   "CONVERSATION HISTORY:\n" +
+   history +
+   "\n\nAnswer the latest user message.";
 
   const form = new FormData();
 
@@ -946,14 +1260,12 @@ IMPORTANT ANSWER FORMATTING:
    form.append("image",image);
   }
 
-
   const controller = new AbortController();
 
   const timeout = setTimeout(
    ()=>controller.abort(),
    90000
   );
-
 
   let response;
 
@@ -971,28 +1283,15 @@ IMPORTANT ANSWER FORMATTING:
 
   }
 
-
   const data = await response.json();
 
   if(!response.ok){
-
-   throw new Error(
-    data.error || "Request failed"
-   );
-
+   throw new Error(data.error || "Request failed");
   }
 
-
-  // Preserve raw code formatting
   const answer = cleanMath(
    data.answer || "No answer received."
   );
-
-  console.log(
-   "RAW AI RESPONSE:",
-   JSON.stringify(data.answer)
-  );
-
 
   currentChat.push({
    role:"ai",
@@ -1003,16 +1302,15 @@ IMPORTANT ANSWER FORMATTING:
 
   saveChat();
 
-
  }catch(error){
 
   console.error("AI request error:",error);
 
-  const msg = error.name === "AbortError"
+  const message = error.name === "AbortError"
    ? "The response is taking too long. Please try again."
    : error.message;
 
-  const errorText = "Error: " + msg;
+  const errorText = "Error: " + message;
 
   currentChat.push({
    role:"ai",
@@ -1023,12 +1321,7 @@ IMPORTANT ANSWER FORMATTING:
 
   saveChat();
 
-
  }finally{
-
-  if(imageUrl){
-   URL.revokeObjectURL(imageUrl);
-  }
 
   busy = false;
 
@@ -1044,12 +1337,11 @@ IMPORTANT ANSWER FORMATTING:
 
 /* ENTER TO SEND */
 
-question.addEventListener("keydown",e=>{
+question.addEventListener("keydown",event=>{
 
- if(e.key === "Enter" && !e.shiftKey){
+ if(event.key === "Enter" && !event.shiftKey){
 
-  e.preventDefault();
-
+  event.preventDefault();
   sendMessage();
 
  }
