@@ -11,455 +11,240 @@
 *{box-sizing:border-box}
 
 body{
- margin:0;
- font-family:Arial,sans-serif;
- background:#f5f6fa;
- color:#202123;
- height:100vh;
- height:100dvh;
- display:flex;
- overflow:hidden
+ margin:0;font-family:Arial,sans-serif;background:#f5f6fa;
+ color:#202123;height:100vh;height:100dvh;
+ display:flex;overflow:hidden
 }
 
 button,textarea,select{font:inherit}
 button{cursor:pointer}
 
 .sidebar{
- width:260px;
- flex-shrink:0;
- background:#171923;
- color:white;
- padding:16px;
- display:flex;
- flex-direction:column;
+ width:260px;flex-shrink:0;background:#171923;color:white;
+ padding:16px;display:flex;flex-direction:column
 }
 
 .logo{
- font-size:23px;
- font-weight:bold;
- margin:12px 0 25px;
+ font-size:23px;font-weight:bold;margin:12px 0 25px;
  letter-spacing:.5px
 }
 
 .newchat{
- padding:13px;
- background:#292d3b;
- color:white;
- border:1px solid #444;
- border-radius:10px;
- text-align:left;
- font-size:15px
+ padding:13px;background:#292d3b;color:white;
+ border:1px solid #444;border-radius:10px;
+ text-align:left;font-size:15px
 }
-
 .newchat:hover{background:#353a4c}
 
-.sidebar h4{
- color:#aab0c0;
- margin-top:25px
-}
-
-.history{
- overflow:auto;
- flex:1
-}
+.sidebar h4{color:#aab0c0;margin-top:25px}
+.history{overflow:auto;flex:1}
 
 .history button{
- display:block;
- width:100%;
- padding:11px;
- border:0;
- background:transparent;
- color:#ddd;
- text-align:left;
- border-radius:8px;
- overflow:hidden;
- text-overflow:ellipsis;
- white-space:nowrap;
- margin-bottom:3px
+ display:block;width:100%;padding:11px;border:0;
+ background:transparent;color:#ddd;text-align:left;
+ border-radius:8px;overflow:hidden;text-overflow:ellipsis;
+ white-space:nowrap;margin-bottom:3px
 }
+.history button:hover,.history button.active{background:#292d3b}
 
-.history button:hover,
-.history button.active{
- background:#292d3b
-}
-
-.sidebar-bottom{
- border-top:1px solid #444;
- padding-top:12px
-}
-
+.sidebar-bottom{border-top:1px solid #444;padding-top:12px}
 .sidebar-bottom button{
- width:100%;
- padding:10px;
- background:transparent;
- color:white;
- border:0;
- text-align:left
+ width:100%;padding:10px;background:transparent;
+ color:white;border:0;text-align:left
 }
 
 .main{
- flex:1;
- display:flex;
- flex-direction:column;
- min-width:0;
- position:relative
+ flex:1;display:flex;flex-direction:column;
+ min-width:0;position:relative
 }
 
 .topbar{
- height:65px;
- flex-shrink:0;
- background:white;
- border-bottom:1px solid #eee;
- display:flex;
- align-items:center;
- justify-content:space-between;
+ height:65px;flex-shrink:0;background:white;
+ border-bottom:1px solid #eee;display:flex;
+ align-items:center;justify-content:space-between;
  padding:0 20px
 }
 
-.brand{
- font-weight:bold;
- font-size:19px
-}
-
-.top-actions{
- display:flex;
- gap:8px
-}
-
+.brand{font-weight:bold;font-size:19px}
+.top-actions{display:flex;gap:8px}
 .top-actions button{
- padding:9px 12px;
- border:1px solid #ddd;
- background:white;
- border-radius:8px
+ padding:9px 12px;border:1px solid #ddd;
+ background:white;border-radius:8px
 }
-
 .top-actions button:hover{background:#f1f2f6}
 
 .messages{
- flex:1;
- overflow-y:auto;
- padding:25px 15px;
- display:flex;
- flex-direction:column;
- gap:22px;
+ flex:1;overflow-y:auto;padding:25px 15px;
+ display:flex;flex-direction:column;gap:22px;
  scroll-behavior:smooth
 }
 
 .welcome{
- text-align:center;
- margin:auto;
- max-width:550px;
- padding:20px
+ text-align:center;margin:auto;max-width:550px;padding:20px
 }
-
-.welcome h1{
- font-size:32px;
- margin-bottom:12px
-}
-
-.welcome p{
- color:#707789;
- line-height:1.6
-}
+.welcome h1{font-size:32px;margin-bottom:12px}
+.welcome p{color:#707789;line-height:1.6}
 
 .message{
- max-width:850px;
- width:100%;
- margin:0 auto;
- display:flex;
- gap:12px;
- line-height:1.7;
+ max-width:850px;width:100%;margin:0 auto;
+ display:flex;gap:12px;line-height:1.7;
  overflow-wrap:anywhere
 }
 
 .avatar{
- width:34px;
- height:34px;
- flex-shrink:0;
- border-radius:50%;
- background:#e4e8ff;
- display:flex;
- align-items:center;
- justify-content:center;
- font-weight:bold;
- color:#3949ab
+ width:34px;height:34px;flex-shrink:0;border-radius:50%;
+ background:#e4e8ff;display:flex;align-items:center;
+ justify-content:center;font-weight:bold;color:#3949ab
 }
 
 .message-content{
- flex:1;
- min-width:0;
- padding-top:3px;
- overflow-wrap:anywhere
+ flex:1;min-width:0;padding-top:3px;overflow-wrap:anywhere
 }
 
 .message-content p{margin:0 0 12px}
+.message-content strong{font-weight:700;color:#171923}
+.message-content em{font-style:italic}
 
 .message-content h1,
 .message-content h2,
 .message-content h3{
- line-height:1.35;
- margin:18px 0 9px
+ line-height:1.35;margin:18px 0 9px
 }
-
 .message-content h1{font-size:23px}
 .message-content h2{font-size:20px}
 .message-content h3{font-size:17px}
 
 .message-content ul,
 .message-content ol{
- padding-left:25px;
- margin:8px 0 15px
+ padding-left:25px;margin:8px 0 15px
 }
-
 .message-content li{margin:5px 0}
 
 .message-content blockquote{
- border-left:3px solid #9ba3b5;
- padding:5px 13px;
- margin:12px 0;
- color:#596174
+ border-left:3px solid #9ba3b5;padding:5px 13px;
+ margin:12px 0;color:#596174
 }
 
 .message-content hr{
- border:0;
- border-top:1px solid #ddd;
- margin:15px 0
+ border:0;border-top:1px solid #ddd;margin:15px 0
 }
 
 .message-content pre{
- position:relative;
- white-space:pre;
- overflow-x:auto;
- background:#171923;
- color:#f5f5f5;
- padding:16px;
- border-radius:10px;
- margin:12px 0;
- font-size:13px;
- line-height:1.6
+ position:relative;white-space:pre;overflow-x:auto;
+ background:#171923;color:#f5f5f5;
+ padding:42px 16px 16px;border-radius:10px;
+ margin:12px 0;font-size:13px;line-height:1.6
+}
+
+.code-language{
+ position:absolute;top:10px;left:14px;
+ color:#aeb5c5;font-size:11px;
+ text-transform:uppercase;letter-spacing:.5px
 }
 
 .message-content pre code{
- color:inherit;
- background:transparent;
- padding:0;
- white-space:pre
+ color:inherit;background:transparent;
+ padding:0;white-space:pre;border-radius:0
 }
 
 .message-content code{
  font-family:Consolas,monospace;
- background:#e9eaf0;
- padding:2px 5px;
- border-radius:4px;
- font-size:.92em
+ background:#e9eaf0;padding:2px 5px;
+ border-radius:4px;font-size:.92em
 }
 
 .code-copy{
- position:absolute;
- top:7px;
- right:7px;
- padding:6px 9px;
- background:#383d4c;
- color:white;
- border:0;
- border-radius:6px;
- font-size:11px
+ position:absolute;top:7px;right:7px;
+ padding:6px 9px;background:#383d4c;color:white;
+ border:0;border-radius:6px;font-size:11px
 }
+.code-copy:hover{background:#50576b}
 
 .message img{
  max-width:min(260px,100%);
- border-radius:12px;
- margin-top:8px
+ border-radius:12px;margin-top:8px
 }
 
-.message-actions{
- margin-top:9px
-}
-
+.message-actions{margin-top:9px}
 .message-actions button{
- border:0;
- background:transparent;
- color:#697386;
- padding:6px 0;
- margin-right:12px;
- font-size:12px
+ border:0;background:transparent;color:#697386;
+ padding:6px 0;margin-right:12px;font-size:12px
 }
-
 .message-actions button:hover{color:#3949ab}
 
 .composer-area{
- flex-shrink:0;
- padding:12px 15px 15px;
- background:#f5f6fa
+ flex-shrink:0;padding:12px 15px 15px;background:#f5f6fa
 }
 
 .composer{
- max-width:850px;
- margin:auto;
- background:white;
- border:1px solid #ddd;
- border-radius:16px;
- padding:10px;
- box-shadow:0 3px 12px #0000000a
+ max-width:850px;margin:auto;background:white;
+ border:1px solid #ddd;border-radius:16px;
+ padding:10px;box-shadow:0 3px 12px #0000000a
 }
 
 textarea{
- width:100%;
- border:0;
- outline:none;
- resize:none;
- min-height:55px;
- max-height:160px;
- font-size:16px;
- padding:10px;
- background:transparent;
- font-family:inherit
+ width:100%;border:0;outline:none;resize:none;
+ min-height:55px;max-height:160px;font-size:16px;
+ padding:10px;background:transparent;font-family:inherit
 }
 
 .composer-bottom{
- display:flex;
- justify-content:space-between;
- align-items:center;
- gap:8px
+ display:flex;justify-content:space-between;
+ align-items:center;gap:8px
 }
 
 .composer-bottom button{
- border:0;
- border-radius:9px;
- padding:10px 13px
+ border:0;border-radius:9px;padding:10px 13px
 }
 
 .attach{background:#eee;color:#222}
 .attach:hover{background:#e2e2e2}
-
-.send{
- background:#252b45;
- color:white
-}
-
+.send{background:#252b45;color:white}
 .send:hover{background:#39415f}
-
-.send:disabled{
- opacity:.5;
- cursor:not-allowed
-}
+.send:disabled{opacity:.5;cursor:not-allowed}
 
 .hint{
- text-align:center;
- color:#9298a5;
- font-size:12px;
- margin:10px
+ text-align:center;color:#9298a5;font-size:12px;margin:10px
 }
 
-#fileName{
- font-size:12px;
- color:#555;
- padding:5px
-}
-
-#typing{
- color:#777;
- font-size:13px;
- text-align:center;
- padding:4px
-}
+#fileName{font-size:12px;color:#555;padding:5px}
+#typing{color:#777;font-size:13px;text-align:center;padding:4px}
 
 #settingsPanel{
- display:none;
- position:absolute;
- right:15px;
- top:60px;
- background:white;
- border:1px solid #ddd;
- border-radius:12px;
- padding:16px;
- width:260px;
- box-shadow:0 5px 20px #0002;
- z-index:5
+ display:none;position:absolute;right:15px;top:60px;
+ background:white;border:1px solid #ddd;border-radius:12px;
+ padding:16px;width:260px;box-shadow:0 5px 20px #0002;z-index:5
 }
 
 #settingsPanel select{
- width:100%;
- padding:10px;
- margin-top:10px;
- border:1px solid #ddd;
- border-radius:8px;
- background:white
+ width:100%;padding:10px;margin-top:10px;
+ border:1px solid #ddd;border-radius:8px;background:white
 }
 
 #settingsPanel button{
- margin-top:10px;
- padding:8px 15px;
- border:0;
- border-radius:7px;
- background:#252b45;
- color:white
+ margin-top:10px;padding:8px 15px;border:0;
+ border-radius:7px;background:#252b45;color:white
 }
 
 @media(max-width:650px){
-
- .sidebar{
-  width:65px;
-  padding:8px
- }
-
+ .sidebar{width:65px;padding:8px}
  .logo{
-  font-size:12px;
-  writing-mode:vertical-rl;
+  font-size:12px;writing-mode:vertical-rl;
   margin:10px auto
  }
-
- .newchat{
-  font-size:0;
-  text-align:center;
-  padding:12px 4px
- }
-
- .newchat:after{
-  content:"+";
-  font-size:20px
- }
-
- .sidebar h4,
- .sidebar-bottom span,
- .history{
-  display:none
- }
-
- .sidebar-bottom button{
-  text-align:center;
-  font-size:0
- }
-
- .sidebar-bottom button:after{
-  content:"⚙";
-  font-size:18px
- }
-
+ .newchat{font-size:0;text-align:center;padding:12px 4px}
+ .newchat:after{content:"+";font-size:20px}
+ .sidebar h4,.sidebar-bottom span,.history{display:none}
+ .sidebar-bottom button{text-align:center;font-size:0}
+ .sidebar-bottom button:after{content:"⚙";font-size:18px}
  .welcome h1{font-size:26px}
-
  .messages{padding:18px 10px}
-
  .topbar{padding:0 12px}
-
  .brand{font-size:16px}
-
- .top-actions button{
-  padding:8px;
-  font-size:12px
- }
-
+ .top-actions button{padding:8px;font-size:12px}
  .message{gap:8px}
-
- .avatar{
-  width:30px;
-  height:30px
- }
-
- .composer-area{
-  padding:8px 9px 10px
- }
-
+ .avatar{width:30px;height:30px}
+ .composer-area{padding:8px 9px 10px}
  .hint{font-size:11px}
 }
 </style>
@@ -468,30 +253,22 @@ textarea{
 <body>
 
 <aside class="sidebar">
-
  <div class="logo">ZAQTIVO AI</div>
 
- <button class="newchat" onclick="newChat()">
-  ＋ New Chat
- </button>
+ <button class="newchat" onclick="newChat()">＋ New Chat</button>
 
  <h4>Recent Chats</h4>
-
  <div class="history" id="history"></div>
 
  <div class="sidebar-bottom">
-  <button onclick="toggleSettings()">
-   ⚙ <span>Settings & Language</span>
-  </button>
+  <button onclick="toggleSettings()">⚙ <span>Settings & Language</span></button>
  </div>
-
 </aside>
 
 <main class="main">
 
  <header class="topbar">
   <div class="brand">ZAQTIVO AI</div>
-
   <div class="top-actions">
    <button onclick="newChat()">＋ New</button>
    <button onclick="toggleSettings()">🌐 Language</button>
@@ -499,7 +276,6 @@ textarea{
  </header>
 
  <div id="settingsPanel">
-
   <b>Answer Language</b>
 
   <select id="language" onchange="saveLanguage()">
@@ -540,8 +316,7 @@ textarea{
   </select>
 
   <p style="font-size:12px;color:#777">
-   Choose a language for AI answers.
-   Auto detect follows your message.
+   Choose a language for AI answers. Auto detect follows your message.
   </p>
 
   <button onclick="toggleSettings()">Done</button>
@@ -550,37 +325,22 @@ textarea{
  <section class="messages" id="messages">
   <div class="welcome" id="welcome">
    <h1>What can I help with?</h1>
-   <p>
-    Ask anything. Learn anything.
-    ZAQTIVO AI is ready to help you.
-   </p>
+   <p>Ask anything. Learn anything. ZAQTIVO AI is ready to help you.</p>
   </div>
  </section>
 
  <div id="typing"></div>
 
  <section class="composer-area">
-
   <div class="composer">
 
-   <textarea
-    id="question"
-    placeholder="Message ZAQTIVO AI..."
-    rows="2"
-   ></textarea>
+   <textarea id="question" placeholder="Message ZAQTIVO AI..." rows="2"></textarea>
 
    <div id="fileName"></div>
 
    <div class="composer-bottom">
-
     <div>
-     <button
-      class="attach"
-      onclick="document.getElementById('image').click()"
-     >
-      ＋ Photo
-     </button>
-
+     <button class="attach" onclick="document.getElementById('image').click()">＋ Photo</button>
      <input
       type="file"
       id="image"
@@ -590,22 +350,15 @@ textarea{
      >
     </div>
 
-    <button
-     class="send"
-     id="sendBtn"
-     onclick="sendMessage()"
-    >
-     Send ↑
-    </button>
-
+    <button class="send" id="sendBtn" onclick="sendMessage()">Send ↑</button>
    </div>
   </div>
 
   <div class="hint">
    ZAQTIVO AI can make mistakes. Check important information.
   </div>
-
  </section>
+
 </main>
 
 <script>
@@ -615,10 +368,7 @@ textarea{
 let chats = [];
 
 try{
- chats = JSON.parse(
-  localStorage.getItem("zaqtivo_chats") || "[]"
- );
-
+ chats = JSON.parse(localStorage.getItem("zaqtivo_chats") || "[]");
  if(!Array.isArray(chats)) chats = [];
 }catch(error){
  chats = [];
@@ -637,7 +387,6 @@ const sendBtn = document.getElementById("sendBtn");
 /* SAFE TEXT ESCAPING */
 
 function escapeHTML(text){
-
  return String(text).replace(/[&<>"']/g,char=>({
   "&":"&amp;",
   "<":"&lt;",
@@ -645,7 +394,6 @@ function escapeHTML(text){
   '"':"&quot;",
   "'":"&#39;"
  }[char]));
-
 }
 
 
@@ -655,9 +403,7 @@ function cleanMath(text){
 
  if(typeof text !== "string") return "";
 
- const parts = text.split(
-  /(```[\s\S]*?```|`[^`\n]*`)/g
- );
+ const parts = text.split(/(```[\s\S]*?```|`[^`\n]*`)/g);
 
  return parts.map((part,index)=>{
 
@@ -673,18 +419,15 @@ function cleanMath(text){
    [...value].map(c=>sup[Number(c)] || c).join("");
 
   return part
-
    .replace(/\$\$([\s\S]*?)\$\$/g,"$1")
    .replace(/\\\[([\s\S]*?)\\\]/g,"$1")
    .replace(/\\\(([\s\S]*?)\\\)/g,"$1")
    .replace(/\$([^$\n]+)\$/g,"$1")
-
    .replace(/\\text\s*\{([^{}]*)\}/g,"$1")
    .replace(/\\mathrm\s*\{([^{}]*)\}/g,"$1")
    .replace(/\\mathbf\s*\{([^{}]*)\}/g,"$1")
    .replace(/\\mathit\s*\{([^{}]*)\}/g,"$1")
    .replace(/\\operatorname\s*\{([^{}]*)\}/g,"$1")
-
    .replace(/\\xrightarrow\s*\{([^{}]*)\}/g," --$1--> ")
    .replace(/\\longrightarrow|\\rightarrow|\\to/g," → ")
    .replace(/\\Rightarrow/g," ⇒ ")
@@ -701,12 +444,10 @@ function cleanMath(text){
    .replace(/\\infty/g,"∞")
    .replace(/\\degree/g,"°")
    .replace(/\\sqrt\s*\{([^{}]*)\}/g,"√($1)")
-
    .replace(/_\{(\d+)\}/g,(_,n)=>toSub(n))
    .replace(/_(\d+)/g,(_,n)=>toSub(n))
    .replace(/\^\{(\d+)\}/g,(_,n)=>toSup(n))
    .replace(/\^(\d+)/g,(_,n)=>toSup(n))
-
    .replace(/\\(left|right|displaystyle|textstyle|quad|qquad)/g,"")
    .replace(/\\[a-zA-Z]+/g,"")
    .replace(/[ \t]{2,}/g," ")
@@ -723,30 +464,33 @@ function renderMarkdown(text){
 
  const codeBlocks = [];
 
- // Extract fenced code blocks before processing normal text
+ // Extract code blocks before processing normal text
  let safe = String(text).replace(
-  /```([a-zA-Z0-9_+-]*)[ \t]*\n?([\s\S]*?)```/g,
+  /```([a-zA-Z0-9_+#.-]*)[ \t]*\n?([\s\S]*?)```/g,
   (match,language,code)=>{
 
    const id = codeBlocks.length;
+   const lang = language || "Code";
 
-   codeBlocks.push(
-    `<pre><code>${escapeHTML(code.replace(/^\n|\n$/g,""))}</code></pre>`
-   );
+   codeBlocks.push({
+    language:escapeHTML(lang),
+    code:escapeHTML(code.replace(/^\n|\n$/g,""))
+   });
 
    return `%%CODEBLOCK${id}%%`;
   }
  );
 
- // Escape all normal text
+ // Escape normal text to prevent unsafe HTML
  safe = escapeHTML(safe);
 
  // Inline formatting
  safe = safe
   .replace(/`([^`\n]+)`/g,"<code>$1</code>")
-  .replace(/\*\*(.*?)\*\*/g,"<strong>$1</strong>")
-  .replace(/__(.*?)__/g,"<strong>$1</strong>")
-  .replace(/\*(.*?)\*/g,"<em>$1</em>");
+  .replace(/\*\*(.+?)\*\*/g,"<strong>$1</strong>")
+  .replace(/__(.+?)__/g,"<strong>$1</strong>")
+  .replace(/(^|[^*])\*([^*\n]+)\*(?!\*)/g,"$1<em>$2</em>")
+  .replace(/(^|[^_])_([^_\n]+)_(?!_)/g,"$1<em>$2</em>");
 
  const lines = safe.split("\n");
 
@@ -755,25 +499,17 @@ function renderMarkdown(text){
  let listType = null;
 
  function flushParagraph(){
-
   if(paragraph.length){
-   output.push(
-    `<p>${paragraph.join("<br>")}</p>`
-   );
+   output.push(`<p>${paragraph.join("<br>")}</p>`);
    paragraph = [];
   }
-
  }
 
  function closeList(){
-
   if(listType){
-   output.push(
-    listType === "ul" ? "</ul>" : "</ol>"
-   );
+   output.push(listType === "ul" ? "</ul>" : "</ol>");
    listType = null;
   }
-
  }
 
  for(const line of lines){
@@ -863,10 +599,21 @@ function renderMarkdown(text){
 
  let result = output.join("");
 
- // Restore safe code blocks
+ // Restore code blocks with language labels
  result = result.replace(
   /%%CODEBLOCK(\d+)%%/g,
-  (match,id)=>codeBlocks[Number(id)] || ""
+  (match,id)=>{
+
+   const block = codeBlocks[Number(id)];
+   if(!block) return "";
+
+   return `
+    <pre>
+     <span class="code-language">${block.language}</span>
+     <code>${block.code}</code>
+    </pre>
+   `;
+  }
  );
 
  return result;
@@ -881,12 +628,7 @@ languageSelect.value =
  localStorage.getItem("zaqtivo_language") || "Auto";
 
 function saveLanguage(){
-
- localStorage.setItem(
-  "zaqtivo_language",
-  languageSelect.value
- );
-
+ localStorage.setItem("zaqtivo_language",languageSelect.value);
 }
 
 function toggleSettings(){
@@ -895,7 +637,6 @@ function toggleSettings(){
 
  panel.style.display =
   panel.style.display === "block" ? "none" : "block";
-
 }
 
 
@@ -921,7 +662,6 @@ function showFile(){
 
  document.getElementById("fileName").textContent =
   selectedImage ? "📎 " + selectedImage.name : "";
-
 }
 
 
@@ -935,7 +675,6 @@ function renderWelcome(){
    <p>Ask anything. Learn anything. ZAQTIVO AI is ready to help you.</p>
   </div>
  `;
-
 }
 
 
@@ -967,17 +706,11 @@ function addMessage(role,text,imageUrl){
   img.src = imageUrl;
   img.alt = "Uploaded image";
 
-  img.onload = ()=>{
-   URL.revokeObjectURL(imageUrl);
-  };
-
-  img.onerror = ()=>{
-   URL.revokeObjectURL(imageUrl);
-  };
+  img.onload = ()=>URL.revokeObjectURL(imageUrl);
+  img.onerror = ()=>URL.revokeObjectURL(imageUrl);
 
   content.appendChild(document.createElement("br"));
   content.appendChild(img);
-
  }
 
  if(role === "ai"){
@@ -997,13 +730,12 @@ function addMessage(role,text,imageUrl){
    }catch(error){
     alert("Copy failed. Please select and copy the answer.");
    }
-
   };
 
   actions.appendChild(copy);
   content.appendChild(actions);
 
-  // Add copy buttons to code blocks
+  // Copy code buttons
   content.querySelectorAll("pre").forEach(pre=>{
 
    const code = pre.querySelector("code");
@@ -1022,20 +754,15 @@ function addMessage(role,text,imageUrl){
     }catch(error){
      alert("Unable to copy code.");
     }
-
    };
 
    pre.appendChild(button);
-
   });
-
  }
 
  wrap.append(avatar,content);
  messages.appendChild(wrap);
-
  messages.scrollTop = messages.scrollHeight;
-
 }
 
 
@@ -1051,9 +778,7 @@ function saveChat(){
   ? first.text.slice(0,45) || "Image question"
   : "New Chat";
 
- const oldIndex = chats.findIndex(
-  c=>c.id===activeChatId
- );
+ const oldIndex = chats.findIndex(c=>c.id===activeChatId);
 
  const item = {
   id:activeChatId,
@@ -1067,25 +792,16 @@ function saveChat(){
   chats.unshift(item);
  }
 
- // Keep the latest 50 chats
  chats = chats.slice(0,50);
 
  try{
-
-  localStorage.setItem(
-   "zaqtivo_chats",
-   JSON.stringify(chats)
-  );
-
+  localStorage.setItem("zaqtivo_chats",JSON.stringify(chats));
  }catch(error){
-
   console.error("Chat saving failed:",error);
   alert("Storage is full. Some old chats may need to be deleted.");
-
  }
 
  renderHistory();
-
 }
 
 
@@ -1094,13 +810,11 @@ function saveChat(){
 function renderHistory(){
 
  const box = document.getElementById("history");
-
  box.innerHTML = "";
 
  chats.forEach(chat=>{
 
   const button = document.createElement("button");
-
   button.textContent = chat.title || "New Chat";
 
   if(chat.id === activeChatId){
@@ -1108,17 +822,13 @@ function renderHistory(){
   }
 
   button.onclick = ()=>openChat(chat.id);
-
   box.appendChild(button);
-
  });
-
 }
 
 function openChat(id){
 
  const chat = chats.find(c=>c.id===id);
-
  if(!chat) return;
 
  activeChatId = chat.id;
@@ -1137,7 +847,6 @@ function openChat(id){
  });
 
  renderHistory();
-
 }
 
 
@@ -1146,9 +855,7 @@ function openChat(id){
 function newChat(){
 
  currentChat = [];
-
  activeChatId = Date.now().toString();
-
  selectedImage = null;
 
  document.getElementById("image").value = "";
@@ -1158,7 +865,6 @@ function newChat(){
 
  renderWelcome();
  renderHistory();
-
 }
 
 
@@ -1177,9 +883,7 @@ async function sendMessage(){
 
  const image = selectedImage;
 
- const imageUrl = image
-  ? URL.createObjectURL(image)
-  : null;
+ const imageUrl = image ? URL.createObjectURL(image) : null;
 
  currentChat.push({
   role:"user",
@@ -1202,7 +906,6 @@ async function sendMessage(){
  document.getElementById("fileName").textContent = "";
 
  busy = true;
-
  sendBtn.disabled = true;
  sendBtn.textContent = "...";
 
@@ -1213,7 +916,6 @@ async function sendMessage(){
 
   const language = languageSelect.value;
 
-  // Keep recent conversation context
   const history = currentChat.slice(-12).map(message=>
    (message.role==="user" ? "User: " : "Assistant: ") +
    cleanMath(message.text)
@@ -1225,22 +927,23 @@ ANSWER FORMATTING:
 - Answer the latest question first.
 - Use natural paragraphs, headings, bullets or numbered steps when useful.
 - Use Markdown for bold text, headings, lists and code blocks.
+- Use **bold** for important words and labels.
+- Put each numbered point on a separate line.
+- Do not put the entire answer inside a code block.
 - Do not use LaTeX.
 - Write formulas in readable normal text.
 - Use Unicode subscripts and superscripts where possible.
 - Write chemical formulas like H₂O, CO₂, O₂ and C₆H₁₂O₆.
 - Use normal arrows such as →.
 - Preserve programming syntax exactly.
-- Put programming code inside fenced code blocks.
+- Put programming code inside fenced code blocks with the language name.
 - If the user requests only code, return only code.
 - Do not remove required symbols, brackets or braces.
 - Keep simple answers concise and explain complex answers clearly.
 `;
 
   const prompt =
-   (language === "Auto"
-    ? ""
-    : "Please answer in " + language + ". ") +
+   (language === "Auto" ? "" : "Please answer in " + language + ". ") +
 
    "You are ZAQTIVO AI. Continue this conversation naturally. " +
    "Use previous messages only when relevant. " +
@@ -1253,7 +956,6 @@ ANSWER FORMATTING:
    "\n\nAnswer the latest user message.";
 
   const form = new FormData();
-
   form.append("question",prompt);
 
   if(image){
@@ -1262,25 +964,18 @@ ANSWER FORMATTING:
 
   const controller = new AbortController();
 
-  const timeout = setTimeout(
-   ()=>controller.abort(),
-   90000
-  );
+  const timeout = setTimeout(()=>controller.abort(),90000);
 
   let response;
 
   try{
-
    response = await fetch("/api/solve",{
     method:"POST",
     body:form,
     signal:controller.signal
    });
-
   }finally{
-
    clearTimeout(timeout);
-
   }
 
   const data = await response.json();
@@ -1289,9 +984,7 @@ ANSWER FORMATTING:
    throw new Error(data.error || "Request failed");
   }
 
-  const answer = cleanMath(
-   data.answer || "No answer received."
-  );
+  const answer = cleanMath(data.answer || "No answer received.");
 
   currentChat.push({
    role:"ai",
@@ -1299,7 +992,6 @@ ANSWER FORMATTING:
   });
 
   addMessage("ai",answer);
-
   saveChat();
 
  }catch(error){
@@ -1318,20 +1010,16 @@ ANSWER FORMATTING:
   });
 
   addMessage("ai",errorText);
-
   saveChat();
 
  }finally{
 
   busy = false;
-
   sendBtn.disabled = false;
   sendBtn.textContent = "Send ↑";
 
   document.getElementById("typing").textContent = "";
-
  }
-
 }
 
 
@@ -1340,10 +1028,8 @@ ANSWER FORMATTING:
 question.addEventListener("keydown",event=>{
 
  if(event.key === "Enter" && !event.shiftKey){
-
   event.preventDefault();
   sendMessage();
-
  }
 
 });
