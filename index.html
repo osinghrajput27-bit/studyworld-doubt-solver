@@ -129,36 +129,72 @@ button{cursor:pointer}
  border:0;border-top:1px solid #ddd;margin:15px 0
 }
 
+/* CODE BLOCK DESIGN */
+
 .message-content pre{
- position:relative;white-space:pre;overflow-x:auto;
- background:#171923;color:#f5f5f5;
- padding:42px 16px 16px;border-radius:10px;
- margin:12px 0;font-size:13px;line-height:1.6
+ position:relative;
+ white-space:pre;
+ overflow-x:auto;
+ background:#171923;
+ color:#f5f5f5;
+ padding:48px 16px 17px;
+ border-radius:10px;
+ margin:12px 0;
+ font-size:13px;
+ line-height:1.7;
+ border:1px solid #343849;
+ tab-size:4;
+}
+
+.code-header{
+ position:absolute;
+ top:0;left:0;right:0;
+ height:36px;
+ padding:7px 12px;
+ background:#252a39;
+ border-bottom:1px solid #3b4050;
+ display:flex;
+ align-items:center;
+ justify-content:space-between;
 }
 
 .code-language{
- position:absolute;top:10px;left:14px;
- color:#aeb5c5;font-size:11px;
- text-transform:uppercase;letter-spacing:.5px
-}
-
-.message-content pre code{
- color:inherit;background:transparent;
- padding:0;white-space:pre;border-radius:0
-}
-
-.message-content code{
- font-family:Consolas,monospace;
- background:#e9eaf0;padding:2px 5px;
- border-radius:4px;font-size:.92em
+ color:#b9c2d5;
+ font-size:11px;
+ text-transform:uppercase;
+ letter-spacing:.6px;
+ font-weight:bold;
 }
 
 .code-copy{
- position:absolute;top:7px;right:7px;
- padding:6px 9px;background:#383d4c;color:white;
- border:0;border-radius:6px;font-size:11px
+ padding:5px 10px;
+ background:#41495d;
+ color:white;
+ border:0;
+ border-radius:5px;
+ font-size:11px;
 }
-.code-copy:hover{background:#50576b}
+
+.code-copy:hover{background:#58627c}
+
+.message-content pre code{
+ display:block;
+ color:#f5f5f5;
+ background:transparent;
+ padding:0;
+ border-radius:0;
+ white-space:pre;
+ font-family:Consolas,Monaco,monospace;
+ font-size:13px;
+}
+
+.message-content code{
+ font-family:Consolas,Monaco,monospace;
+ background:#e9eaf0;
+ padding:2px 5px;
+ border-radius:4px;
+ font-size:.92em;
+}
 
 .message img{
  max-width:min(260px,100%);
@@ -246,6 +282,7 @@ textarea{
  .avatar{width:30px;height:30px}
  .composer-area{padding:8px 9px 10px}
  .hint{font-size:11px}
+ .message-content pre{font-size:12px}
 }
 </style>
 </head>
@@ -254,12 +291,9 @@ textarea{
 
 <aside class="sidebar">
  <div class="logo">ZAQTIVO AI</div>
-
  <button class="newchat" onclick="newChat()">＋ New Chat</button>
-
  <h4>Recent Chats</h4>
  <div class="history" id="history"></div>
-
  <div class="sidebar-bottom">
   <button onclick="toggleSettings()">⚙ <span>Settings & Language</span></button>
  </div>
@@ -277,7 +311,6 @@ textarea{
 
  <div id="settingsPanel">
   <b>Answer Language</b>
-
   <select id="language" onchange="saveLanguage()">
    <option value="Auto">Auto detect / Same as user</option>
    <option>Hindi</option>
@@ -318,7 +351,6 @@ textarea{
   <p style="font-size:12px;color:#777">
    Choose a language for AI answers. Auto detect follows your message.
   </p>
-
   <button onclick="toggleSettings()">Done</button>
  </div>
 
@@ -333,23 +365,16 @@ textarea{
 
  <section class="composer-area">
   <div class="composer">
-
    <textarea id="question" placeholder="Message ZAQTIVO AI..." rows="2"></textarea>
-
    <div id="fileName"></div>
 
    <div class="composer-bottom">
     <div>
      <button class="attach" onclick="document.getElementById('image').click()">＋ Photo</button>
-     <input
-      type="file"
-      id="image"
+     <input type="file" id="image"
       accept="image/jpeg,image/png,image/webp"
-      hidden
-      onchange="showFile()"
-     >
+      hidden onchange="showFile()">
     </div>
-
     <button class="send" id="sendBtn" onclick="sendMessage()">Send ↑</button>
    </div>
   </div>
@@ -365,26 +390,23 @@ textarea{
 
 /* APP STATE */
 
-let chats = [];
-
+let chats=[];
 try{
- chats = JSON.parse(localStorage.getItem("zaqtivo_chats") || "[]");
- if(!Array.isArray(chats)) chats = [];
-}catch(error){
- chats = [];
-}
+ chats=JSON.parse(localStorage.getItem("zaqtivo_chats")||"[]");
+ if(!Array.isArray(chats)) chats=[];
+}catch(error){chats=[];}
 
-let currentChat = [];
-let selectedImage = null;
-let busy = false;
-let activeChatId = Date.now().toString();
+let currentChat=[];
+let selectedImage=null;
+let busy=false;
+let activeChatId=Date.now().toString();
 
-const messages = document.getElementById("messages");
-const question = document.getElementById("question");
-const sendBtn = document.getElementById("sendBtn");
+const messages=document.getElementById("messages");
+const question=document.getElementById("question");
+const sendBtn=document.getElementById("sendBtn");
 
 
-/* SAFE TEXT ESCAPING */
+/* HTML ESCAPING */
 
 function escapeHTML(text){
  return String(text).replace(/[&<>"']/g,char=>({
@@ -397,26 +419,23 @@ function escapeHTML(text){
 }
 
 
-/* LATEX CLEANER */
+/* MATH CLEANER - PROTECT CODE */
 
 function cleanMath(text){
 
- if(typeof text !== "string") return "";
+ if(typeof text!=="string") return "";
 
- const parts = text.split(/(```[\s\S]*?```|`[^`\n]*`)/g);
+ const parts=text.split(/(```[\s\S]*?```|`[^`\n]*`)/g);
 
  return parts.map((part,index)=>{
 
-  if(index % 2 === 1) return part;
+  if(index%2===1) return part;
 
-  const sub = "₀₁₂₃₄₅₆₇₈₉";
-  const sup = "⁰¹²³⁴⁵⁶⁷⁸⁹";
+  const sub="₀₁₂₃₄₅₆₇₈₉";
+  const sup="⁰¹²³⁴⁵⁶⁷⁸⁹";
 
-  const toSub = value =>
-   [...value].map(c=>sub[Number(c)] || c).join("");
-
-  const toSup = value =>
-   [...value].map(c=>sup[Number(c)] || c).join("");
+  const toSub=value=>[...value].map(c=>sub[Number(c)]||c).join("");
+  const toSup=value=>[...value].map(c=>sup[Number(c)]||c).join("");
 
   return part
    .replace(/\$\$([\s\S]*?)\$\$/g,"$1")
@@ -462,18 +481,34 @@ function cleanMath(text){
 
 function renderMarkdown(text){
 
- const codeBlocks = [];
+ const codeBlocks=[];
+ let safe=String(text);
 
- // Extract code blocks before processing normal text
- let safe = String(text).replace(
-  /```([a-zA-Z0-9_+#.-]*)[ \t]*\n?([\s\S]*?)```/g,
-  (match,language,code)=>{
+ // First protect fenced code blocks
+ safe=safe.replace(
+  /(^|\n)[ \t]*```([a-zA-Z0-9_+#.-]*)[ \t]*\r?\n([\s\S]*?)\r?\n[ \t]*```(?=\n|$)/g,
+  (match,start,language,code)=>{
 
-   const id = codeBlocks.length;
-   const lang = language || "Code";
+   const id=codeBlocks.length;
 
    codeBlocks.push({
-    language:escapeHTML(lang),
+    language:escapeHTML(language||"Code"),
+    code:escapeHTML(code)
+   });
+
+   return start+`%%CODEBLOCK${id}%%`;
+  }
+ );
+
+ // Protect single-line fenced blocks too
+ safe=safe.replace(
+  /```([a-zA-Z0-9_+#.-]*)[ \t]*\r?\n([\s\S]*?)```/g,
+  (match,language,code)=>{
+
+   const id=codeBlocks.length;
+
+   codeBlocks.push({
+    language:escapeHTML(language||"Code"),
     code:escapeHTML(code.replace(/^\n|\n$/g,""))
    });
 
@@ -481,40 +516,39 @@ function renderMarkdown(text){
   }
  );
 
- // Escape normal text to prevent unsafe HTML
- safe = escapeHTML(safe);
+ // Escape remaining normal text
+ safe=escapeHTML(safe);
 
  // Inline formatting
- safe = safe
+ safe=safe
   .replace(/`([^`\n]+)`/g,"<code>$1</code>")
   .replace(/\*\*(.+?)\*\*/g,"<strong>$1</strong>")
   .replace(/__(.+?)__/g,"<strong>$1</strong>")
   .replace(/(^|[^*])\*([^*\n]+)\*(?!\*)/g,"$1<em>$2</em>")
   .replace(/(^|[^_])_([^_\n]+)_(?!_)/g,"$1<em>$2</em>");
 
- const lines = safe.split("\n");
-
- let output = [];
- let paragraph = [];
- let listType = null;
+ const lines=safe.split("\n");
+ let output=[];
+ let paragraph=[];
+ let listType=null;
 
  function flushParagraph(){
   if(paragraph.length){
    output.push(`<p>${paragraph.join("<br>")}</p>`);
-   paragraph = [];
+   paragraph=[];
   }
  }
 
  function closeList(){
   if(listType){
-   output.push(listType === "ul" ? "</ul>" : "</ol>");
-   listType = null;
+   output.push(listType==="ul"?"</ul>":"</ol>");
+   listType=null;
   }
  }
 
  for(const line of lines){
 
-  const trimmed = line.trim();
+  const trimmed=line.trim();
 
   if(!trimmed){
    flushParagraph();
@@ -522,7 +556,6 @@ function renderMarkdown(text){
    continue;
   }
 
-  // Code block placeholder
   if(/^%%CODEBLOCK\d+%%$/.test(trimmed)){
    flushParagraph();
    closeList();
@@ -530,19 +563,16 @@ function renderMarkdown(text){
    continue;
   }
 
-  // Headings
-  const heading = trimmed.match(/^(#{1,3})\s+(.+)$/);
+  const heading=trimmed.match(/^(#{1,3})\s+(.+)$/);
 
   if(heading){
    flushParagraph();
    closeList();
-
-   const level = heading[1].length;
+   const level=heading[1].length;
    output.push(`<h${level}>${heading[2]}</h${level}>`);
    continue;
   }
 
-  // Horizontal line
   if(/^([-*_])\1\1+$/.test(trimmed)){
    flushParagraph();
    closeList();
@@ -550,7 +580,6 @@ function renderMarkdown(text){
    continue;
   }
 
-  // Blockquote
   if(trimmed.startsWith("&gt; ")){
    flushParagraph();
    closeList();
@@ -558,34 +587,28 @@ function renderMarkdown(text){
    continue;
   }
 
-  // Unordered list
-  const unordered = trimmed.match(/^[-*+]\s+(.+)$/);
+  const unordered=trimmed.match(/^[-*+]\s+(.+)$/);
 
   if(unordered){
    flushParagraph();
-
-   if(listType !== "ul"){
+   if(listType!=="ul"){
     closeList();
     output.push("<ul>");
-    listType = "ul";
+    listType="ul";
    }
-
    output.push(`<li>${unordered[1]}</li>`);
    continue;
   }
 
-  // Ordered list
-  const ordered = trimmed.match(/^\d+[.)]\s+(.+)$/);
+  const ordered=trimmed.match(/^\d+[.)]\s+(.+)$/);
 
   if(ordered){
    flushParagraph();
-
-   if(listType !== "ol"){
+   if(listType!=="ol"){
     closeList();
     output.push("<ol>");
-    listType = "ol";
+    listType="ol";
    }
-
    output.push(`<li>${ordered[1]}</li>`);
    continue;
   }
@@ -597,19 +620,22 @@ function renderMarkdown(text){
  flushParagraph();
  closeList();
 
- let result = output.join("");
+ let result=output.join("");
 
- // Restore code blocks with language labels
- result = result.replace(
+ // Restore protected code blocks
+ result=result.replace(
   /%%CODEBLOCK(\d+)%%/g,
   (match,id)=>{
 
-   const block = codeBlocks[Number(id)];
+   const block=codeBlocks[Number(id)];
    if(!block) return "";
 
    return `
     <pre>
-     <span class="code-language">${block.language}</span>
+     <div class="code-header">
+      <span class="code-language">${block.language}</span>
+      <button class="code-copy" type="button">Copy Code</button>
+     </div>
      <code>${block.code}</code>
     </pre>
    `;
@@ -622,21 +648,17 @@ function renderMarkdown(text){
 
 /* LANGUAGE SETTINGS */
 
-const languageSelect = document.getElementById("language");
+const languageSelect=document.getElementById("language");
 
-languageSelect.value =
- localStorage.getItem("zaqtivo_language") || "Auto";
+languageSelect.value=localStorage.getItem("zaqtivo_language")||"Auto";
 
 function saveLanguage(){
  localStorage.setItem("zaqtivo_language",languageSelect.value);
 }
 
 function toggleSettings(){
-
- const panel = document.getElementById("settingsPanel");
-
- panel.style.display =
-  panel.style.display === "block" ? "none" : "block";
+ const panel=document.getElementById("settingsPanel");
+ panel.style.display=panel.style.display==="block"?"none":"block";
 }
 
 
@@ -644,32 +666,30 @@ function toggleSettings(){
 
 function showFile(){
 
- const file = document.getElementById("image").files[0] || null;
+ const file=document.getElementById("image").files[0]||null;
+ selectedImage=file;
 
- selectedImage = file;
-
- if(file && !["image/jpeg","image/png","image/webp"].includes(file.type)){
+ if(file&&!["image/jpeg","image/png","image/webp"].includes(file.type)){
   alert("Please upload JPG, PNG or WEBP image.");
-  selectedImage = null;
-  document.getElementById("image").value = "";
+  selectedImage=null;
+  document.getElementById("image").value="";
  }
 
- if(file && file.size > 10 * 1024 * 1024){
+ if(file&&file.size>10*1024*1024){
   alert("Image size must be below 10 MB.");
-  selectedImage = null;
-  document.getElementById("image").value = "";
+  selectedImage=null;
+  document.getElementById("image").value="";
  }
 
- document.getElementById("fileName").textContent =
-  selectedImage ? "📎 " + selectedImage.name : "";
+ document.getElementById("fileName").textContent=
+  selectedImage?"📎 "+selectedImage.name:"";
 }
 
 
 /* WELCOME SCREEN */
 
 function renderWelcome(){
-
- messages.innerHTML = `
+ messages.innerHTML=`
   <div class="welcome" id="welcome">
    <h1>What can I help with?</h1>
    <p>Ask anything. Learn anything. ZAQTIVO AI is ready to help you.</p>
@@ -682,51 +702,48 @@ function renderWelcome(){
 
 function addMessage(role,text,imageUrl){
 
- const wrap = document.createElement("div");
- wrap.className = "message";
+ const wrap=document.createElement("div");
+ wrap.className="message";
 
- const avatar = document.createElement("div");
- avatar.className = "avatar";
- avatar.textContent = role === "user" ? "Y" : "Z";
+ const avatar=document.createElement("div");
+ avatar.className="avatar";
+ avatar.textContent=role==="user"?"Y":"Z";
 
- const content = document.createElement("div");
- content.className = "message-content";
+ const content=document.createElement("div");
+ content.className="message-content";
 
- const cleanText = cleanMath(text);
+ // AI answers are cleaned with code protection
+ const cleanText=role==="ai"?cleanMath(text):text;
 
- if(role === "ai"){
-  content.innerHTML = renderMarkdown(cleanText);
+ if(role==="ai"){
+  content.innerHTML=renderMarkdown(cleanText);
  }else{
-  content.textContent = cleanText;
+  content.textContent=cleanText;
  }
 
  if(imageUrl){
-
-  const img = document.createElement("img");
-  img.src = imageUrl;
-  img.alt = "Uploaded image";
-
-  img.onload = ()=>URL.revokeObjectURL(imageUrl);
-  img.onerror = ()=>URL.revokeObjectURL(imageUrl);
-
+  const img=document.createElement("img");
+  img.src=imageUrl;
+  img.alt="Uploaded image";
+  img.onload=()=>URL.revokeObjectURL(imageUrl);
+  img.onerror=()=>URL.revokeObjectURL(imageUrl);
   content.appendChild(document.createElement("br"));
   content.appendChild(img);
  }
 
- if(role === "ai"){
+ if(role==="ai"){
 
-  const actions = document.createElement("div");
-  actions.className = "message-actions";
+  const actions=document.createElement("div");
+  actions.className="message-actions";
 
-  const copy = document.createElement("button");
-  copy.textContent = "📋 Copy answer";
+  const copy=document.createElement("button");
+  copy.textContent="📋 Copy Answer";
 
-  copy.onclick = async ()=>{
-
+  copy.onclick=async()=>{
    try{
     await navigator.clipboard.writeText(cleanText);
-    copy.textContent = "Copied!";
-    setTimeout(()=>copy.textContent="📋 Copy answer",1500);
+    copy.textContent="Copied!";
+    setTimeout(()=>copy.textContent="📋 Copy Answer",1500);
    }catch(error){
     alert("Copy failed. Please select and copy the answer.");
    }
@@ -735,34 +752,29 @@ function addMessage(role,text,imageUrl){
   actions.appendChild(copy);
   content.appendChild(actions);
 
-  // Copy code buttons
-  content.querySelectorAll("pre").forEach(pre=>{
+  // Attach working Copy Code buttons
+  content.querySelectorAll(".code-copy").forEach(button=>{
 
-   const code = pre.querySelector("code");
-   if(!code) return;
+   button.addEventListener("click",async()=>{
 
-   const button = document.createElement("button");
-   button.className = "code-copy";
-   button.textContent = "Copy code";
-
-   button.onclick = async ()=>{
+    const code=button.closest("pre")?.querySelector("code");
+    if(!code) return;
 
     try{
      await navigator.clipboard.writeText(code.textContent);
-     button.textContent = "Copied!";
-     setTimeout(()=>button.textContent="Copy code",1500);
+     button.textContent="Copied!";
+     setTimeout(()=>button.textContent="Copy Code",1500);
     }catch(error){
      alert("Unable to copy code.");
     }
-   };
+   });
 
-   pre.appendChild(button);
   });
  }
 
  wrap.append(avatar,content);
  messages.appendChild(wrap);
- messages.scrollTop = messages.scrollHeight;
+ messages.scrollTop=messages.scrollHeight;
 }
 
 
@@ -772,27 +784,24 @@ function saveChat(){
 
  if(!currentChat.length) return;
 
- const first = currentChat.find(m=>m.role==="user");
+ const first=currentChat.find(m=>m.role==="user");
+ const title=first?first.text.slice(0,45)||"Image question":"New Chat";
 
- const title = first
-  ? first.text.slice(0,45) || "Image question"
-  : "New Chat";
+ const oldIndex=chats.findIndex(c=>c.id===activeChatId);
 
- const oldIndex = chats.findIndex(c=>c.id===activeChatId);
-
- const item = {
+ const item={
   id:activeChatId,
   title,
   messages:currentChat
  };
 
- if(oldIndex >= 0){
-  chats[oldIndex] = item;
+ if(oldIndex>=0){
+  chats[oldIndex]=item;
  }else{
   chats.unshift(item);
  }
 
- chats = chats.slice(0,50);
+ chats=chats.slice(0,50);
 
  try{
   localStorage.setItem("zaqtivo_chats",JSON.stringify(chats));
@@ -809,36 +818,33 @@ function saveChat(){
 
 function renderHistory(){
 
- const box = document.getElementById("history");
- box.innerHTML = "";
+ const box=document.getElementById("history");
+ box.innerHTML="";
 
  chats.forEach(chat=>{
 
-  const button = document.createElement("button");
-  button.textContent = chat.title || "New Chat";
+  const button=document.createElement("button");
+  button.textContent=chat.title||"New Chat";
 
-  if(chat.id === activeChatId){
-   button.classList.add("active");
-  }
+  if(chat.id===activeChatId) button.classList.add("active");
 
-  button.onclick = ()=>openChat(chat.id);
+  button.onclick=()=>openChat(chat.id);
   box.appendChild(button);
  });
 }
 
 function openChat(id){
 
- const chat = chats.find(c=>c.id===id);
+ const chat=chats.find(c=>c.id===id);
  if(!chat) return;
 
- activeChatId = chat.id;
- currentChat = chat.messages || [];
+ activeChatId=chat.id;
+ currentChat=chat.messages||[];
+ selectedImage=null;
 
- selectedImage = null;
-
- document.getElementById("image").value = "";
- document.getElementById("fileName").textContent = "";
- question.value = "";
+ document.getElementById("image").value="";
+ document.getElementById("fileName").textContent="";
+ question.value="";
 
  renderWelcome();
 
@@ -854,14 +860,13 @@ function openChat(id){
 
 function newChat(){
 
- currentChat = [];
- activeChatId = Date.now().toString();
- selectedImage = null;
+ currentChat=[];
+ activeChatId=Date.now().toString();
+ selectedImage=null;
 
- document.getElementById("image").value = "";
- document.getElementById("fileName").textContent = "";
-
- question.value = "";
+ document.getElementById("image").value="";
+ document.getElementById("fileName").textContent="";
+ question.value="";
 
  renderWelcome();
  renderHistory();
@@ -874,54 +879,51 @@ async function sendMessage(){
 
  if(busy) return;
 
- const text = question.value.trim();
+ const text=question.value.trim();
 
- if(!text && !selectedImage){
+ if(!text&&!selectedImage){
   alert("Please write a question or select a photo.");
   return;
  }
 
- const image = selectedImage;
-
- const imageUrl = image ? URL.createObjectURL(image) : null;
+ const image=selectedImage;
+ const imageUrl=image?URL.createObjectURL(image):null;
 
  currentChat.push({
   role:"user",
-  text:text || "Please inspect the uploaded image.",
+  text:text||"Please inspect the uploaded image.",
   imageData:null
  });
 
  addMessage(
   "user",
-  text || "Please inspect the uploaded image.",
+  text||"Please inspect the uploaded image.",
   imageUrl
  );
 
  saveChat();
 
- question.value = "";
- selectedImage = null;
+ question.value="";
+ selectedImage=null;
 
- document.getElementById("image").value = "";
- document.getElementById("fileName").textContent = "";
+ document.getElementById("image").value="";
+ document.getElementById("fileName").textContent="";
 
- busy = true;
- sendBtn.disabled = true;
- sendBtn.textContent = "...";
+ busy=true;
+ sendBtn.disabled=true;
+ sendBtn.textContent="...";
 
- document.getElementById("typing").textContent =
-  "ZAQTIVO AI is thinking...";
+ document.getElementById("typing").textContent="ZAQTIVO AI is thinking...";
 
  try{
 
-  const language = languageSelect.value;
+  const language=languageSelect.value;
 
-  const history = currentChat.slice(-12).map(message=>
-   (message.role==="user" ? "User: " : "Assistant: ") +
-   cleanMath(message.text)
+  const history=currentChat.slice(-12).map(message=>
+   (message.role==="user"?"User: ":"Assistant: ")+message.text
   ).join("\n\n");
 
-  const formattingRules = `
+  const formattingRules=`
 ANSWER FORMATTING:
 
 - Answer the latest question first.
@@ -937,39 +939,33 @@ ANSWER FORMATTING:
 - Use normal arrows such as →.
 - Preserve programming syntax exactly.
 - Put programming code inside fenced code blocks with the language name.
-- If the user requests only code, return only code.
+- If the user requests only code, return only code inside a fenced code block with the correct language name.
 - Do not remove required symbols, brackets or braces.
 - Keep simple answers concise and explain complex answers clearly.
 `;
 
-  const prompt =
-   (language === "Auto" ? "" : "Please answer in " + language + ". ") +
-
-   "You are ZAQTIVO AI. Continue this conversation naturally. " +
-   "Use previous messages only when relevant. " +
-   "Prioritize the latest user question.\n\n" +
-
-   formattingRules + "\n\n" +
-
-   "CONVERSATION HISTORY:\n" +
-   history +
+  const prompt=
+   (language==="Auto"?"":"Please answer in "+language+". ")+
+   "You are ZAQTIVO AI. Continue this conversation naturally. "+
+   "Use previous messages only when relevant. "+
+   "Prioritize the latest user question.\n\n"+
+   formattingRules+"\n\n"+
+   "CONVERSATION HISTORY:\n"+
+   history+
    "\n\nAnswer the latest user message.";
 
-  const form = new FormData();
+  const form=new FormData();
   form.append("question",prompt);
 
-  if(image){
-   form.append("image",image);
-  }
+  if(image) form.append("image",image);
 
-  const controller = new AbortController();
-
-  const timeout = setTimeout(()=>controller.abort(),90000);
+  const controller=new AbortController();
+  const timeout=setTimeout(()=>controller.abort(),90000);
 
   let response;
 
   try{
-   response = await fetch("/api/solve",{
+   response=await fetch("/api/solve",{
     method:"POST",
     body:form,
     signal:controller.signal
@@ -978,13 +974,11 @@ ANSWER FORMATTING:
    clearTimeout(timeout);
   }
 
-  const data = await response.json();
+  const data=await response.json();
 
-  if(!response.ok){
-   throw new Error(data.error || "Request failed");
-  }
+  if(!response.ok) throw new Error(data.error||"Request failed");
 
-  const answer = cleanMath(data.answer || "No answer received.");
+  const answer=data.answer||"No answer received.";
 
   currentChat.push({
    role:"ai",
@@ -998,11 +992,11 @@ ANSWER FORMATTING:
 
   console.error("AI request error:",error);
 
-  const message = error.name === "AbortError"
-   ? "The response is taking too long. Please try again."
-   : error.message;
+  const message=error.name==="AbortError"
+   ?"The response is taking too long. Please try again."
+   :error.message;
 
-  const errorText = "Error: " + message;
+  const errorText="Error: "+message;
 
   currentChat.push({
    role:"ai",
@@ -1014,11 +1008,10 @@ ANSWER FORMATTING:
 
  }finally{
 
-  busy = false;
-  sendBtn.disabled = false;
-  sendBtn.textContent = "Send ↑";
-
-  document.getElementById("typing").textContent = "";
+  busy=false;
+  sendBtn.disabled=false;
+  sendBtn.textContent="Send ↑";
+  document.getElementById("typing").textContent="";
  }
 }
 
@@ -1026,12 +1019,10 @@ ANSWER FORMATTING:
 /* ENTER TO SEND */
 
 question.addEventListener("keydown",event=>{
-
- if(event.key === "Enter" && !event.shiftKey){
+ if(event.key==="Enter"&&!event.shiftKey){
   event.preventDefault();
   sendMessage();
  }
-
 });
 
 
