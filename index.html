@@ -4,81 +4,415 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>StudyWorld AI Doubt Solver</title>
+<title>ZAQTIVO AI</title>
+
 <style>
 *{box-sizing:border-box}
-body{margin:0;font-family:Arial,sans-serif;background:#f1f5ff;color:#172554}
-header{background:#2457d6;color:white;padding:22px;text-align:center}
-header h1{margin:0;font-size:25px}
-main{max-width:700px;margin:25px auto;padding:18px}
-.card{background:white;padding:20px;border-radius:16px;box-shadow:0 5px 20px #0001}
-textarea{width:100%;height:130px;padding:14px;border:1px solid #ccd5e5;border-radius:10px;font-size:16px;resize:vertical}
-input[type=file]{margin:15px 0;width:100%}
-button{background:#2457d6;color:white;border:0;padding:14px 20px;border-radius:10px;font-size:16px;width:100%;cursor:pointer}
-button:disabled{opacity:.6}
-#answer{margin-top:20px;padding:15px;background:#f1f5ff;border-radius:10px;white-space:pre-wrap;line-height:1.6;display:none}
-footer{text-align:center;color:#64748b;font-size:13px;margin:20px}
+body{
+ margin:0;font-family:Arial,sans-serif;
+ background:#f5f6fa;color:#202123;
+ height:100vh;display:flex;overflow:hidden
+}
+.sidebar{
+ width:260px;background:#171923;color:white;
+ padding:16px;display:flex;flex-direction:column;
+}
+.logo{font-size:23px;font-weight:bold;margin:12px 0 25px}
+.newchat{
+ padding:13px;background:#292d3b;color:white;
+ border:1px solid #444;border-radius:10px;
+ cursor:pointer;text-align:left;font-size:15px
+}
+.sidebar h4{color:#aab0c0;margin-top:25px}
+.history{overflow:auto;flex:1}
+.history button{
+ display:block;width:100%;padding:11px;
+ border:0;background:transparent;color:#ddd;
+ text-align:left;border-radius:8px;cursor:pointer;
+ overflow:hidden;text-overflow:ellipsis;white-space:nowrap
+}
+.history button:hover{background:#292d3b}
+.sidebar-bottom{border-top:1px solid #444;padding-top:12px}
+.sidebar-bottom button{
+ width:100%;padding:10px;background:transparent;
+ color:white;border:0;text-align:left;cursor:pointer
+}
+.main{flex:1;display:flex;flex-direction:column;min-width:0}
+.topbar{
+ height:65px;background:white;border-bottom:1px solid #eee;
+ display:flex;align-items:center;justify-content:space-between;
+ padding:0 20px
+}
+.brand{font-weight:bold;font-size:19px}
+.top-actions{display:flex;gap:8px}
+.top-actions button{
+ padding:9px 12px;border:1px solid #ddd;
+ background:white;border-radius:8px;cursor:pointer
+}
+.messages{
+ flex:1;overflow-y:auto;padding:25px 15px;
+ display:flex;flex-direction:column;gap:22px
+}
+.welcome{text-align:center;margin:auto;max-width:550px}
+.welcome h1{font-size:32px}
+.welcome p{color:#707789;line-height:1.6}
+.message{
+ max-width:850px;width:100%;margin:0 auto;
+ display:flex;gap:12px;line-height:1.65;
+ white-space:pre-wrap;overflow-wrap:anywhere
+}
+.avatar{
+ width:34px;height:34px;flex-shrink:0;
+ border-radius:50%;background:#e4e8ff;
+ display:flex;align-items:center;justify-content:center;
+ font-weight:bold;color:#3949ab
+}
+.message-content{flex:1;padding-top:5px}
+.message img{max-width:220px;border-radius:12px;margin-top:8px}
+.message-actions{margin-top:8px}
+.message-actions button{
+ border:0;background:transparent;color:#697386;
+ cursor:pointer;padding:5px
+}
+.composer-area{padding:12px 15px 18px;background:#f5f6fa}
+.composer{
+ max-width:850px;margin:auto;background:white;
+ border:1px solid #ddd;border-radius:16px;
+ padding:10px;box-shadow:0 3px 12px #0000000a
+}
+textarea{
+ width:100%;border:0;outline:none;resize:none;
+ min-height:55px;max-height:160px;font-size:16px;
+ padding:10px;background:transparent;font-family:inherit
+}
+.composer-bottom{
+ display:flex;justify-content:space-between;align-items:center;
+ gap:8px
+}
+.composer-bottom button{
+ border:0;border-radius:9px;padding:10px 13px;
+ cursor:pointer
+}
+.attach{background:#eee}
+.send{background:#252b45;color:white}
+.send:disabled{opacity:.5}
+.hint{text-align:center;color:#9298a5;font-size:12px;margin:10px}
+#fileName{font-size:12px;color:#555;padding:5px}
+#typing{color:#777;font-size:14px;text-align:center}
+#settingsPanel{
+ display:none;position:absolute;right:15px;top:60px;
+ background:white;border:1px solid #ddd;border-radius:12px;
+ padding:16px;width:260px;box-shadow:0 5px 20px #0002;
+ z-index:5
+}
+#settingsPanel select{
+ width:100%;padding:10px;margin-top:10px;
+ border:1px solid #ddd;border-radius:8px
+}
+@media(max-width:650px){
+ .sidebar{width:65px;padding:8px}
+ .logo{font-size:12px;writing-mode:vertical-rl;margin:10px auto}
+ .newchat{font-size:0;text-align:center;padding:12px 4px}
+ .newchat:after{content:"+";font-size:20px}
+ .sidebar h4,.sidebar-bottom span,.history{display:none}
+ .sidebar-bottom button{text-align:center;font-size:0}
+ .sidebar-bottom button:after{content:"⚙";font-size:18px}
+ .welcome h1{font-size:26px}
+ .messages{padding:18px 10px}
+ .topbar{padding:0 12px}
+}
 </style>
 </head>
+
 <body>
-<header>
-<h1>StudyWorld AI</h1>
-<p>Your Smart Doubt Solver</p>
-</header>
 
-<main>
-<div class="card">
-<h2>Ask Your Doubt</h2>
-<p>Apna question likho ya question ki photo upload karo.</p>
+<aside class="sidebar">
+ <div class="logo">ZAQTIVO AI</div>
+ <button class="newchat" onclick="newChat()">＋ New Chat</button>
+ <h4>Recent Chats</h4>
+ <div class="history" id="history"></div>
+ <div class="sidebar-bottom">
+  <button onclick="toggleSettings()">⚙ <span>Settings & Language</span></button>
+ </div>
+</aside>
 
-<textarea id="question" placeholder="Type your question here..."></textarea>
-<input type="file" id="image" accept="image/*">
+<main class="main">
+ <header class="topbar">
+  <div class="brand">ZAQTIVO AI</div>
+  <div class="top-actions">
+   <button onclick="newChat()">＋ New</button>
+   <button onclick="toggleSettings()">🌐 Language</button>
+  </div>
+ </header>
 
-<button id="solveBtn" onclick="solveDoubt()">Solve My Doubt</button>
+ <div id="settingsPanel">
+  <b>Answer Language</b>
+  <select id="language" onchange="saveLanguage()">
+   <option value="Auto">Auto detect / Same as user</option>
+   <option>Hindi</option>
+   <option>English</option>
+   <option>Hinglish</option>
+   <option>Urdu</option>
+   <option>Sanskrit</option>
+   <option>Arabic</option>
+   <option>French</option>
+   <option>Spanish</option>
+   <option>German</option>
+   <option>Portuguese</option>
+   <option>Russian</option>
+   <option>Chinese</option>
+   <option>Japanese</option>
+   <option>Korean</option>
+   <option>Italian</option>
+   <option>Turkish</option>
+   <option>Bengali</option>
+   <option>Punjabi</option>
+   <option>Tamil</option>
+   <option>Telugu</option>
+   <option>Marathi</option>
+   <option>Gujarati</option>
+   <option>Malayalam</option>
+   <option>Kannada</option>
+   <option>Indonesian</option>
+   <option>Thai</option>
+   <option>Vietnamese</option>
+   <option>Dutch</option>
+   <option>Greek</option>
+   <option>Hebrew</option>
+   <option>Polish</option>
+   <option>Swahili</option>
+   <option>Other supported language</option>
+  </select>
+  <p style="font-size:12px;color:#777">
+   Choose a language for AI answers. Auto detect follows your message.
+  </p>
+  <button onclick="toggleSettings()">Done</button>
+ </div>
 
-<div id="answer"></div>
-</div>
-<footer>StudyWorld AI • Learn Smart, Learn Better</footer>
+ <section class="messages" id="messages">
+  <div class="welcome" id="welcome">
+   <h1>What can I help with?</h1>
+   <p>Ask anything. Learn anything. ZAQTIVO AI is ready to help you.</p>
+  </div>
+ </section>
+
+ <div id="typing"></div>
+
+ <section class="composer-area">
+  <div class="composer">
+   <textarea id="question" placeholder="Message ZAQTIVO AI..." rows="2"></textarea>
+   <div id="fileName"></div>
+   <div class="composer-bottom">
+    <div>
+     <button class="attach" onclick="document.getElementById('image').click()">＋ Photo</button>
+     <input type="file" id="image" accept="image/*" hidden onchange="showFile()">
+    </div>
+    <button class="send" id="sendBtn" onclick="sendMessage()">Send ↑</button>
+   </div>
+  </div>
+  <div class="hint">ZAQTIVO AI can make mistakes. Check important information.</div>
+ </section>
 </main>
 
 <script>
-async function solveDoubt(){
-  const question=document.getElementById("question").value.trim();
-  const image=document.getElementById("image").files[0];
-  const button=document.getElementById("solveBtn");
-  const answer=document.getElementById("answer");
+let chats = JSON.parse(localStorage.getItem("zaqtivo_chats") || "[]");
+let currentChat = [];
+let selectedImage = null;
+let busy = false;
 
-  if(!question && !image){
-    alert("Please type a question or upload an image.");
-    return;
-  }
+const messages = document.getElementById("messages");
+const question = document.getElementById("question");
+const sendBtn = document.getElementById("sendBtn");
 
-  const formData=new FormData();
-  formData.append("question",question);
-  if(image) formData.append("image",image);
+document.getElementById("language").value =
+ localStorage.getItem("zaqtivo_language") || "Auto";
 
-  button.disabled=true;
-  button.textContent="Solving...";
-  answer.style.display="block";
-  answer.textContent="Please wait, AI is solving your doubt...";
-
-  try{
-    const response=await fetch("/api/solve",{
-      method:"POST",
-      body:formData
-    });
-
-    const data=await response.json();
-    if(!response.ok) throw new Error(data.error || "Something went wrong");
-
-    answer.textContent=data.answer || "No answer received.";
-  }catch(error){
-    answer.textContent="Error: "+error.message;
-  }finally{
-    button.disabled=false;
-    button.textContent="Solve My Doubt";
-  }
+function saveLanguage(){
+ localStorage.setItem(
+  "zaqtivo_language",
+  document.getElementById("language").value
+ );
 }
+
+function toggleSettings(){
+ const p=document.getElementById("settingsPanel");
+ p.style.display=p.style.display==="block"?"none":"block";
+}
+
+function showFile(){
+ selectedImage=document.getElementById("image").files[0] || null;
+ document.getElementById("fileName").textContent=
+  selectedImage ? "📎 "+selectedImage.name : "";
+}
+
+function renderWelcome(){
+ messages.innerHTML=`
+ <div class="welcome" id="welcome">
+  <h1>What can I help with?</h1>
+  <p>Ask anything. Learn anything. ZAQTIVO AI is ready to help you.</p>
+ </div>`;
+}
+
+function addMessage(role,text,imageUrl){
+ const wrap=document.createElement("div");
+ wrap.className="message";
+
+ const avatar=document.createElement("div");
+ avatar.className="avatar";
+ avatar.textContent=role==="user"?"Y":"Z";
+
+ const content=document.createElement("div");
+ content.className="message-content";
+ content.textContent=text;
+
+ if(imageUrl){
+  const img=document.createElement("img");
+  img.src=imageUrl;
+  content.appendChild(document.createElement("br"));
+  content.appendChild(img);
+ }
+
+ if(role==="ai"){
+  const actions=document.createElement("div");
+  actions.className="message-actions";
+  const copy=document.createElement("button");
+  copy.textContent="Copy answer";
+  copy.onclick=()=>navigator.clipboard.writeText(text);
+  actions.appendChild(copy);
+  content.appendChild(actions);
+ }
+
+ wrap.append(avatar,content);
+ messages.appendChild(wrap);
+ messages.scrollTop=messages.scrollHeight;
+}
+
+function saveChat(){
+ if(!currentChat.length)return;
+ const first=currentChat.find(m=>m.role==="user");
+ const title=first ? first.text.slice(0,45) : "New Chat";
+ const oldIndex=chats.findIndex(c=>c.id===activeChatId);
+ const item={id:activeChatId,title,messages:currentChat};
+ if(oldIndex>=0)chats[oldIndex]=item;
+ else chats.unshift(item);
+ localStorage.setItem("zaqtivo_chats",JSON.stringify(chats));
+ renderHistory();
+}
+
+let activeChatId=Date.now().toString();
+
+function renderHistory(){
+ const box=document.getElementById("history");
+ box.innerHTML="";
+ chats.forEach(chat=>{
+  const b=document.createElement("button");
+  b.textContent=chat.title;
+  b.onclick=()=>openChat(chat.id);
+  box.appendChild(b);
+ });
+}
+
+function openChat(id){
+ const chat=chats.find(c=>c.id===id);
+ if(!chat)return;
+ activeChatId=chat.id;
+ currentChat=chat.messages || [];
+ renderWelcome();
+ currentChat.forEach(m=>addMessage(
+  m.role,m.text,m.imageData
+ ));
+}
+
+function newChat(){
+ currentChat=[];
+ activeChatId=Date.now().toString();
+ selectedImage=null;
+ document.getElementById("image").value="";
+ document.getElementById("fileName").textContent="";
+ renderWelcome();
+}
+
+async function sendMessage(){
+ if(busy)return;
+
+ const text=question.value.trim();
+ if(!text && !selectedImage){
+  alert("Please write a question or select a photo.");
+  return;
+ }
+
+ const image=selectedImage;
+ const imageUrl=image ? URL.createObjectURL(image) : null;
+
+ currentChat.push({role:"user",text,imageData:null});
+ addMessage("user",text || "Please solve this image question.",imageUrl);
+
+ question.value="";
+ selectedImage=null;
+ document.getElementById("image").value="";
+ document.getElementById("fileName").textContent="";
+
+ busy=true;
+ sendBtn.disabled=true;
+ sendBtn.textContent="...";
+ document.getElementById("typing").textContent="ZAQTIVO AI is thinking...";
+
+ try{
+  const language=document.getElementById("language").value;
+
+  const history=currentChat.slice(-12).map(m=>
+   (m.role==="user"?"User: ":"Assistant: ")+m.text
+  ).join("\n\n");
+
+  const prompt=
+   (language==="Auto" ? "" :
+    "Please answer in "+language+". ") +
+   "Continue this conversation naturally. Use the previous messages as context.\n\n"+
+   history+"\n\nAssistant:";
+
+  const form=new FormData();
+  form.append("question",prompt);
+  if(image)form.append("image",image);
+
+  const controller=new AbortController();
+  const timeout=setTimeout(()=>controller.abort(),90000);
+
+  const response=await fetch("/api/solve",{
+   method:"POST",
+   body:form,
+   signal:controller.signal
+  });
+  clearTimeout(timeout);
+
+  const data=await response.json();
+  if(!response.ok)throw new Error(data.error || "Request failed");
+
+  const answer=data.answer || "No answer received.";
+  currentChat.push({role:"ai",text:answer});
+  addMessage("ai",answer);
+  saveChat();
+
+ }catch(error){
+  const msg=error.name==="AbortError"
+   ?"The response is taking too long. Please try again."
+   :error.message;
+  addMessage("ai","Error: "+msg);
+ }finally{
+  busy=false;
+  sendBtn.disabled=false;
+  sendBtn.textContent="Send ↑";
+  document.getElementById("typing").textContent="";
+ }
+}
+
+question.addEventListener("keydown",e=>{
+ if(e.key==="Enter" && !e.shiftKey){
+  e.preventDefault();
+  sendMessage();
+ }
+});
+
+renderHistory();
 </script>
 </body>
 </html>
