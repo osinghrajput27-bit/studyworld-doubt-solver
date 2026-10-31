@@ -219,51 +219,72 @@ let chats = JSON.parse(localStorage.getItem("zaqtivo_chats") || "[]");
 let currentChat = [];
 let selectedImage = null;
 let busy = false;
+let activeChatId = Date.now().toString();
 
 const messages = document.getElementById("messages");
 const question = document.getElementById("question");
 const sendBtn = document.getElementById("sendBtn");
 
+/* LATEX CLEANER */
 function cleanMath(text){
  if(typeof text !== "string") return "";
 
+ const sub = "₀₁₂₃₄₅₆₇₈₉";
+ const sup = "⁰¹²³⁴⁵⁶⁷⁸⁹";
+ const toSub = value => [...value].map(c => sub[Number(c)] || c).join("");
+ const toSup = value => [...value].map(c => sup[Number(c)] || c).join("");
+
  return text
-  // Remove LaTeX math delimiters
+
+  // Remove LaTeX math wrappers
   .replace(/\$\$([\s\S]*?)\$\$/g, "$1")
-  .replace(/\$([^$\n]+)\$/g, "$1")
   .replace(/\\\[([\s\S]*?)\\\]/g, "$1")
   .replace(/\\\(([\s\S]*?)\\\)/g, "$1")
-
-  // Convert chemical subscripts
-  .replace(/_\{(\d+)\}/g, "$1")
-  .replace(/_(\d+)/g, "$1")
+  .replace(/\$([^$\n]+)\$/g, "$1")
 
   // Convert common LaTeX commands
   .replace(/\\text\s*\{([^{}]*)\}/g, "$1")
   .replace(/\\mathrm\s*\{([^{}]*)\}/g, "$1")
   .replace(/\\mathbf\s*\{([^{}]*)\}/g, "$1")
-  .replace(/\\xrightarrow\s*\{([^{}]*)\}/g, " → $1 → ")
-  .replace(/\\rightarrow|\\to/g, " → ")
+  .replace(/\\mathit\s*\{([^{}]*)\}/g, "$1")
+  .replace(/\\operatorname\s*\{([^{}]*)\}/g, "$1")
+
+  // Convert arrows and symbols
+  .replace(/\\xrightarrow\s*\{([^{}]*)\}/g, " --$1--> ")
+  .replace(/\\longrightarrow|\\rightarrow|\\to/g, " → ")
   .replace(/\\Rightarrow/g, " ⇒ ")
+  .replace(/\\leftarrow/g, " ← ")
   .replace(/\\times/g, " × ")
   .replace(/\\div/g, " ÷ ")
   .replace(/\\cdot/g, " · ")
   .replace(/\\pm/g, " ± ")
-  .replace(/\\leq/g, " ≤ ")
-  .replace(/\\geq/g, " ≥ ")
-  .replace(/\\neq/g, " ≠ ")
+  .replace(/\\leq|\\le/g, " ≤ ")
+  .replace(/\\geq|\\ge/g, " ≥ ")
+  .replace(/\\neq|\\ne/g, " ≠ ")
   .replace(/\\approx/g, " ≈ ")
   .replace(/\\pi/g, "π")
+  .replace(/\\infty/g, "∞")
+  .replace(/\\degree/g, "°")
   .replace(/\\sqrt\s*\{([^{}]*)\}/g, "√($1)")
 
-  // Remove remaining formatting commands
+  // Convert subscripts and superscripts
+  .replace(/_\{(\d+)\}/g, (_, n) => toSub(n))
+  .replace(/_(\d+)/g, (_, n) => toSub(n))
+  .replace(/\^\{(\d+)\}/g, (_, n) => toSup(n))
+  .replace(/\^(\d+)/g, (_, n) => toSup(n))
+
+  // Remove common layout commands
   .replace(/\\(left|right|displaystyle|textstyle|quad|qquad)/g, "")
   .replace(/\\[a-zA-Z]+/g, "")
+
+  // Clean leftover braces and spacing
   .replace(/[{}]/g, "")
   .replace(/[ \t]{2,}/g, " ")
+  .replace(/ *\n */g, "\n")
   .trim();
 }
 
+/* LANGUAGE SETTINGS */
 document.getElementById("language").value =
  localStorage.getItem("zaqtivo_language") || "Auto";
 
@@ -279,12 +300,14 @@ function toggleSettings(){
  p.style.display=p.style.display==="block"?"none":"block";
 }
 
+/* IMAGE UPLOAD */
 function showFile(){
  selectedImage=document.getElementById("image").files[0] || null;
  document.getElementById("fileName").textContent=
   selectedImage ? "📎 "+selectedImage.name : "";
 }
 
+/* CHAT DISPLAY */
 function renderWelcome(){
  messages.innerHTML=`
  <div class="welcome" id="welcome">
@@ -303,7 +326,10 @@ function addMessage(role,text,imageUrl){
 
  const content=document.createElement("div");
  content.className="message-content";
- content.textContent=text;
+
+ // IMPORTANT: Clean answer before displaying
+ const cleanText=cleanMath(text);
+ content.textContent=cleanText;
 
  if(imageUrl){
   const img=document.createElement("img");
@@ -315,9 +341,13 @@ function addMessage(role,text,imageUrl){
  if(role==="ai"){
   const actions=document.createElement("div");
   actions.className="message-actions";
+
   const copy=document.createElement("button");
   copy.textContent="Copy answer";
-  copy.onclick=()=>navigator.clipboard.writeText(text);
+
+  // Copy the cleaned answer
+  copy.onclick=()=>navigator.clipboard.writeText(cleanText);
+
   actions.appendChild(copy);
   content.appendChild(actions);
  }
@@ -327,23 +357,38 @@ function addMessage(role,text,imageUrl){
  messages.scrollTop=messages.scrollHeight;
 }
 
+/* SAVE CHAT */
 function saveChat(){
  if(!currentChat.length)return;
+
+ // Save cleaned text in chat history too
+ currentChat=currentChat.map(m=>({
+  ...m,
+  text:cleanMath(m.text)
+ }));
+
  const first=currentChat.find(m=>m.role==="user");
  const title=first ? first.text.slice(0,45) : "New Chat";
  const oldIndex=chats.findIndex(c=>c.id===activeChatId);
- const item={id:activeChatId,title,messages:currentChat};
+
+ const item={
+  id:activeChatId,
+  title,
+  messages:currentChat
+ };
+
  if(oldIndex>=0)chats[oldIndex]=item;
  else chats.unshift(item);
+
  localStorage.setItem("zaqtivo_chats",JSON.stringify(chats));
  renderHistory();
 }
 
-let activeChatId=Date.now().toString();
-
+/* CHAT HISTORY */
 function renderHistory(){
  const box=document.getElementById("history");
  box.innerHTML="";
+
  chats.forEach(chat=>{
   const b=document.createElement("button");
   b.textContent=chat.title;
@@ -355,9 +400,12 @@ function renderHistory(){
 function openChat(id){
  const chat=chats.find(c=>c.id===id);
  if(!chat)return;
+
  activeChatId=chat.id;
  currentChat=chat.messages || [];
+
  renderWelcome();
+
  currentChat.forEach(m=>addMessage(
   m.role,m.text,m.imageData
  ));
@@ -367,15 +415,20 @@ function newChat(){
  currentChat=[];
  activeChatId=Date.now().toString();
  selectedImage=null;
+
  document.getElementById("image").value="";
  document.getElementById("fileName").textContent="";
+ question.value="";
+
  renderWelcome();
 }
 
+/* SEND MESSAGE */
 async function sendMessage(){
  if(busy)return;
 
  const text=question.value.trim();
+
  if(!text && !selectedImage){
   alert("Please write a question or select a photo.");
   return;
@@ -384,11 +437,24 @@ async function sendMessage(){
  const image=selectedImage;
  const imageUrl=image ? URL.createObjectURL(image) : null;
 
- currentChat.push({role:"user",text,imageData:null});
- addMessage("user",text || "Please solve this image question.",imageUrl);
+ currentChat.push({
+  role:"user",
+  text,
+  imageData:null
+ });
+
+ addMessage(
+  "user",
+  text || "Please solve this image question.",
+  imageUrl
+ );
+
+ // Save user message immediately
+ saveChat();
 
  question.value="";
  selectedImage=null;
+
  document.getElementById("image").value="";
  document.getElementById("fileName").textContent="";
 
@@ -401,17 +467,31 @@ async function sendMessage(){
   const language=document.getElementById("language").value;
 
   const history=currentChat.slice(-12).map(m=>
-   (m.role==="user"?"User: ":"Assistant: ")+m.text
+   (m.role==="user"?"User: ":"Assistant: ")+cleanMath(m.text)
   ).join("\n\n");
+
+  const formattingRules=`
+IMPORTANT ANSWER FORMATTING:
+1. Never use LaTeX formatting.
+2. Never use $$, $, \\text{}, \\mathrm{}, \\frac{}, or other LaTeX commands.
+3. Write all formulas in normal readable text.
+4. Use Unicode subscripts and superscripts where possible.
+5. Write chemical formulas like H₂O, CO₂, O₂ and C₆H₁₂O₆.
+6. Write equations using normal arrows like →.
+7. Do not put mathematical expressions inside dollar signs.
+8. Keep the answer clean and easy to read.
+`;
 
   const prompt=
    (language==="Auto" ? "" :
     "Please answer in "+language+". ") +
-   "Continue this conversation naturally. Use the previous messages as context.\n\n"+
+   "Continue this conversation naturally. Use the previous messages as context.\n"+
+   formattingRules+"\n"+
    history+"\n\nAssistant:";
 
   const form=new FormData();
   form.append("question",prompt);
+
   if(image)form.append("image",image);
 
   const controller=new AbortController();
@@ -422,13 +502,23 @@ async function sendMessage(){
    body:form,
    signal:controller.signal
   });
+
   clearTimeout(timeout);
 
   const data=await response.json();
-  if(!response.ok)throw new Error(data.error || "Request failed");
 
-  const answer=data.answer || "No answer received.";
-  currentChat.push({role:"ai",text:answer});
+  if(!response.ok){
+   throw new Error(data.error || "Request failed");
+  }
+
+  // Clean AI answer before saving and displaying
+  const answer=cleanMath(data.answer || "No answer received.");
+
+  currentChat.push({
+   role:"ai",
+   text:answer
+  });
+
   addMessage("ai",answer);
   saveChat();
 
@@ -436,8 +526,20 @@ async function sendMessage(){
   const msg=error.name==="AbortError"
    ?"The response is taking too long. Please try again."
    :error.message;
-  addMessage("ai","Error: "+msg);
+
+  const errorText="Error: "+msg;
+
+  currentChat.push({
+   role:"ai",
+   text:errorText
+  });
+
+  addMessage("ai",errorText);
+  saveChat();
+
  }finally{
+  if(imageUrl)URL.revokeObjectURL(imageUrl);
+
   busy=false;
   sendBtn.disabled=false;
   sendBtn.textContent="Send ↑";
@@ -445,6 +547,7 @@ async function sendMessage(){
  }
 }
 
+/* ENTER TO SEND */
 question.addEventListener("keydown",e=>{
  if(e.key==="Enter" && !e.shiftKey){
   e.preventDefault();
@@ -454,5 +557,6 @@ question.addEventListener("keydown",e=>{
 
 renderHistory();
 </script>
+
 </body>
 </html>
