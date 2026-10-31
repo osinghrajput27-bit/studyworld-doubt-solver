@@ -1,28 +1,136 @@
+
 import express from "express";
 import multer from "multer";
 import { GoogleGenAI } from "@google/genai";
 
 const app = express();
+const PORT = process.env.PORT || 3000;
+const MODEL = "gemini-3.5-flash-lite";
 
 const upload = multer({
   storage: multer.memoryStorage(),
   limits: { fileSize: 10 * 1024 * 1024 }
 });
 
-app.use(express.json());
+app.use(express.json({ limit: "1mb" }));
 app.use(express.static("."));
 
-const ai = new GoogleGenAI({
-  apiKey: process.env.GEMINI_API_KEY
-});
+const apiKey = process.env.GEMINI_API_KEY;
+
+const ai = apiKey
+  ? new GoogleGenAI({ apiKey })
+  : null;
+
+const SYSTEM_INSTRUCTION = `
+You are ZAQTIVO AI, a helpful and intelligent conversational assistant.
+
+LANGUAGE:
+- Follow the language requested by the user.
+- Otherwise answer in the language of the latest message.
+- Support Hindi, English, Hinglish and other supported languages.
+
+GENERAL:
+- Give accurate, clear and useful answers.
+- Never invent facts.
+- Explain educational questions step by step when useful.
+- If uncertain, say so honestly.
+- Keep simple answers concise.
+
+CODE FORMATTING:
+- Preserve all code syntax.
+- Never remove curly braces, parentheses or semicolons.
+- CSS selectors must use opening and closing braces.
+- HTML tags must be properly opened and closed.
+- JavaScript syntax must remain valid.
+- If the user asks for code only, return only code.
+- Do not add explanations when code only is requested.
+- Return complete code blocks when appropriate.
+
+IMAGE QUESTIONS:
+- Carefully inspect uploaded images.
+- Solve all clearly visible questions when asked.
+- Preserve question numbering.
+- Mention unreadable parts honestly.
+
+Be friendly, natural and helpful.
+`;
+
+function repairSimpleCss(text) {
+  if (typeof text !== "string") return text;
+
+  // Extract CSS from a fenced code block, if present.
+  const match = text.match(/```(?:css)?\s*([\s\S]*?)```/i);
+  const source = match ? match[1].trim() : text.trim();
+
+  const lines = source.split(/\r?\n/);
+
+  const isDeclaration = line =>
+    /^\s*[\w-]+\s*:\s*[^{}]+;?\s*$/.test(line);
+
+  for (let i = 0; i < lines.length - 1; i++) {
+    const selector = lines[i].trim();
+
+    const validSelector =
+      /^(body|html|:root|\*|[.#][\w-]+|[a-zA-Z][\w-]*)$/.test(selector);
+
+    if (
+      !validSelector ||
+      selector.includes("{") ||
+      !isDeclaration(lines[i + 1])
+    ) continue;
+
+    const declarations = [];
+    let j = i + 1;
+
+    while (j < lines.length && isDeclaration(lines[j])) {
+      let value = lines[j].trim();
+      if (!value.endsWith(";")) value += ";";
+      declarations.push("  " + value);
+      j++;
+    }
+
+    lines.splice(
+      i,
+      j - i,
+      selector + " {",
+      ...declarations,
+      "}"
+    );
+  }
+
+  const repaired = lines.join("\n");
+
+  return match
+    ? "```css\n" + repaired + "\n```"
+    : repaired;
+}
 
 app.get("/health", (req, res) => {
-  res.json({ status: "ZAQTIVO AI is running" });
+  res.json({
+    status: "ZAQTIVO AI is running",
+    model: MODEL,
+    apiKeyConfigured: Boolean(apiKey)
+  });
 });
 
 app.post("/api/solve", upload.single("image"), async (req, res) => {
+  const startedAt = Date.now();
+
   try {
+    console.log("\n========== NEW AI REQUEST ==========");
+
+    if (!ai) {
+      console.error("GEMINI_API_KEY is missing.");
+
+      return res.status(500).json({
+        error: "AI service configuration is missing."
+      });
+    }
+
     const question = (req.body.question || "").trim();
+
+    console.log("Question:", question || "[Image question]");
+    console.log("Image uploaded:", Boolean(req.file));
 
     if (!question && !req.file) {
       return res.status(400).json({
@@ -30,19 +138,18 @@ app.post("/api/solve", upload.single("image"), async (req, res) => {
       });
     }
 
-    const parts = [];
+    if (req.file && !req.file.mimetype.startsWith("image/")) {
+      return res.status(400).json({
+        error: "Please upload a valid image."
+      });
+    }
 
-    parts.push({
-      text: question || "Please carefully understand and answer the question shown in this image."
-    });
+    const parts = [{
+      text: question ||
+        "Carefully read and answer the question in this image."
+    }];
 
     if (req.file) {
-      if (!req.file.mimetype.startsWith("image/")) {
-        return res.status(400).json({
-          error: "Please upload a valid image."
-        });
-      }
-
       parts.push({
         inlineData: {
           mimeType: req.file.mimetype,
@@ -51,78 +158,62 @@ app.post("/api/solve", upload.single("image"), async (req, res) => {
       });
     }
 
+    console.log("Sending request to Gemini:", MODEL);
+
     const response = await ai.models.generateContent({
-     model: "gemini-3.5-flash-lite",
-
-      config: {
-        systemInstruction: `
-You are ZAQTIVO AI, a highly intelligent, friendly and helpful
-conversational AI assistant.
-
-LANGUAGE RULES:
-1. Understand and support as many languages as the model supports.
-2. If the user explicitly requests a language, ALWAYS answer in that language.
-3. Otherwise, detect the language of the user's latest message
-   and answer in the same language.
-4. Support Hindi, English, Hinglish, Urdu, Arabic, French, Spanish,
-   German, Chinese, Japanese and other supported languages.
-5. Do not unnecessarily switch languages.
-
-ANSWER STYLE:
-1. Talk naturally, like a helpful intelligent assistant.
-2. Do not force every answer into a fixed template.
-3. Give short answers to simple questions.
-4. Give detailed explanations when the user asks for detail.
-5. Understand follow-up questions and use available conversation context.
-6. Explain difficult topics in simple language.
-7. Give examples when useful.
-8. Do not always use headings and bullet points.
-9. Answer general knowledge, educational, technical and everyday questions.
-10. For mathematics, explain calculations step by step when needed.
-11. For image questions, carefully inspect the image before answering.
-12. Never invent facts. If unsure, clearly say so.
-13. Be polite, clear and conversational.
-IMAGE QUESTION SOLVING:
-1. Carefully read all questions visible in an uploaded image.
-2. If the user says "solve the question", solve all clearly visible questions.
-3. Do not ask which question unless the image is unclear or incomplete.
-4. Keep the original question numbers.
-5. Give accurate, step-by-step solutions when needed.
-6. If some text is unreadable, clearly mention which part is unclear.
-Your goal is to make every user feel they are having a
-natural conversation with an intelligent AI assistant.
-        `,
-        temperature: 0.7,
-        maxOutputTokens: 2048
-      },
-
+      model: MODEL,
       contents: [{
         role: "user",
         parts
-      }]
+      }],
+      config: {
+        systemInstruction: SYSTEM_INSTRUCTION,
+        temperature: 0.2,
+        maxOutputTokens: 4096
+      }
     });
 
-    const answer = response.text;
+    const rawAnswer = response.text || "";
 
-    if (!answer) {
+    console.log("\n===== GEMINI RAW RESPONSE =====");
+    console.log(rawAnswer);
+    console.log("===== END RAW RESPONSE =====");
+
+    if (!rawAnswer.trim()) {
+      console.error("Gemini returned an empty response.");
+
       return res.status(502).json({
         error: "AI could not generate an answer. Please try again."
       });
     }
 
-    res.json({ answer });
+    const answer = repairSimpleCss(rawAnswer);
+
+    console.log("\n===== FINAL RESPONSE =====");
+    console.log(answer);
+    console.log("===== END FINAL RESPONSE =====");
+
+    console.log("Response time:", Date.now() - startedAt, "ms");
+    console.log("========== REQUEST COMPLETE ==========\n");
+
+    return res.json({
+      answer,
+      responseTime: Date.now() - startedAt
+    });
 
   } catch (error) {
-    console.error("ZAQTIVO AI error:", error?.message || error);
+    console.error("\n===== ZAQTIVO AI ERROR =====");
+    console.error("Name:", error?.name);
+    console.error("Message:", error?.message);
+    console.error("Status:", error?.status);
+    console.error("========== ERROR END ==========\n");
 
-    res.status(500).json({
+    return res.status(500).json({
       error: "AI se answer nahi mil paya. Dobara try karo."
     });
   }
 });
 
-const PORT = process.env.PORT || 3000;
-
 app.listen(PORT, () => {
-  console.log(`ZAQTIVO  running on port ${PORT}`);
+  console.log(`ZAQTIVO AI running on port ${PORT}`);
 });
