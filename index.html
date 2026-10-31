@@ -8,118 +8,354 @@
 
 <style>
 *{box-sizing:border-box}
+
 body{
- margin:0;font-family:Arial,sans-serif;
- background:#f5f6fa;color:#202123;
- height:100vh;display:flex;overflow:hidden
+ margin:0;
+ font-family:Arial,sans-serif;
+ background:#f5f6fa;
+ color:#202123;
+ height:100vh;
+ display:flex;
+ overflow:hidden
 }
+
 .sidebar{
- width:260px;background:#171923;color:white;
- padding:16px;display:flex;flex-direction:column;
+ width:260px;
+ background:#171923;
+ color:white;
+ padding:16px;
+ display:flex;
+ flex-direction:column;
 }
-.logo{font-size:23px;font-weight:bold;margin:12px 0 25px}
+
+.logo{
+ font-size:23px;
+ font-weight:bold;
+ margin:12px 0 25px
+}
+
 .newchat{
- padding:13px;background:#292d3b;color:white;
- border:1px solid #444;border-radius:10px;
- cursor:pointer;text-align:left;font-size:15px
+ padding:13px;
+ background:#292d3b;
+ color:white;
+ border:1px solid #444;
+ border-radius:10px;
+ cursor:pointer;
+ text-align:left;
+ font-size:15px
 }
-.sidebar h4{color:#aab0c0;margin-top:25px}
-.history{overflow:auto;flex:1}
+
+.sidebar h4{
+ color:#aab0c0;
+ margin-top:25px
+}
+
+.history{
+ overflow:auto;
+ flex:1
+}
+
 .history button{
- display:block;width:100%;padding:11px;
- border:0;background:transparent;color:#ddd;
- text-align:left;border-radius:8px;cursor:pointer;
- overflow:hidden;text-overflow:ellipsis;white-space:nowrap
+ display:block;
+ width:100%;
+ padding:11px;
+ border:0;
+ background:transparent;
+ color:#ddd;
+ text-align:left;
+ border-radius:8px;
+ cursor:pointer;
+ overflow:hidden;
+ text-overflow:ellipsis;
+ white-space:nowrap
 }
-.history button:hover{background:#292d3b}
-.sidebar-bottom{border-top:1px solid #444;padding-top:12px}
+
+.history button:hover{
+ background:#292d3b
+}
+
+.sidebar-bottom{
+ border-top:1px solid #444;
+ padding-top:12px
+}
+
 .sidebar-bottom button{
- width:100%;padding:10px;background:transparent;
- color:white;border:0;text-align:left;cursor:pointer
-}
-.main{flex:1;display:flex;flex-direction:column;min-width:0}
-.topbar{
- height:65px;background:white;border-bottom:1px solid #eee;
- display:flex;align-items:center;justify-content:space-between;
- padding:0 20px
-}
-.brand{font-weight:bold;font-size:19px}
-.top-actions{display:flex;gap:8px}
-.top-actions button{
- padding:9px 12px;border:1px solid #ddd;
- background:white;border-radius:8px;cursor:pointer
-}
-.messages{
- flex:1;overflow-y:auto;padding:25px 15px;
- display:flex;flex-direction:column;gap:22px
-}
-.welcome{text-align:center;margin:auto;max-width:550px}
-.welcome h1{font-size:32px}
-.welcome p{color:#707789;line-height:1.6}
-.message{
- max-width:850px;width:100%;margin:0 auto;
- display:flex;gap:12px;line-height:1.65;
- white-space:pre-wrap;overflow-wrap:anywhere
-}
-.avatar{
- width:34px;height:34px;flex-shrink:0;
- border-radius:50%;background:#e4e8ff;
- display:flex;align-items:center;justify-content:center;
- font-weight:bold;color:#3949ab
-}
-.message-content{flex:1;padding-top:5px}
-.message img{max-width:220px;border-radius:12px;margin-top:8px}
-.message-actions{margin-top:8px}
-.message-actions button{
- border:0;background:transparent;color:#697386;
- cursor:pointer;padding:5px
-}
-.composer-area{padding:12px 15px 18px;background:#f5f6fa}
-.composer{
- max-width:850px;margin:auto;background:white;
- border:1px solid #ddd;border-radius:16px;
- padding:10px;box-shadow:0 3px 12px #0000000a
-}
-textarea{
- width:100%;border:0;outline:none;resize:none;
- min-height:55px;max-height:160px;font-size:16px;
- padding:10px;background:transparent;font-family:inherit
-}
-.composer-bottom{
- display:flex;justify-content:space-between;align-items:center;
- gap:8px
-}
-.composer-bottom button{
- border:0;border-radius:9px;padding:10px 13px;
+ width:100%;
+ padding:10px;
+ background:transparent;
+ color:white;
+ border:0;
+ text-align:left;
  cursor:pointer
 }
-.attach{background:#eee}
-.send{background:#252b45;color:white}
-.send:disabled{opacity:.5}
-.hint{text-align:center;color:#9298a5;font-size:12px;margin:10px}
-#fileName{font-size:12px;color:#555;padding:5px}
-#typing{color:#777;font-size:14px;text-align:center}
+
+.main{
+ flex:1;
+ display:flex;
+ flex-direction:column;
+ min-width:0
+}
+
+.topbar{
+ height:65px;
+ background:white;
+ border-bottom:1px solid #eee;
+ display:flex;
+ align-items:center;
+ justify-content:space-between;
+ padding:0 20px
+}
+
+.brand{
+ font-weight:bold;
+ font-size:19px
+}
+
+.top-actions{
+ display:flex;
+ gap:8px
+}
+
+.top-actions button{
+ padding:9px 12px;
+ border:1px solid #ddd;
+ background:white;
+ border-radius:8px;
+ cursor:pointer
+}
+
+.messages{
+ flex:1;
+ overflow-y:auto;
+ padding:25px 15px;
+ display:flex;
+ flex-direction:column;
+ gap:22px
+}
+
+.welcome{
+ text-align:center;
+ margin:auto;
+ max-width:550px
+}
+
+.welcome h1{
+ font-size:32px
+}
+
+.welcome p{
+ color:#707789;
+ line-height:1.6
+}
+
+.message{
+ max-width:850px;
+ width:100%;
+ margin:0 auto;
+ display:flex;
+ gap:12px;
+ line-height:1.65;
+ white-space:pre-wrap;
+ overflow-wrap:anywhere
+}
+
+.avatar{
+ width:34px;
+ height:34px;
+ flex-shrink:0;
+ border-radius:50%;
+ background:#e4e8ff;
+ display:flex;
+ align-items:center;
+ justify-content:center;
+ font-weight:bold;
+ color:#3949ab
+}
+
+.message-content{
+ flex:1;
+ padding-top:5px;
+ min-width:0
+}
+
+.message-content pre{
+ white-space:pre-wrap;
+ overflow-wrap:anywhere;
+ background:#171923;
+ color:#f5f5f5;
+ padding:14px;
+ border-radius:10px;
+ overflow-x:auto
+}
+
+.message-content code{
+ font-family:monospace;
+}
+
+.message img{
+ max-width:220px;
+ border-radius:12px;
+ margin-top:8px
+}
+
+.message-actions{
+ margin-top:8px
+}
+
+.message-actions button{
+ border:0;
+ background:transparent;
+ color:#697386;
+ cursor:pointer;
+ padding:5px
+}
+
+.composer-area{
+ padding:12px 15px 18px;
+ background:#f5f6fa
+}
+
+.composer{
+ max-width:850px;
+ margin:auto;
+ background:white;
+ border:1px solid #ddd;
+ border-radius:16px;
+ padding:10px;
+ box-shadow:0 3px 12px #0000000a
+}
+
+textarea{
+ width:100%;
+ border:0;
+ outline:none;
+ resize:none;
+ min-height:55px;
+ max-height:160px;
+ font-size:16px;
+ padding:10px;
+ background:transparent;
+ font-family:inherit
+}
+
+.composer-bottom{
+ display:flex;
+ justify-content:space-between;
+ align-items:center;
+ gap:8px
+}
+
+.composer-bottom button{
+ border:0;
+ border-radius:9px;
+ padding:10px 13px;
+ cursor:pointer
+}
+
+.attach{
+ background:#eee
+}
+
+.send{
+ background:#252b45;
+ color:white
+}
+
+.send:disabled{
+ opacity:.5
+}
+
+.hint{
+ text-align:center;
+ color:#9298a5;
+ font-size:12px;
+ margin:10px
+}
+
+#fileName{
+ font-size:12px;
+ color:#555;
+ padding:5px
+}
+
+#typing{
+ color:#777;
+ font-size:14px;
+ text-align:center
+}
+
 #settingsPanel{
- display:none;position:absolute;right:15px;top:60px;
- background:white;border:1px solid #ddd;border-radius:12px;
- padding:16px;width:260px;box-shadow:0 5px 20px #0002;
+ display:none;
+ position:absolute;
+ right:15px;
+ top:60px;
+ background:white;
+ border:1px solid #ddd;
+ border-radius:12px;
+ padding:16px;
+ width:260px;
+ box-shadow:0 5px 20px #0002;
  z-index:5
 }
+
 #settingsPanel select{
- width:100%;padding:10px;margin-top:10px;
- border:1px solid #ddd;border-radius:8px
+ width:100%;
+ padding:10px;
+ margin-top:10px;
+ border:1px solid #ddd;
+ border-radius:8px
 }
+
 @media(max-width:650px){
- .sidebar{width:65px;padding:8px}
- .logo{font-size:12px;writing-mode:vertical-rl;margin:10px auto}
- .newchat{font-size:0;text-align:center;padding:12px 4px}
- .newchat:after{content:"+";font-size:20px}
- .sidebar h4,.sidebar-bottom span,.history{display:none}
- .sidebar-bottom button{text-align:center;font-size:0}
- .sidebar-bottom button:after{content:"⚙";font-size:18px}
- .welcome h1{font-size:26px}
- .messages{padding:18px 10px}
- .topbar{padding:0 12px}
+ .sidebar{
+  width:65px;
+  padding:8px
+ }
+
+ .logo{
+  font-size:12px;
+  writing-mode:vertical-rl;
+  margin:10px auto
+ }
+
+ .newchat{
+  font-size:0;
+  text-align:center;
+  padding:12px 4px
+ }
+
+ .newchat:after{
+  content:"+";
+  font-size:20px
+ }
+
+ .sidebar h4,
+ .sidebar-bottom span,
+ .history{
+  display:none
+ }
+
+ .sidebar-bottom button{
+  text-align:center;
+  font-size:0
+ }
+
+ .sidebar-bottom button:after{
+  content:"⚙";
+  font-size:18px
+ }
+
+ .welcome h1{
+  font-size:26px
+ }
+
+ .messages{
+  padding:18px 10px
+ }
+
+ .topbar{
+  padding:0 12px
+ }
 }
 </style>
 </head>
@@ -127,26 +363,42 @@ textarea{
 <body>
 
 <aside class="sidebar">
+
  <div class="logo">ZAQTIVO AI</div>
- <button class="newchat" onclick="newChat()">＋ New Chat</button>
+
+ <button class="newchat" onclick="newChat()">
+  ＋ New Chat
+ </button>
+
  <h4>Recent Chats</h4>
+
  <div class="history" id="history"></div>
+
  <div class="sidebar-bottom">
-  <button onclick="toggleSettings()">⚙ <span>Settings & Language</span></button>
+  <button onclick="toggleSettings()">
+   ⚙ <span>Settings & Language</span>
+  </button>
  </div>
+
 </aside>
 
 <main class="main">
+
  <header class="topbar">
+
   <div class="brand">ZAQTIVO AI</div>
+
   <div class="top-actions">
    <button onclick="newChat()">＋ New</button>
    <button onclick="toggleSettings()">🌐 Language</button>
   </div>
+
  </header>
 
  <div id="settingsPanel">
+
   <b>Answer Language</b>
+
   <select id="language" onchange="saveLanguage()">
    <option value="Auto">Auto detect / Same as user</option>
    <option>Hindi</option>
@@ -183,39 +435,87 @@ textarea{
    <option>Swahili</option>
    <option>Other supported language</option>
   </select>
+
   <p style="font-size:12px;color:#777">
-   Choose a language for AI answers. Auto detect follows your message.
+   Choose a language for AI answers.
+   Auto detect follows your message.
   </p>
+
   <button onclick="toggleSettings()">Done</button>
+
  </div>
 
  <section class="messages" id="messages">
+
   <div class="welcome" id="welcome">
    <h1>What can I help with?</h1>
-   <p>Ask anything. Learn anything. ZAQTIVO AI is ready to help you.</p>
+   <p>
+    Ask anything. Learn anything.
+    ZAQTIVO AI is ready to help you.
+   </p>
   </div>
+
  </section>
 
  <div id="typing"></div>
 
  <section class="composer-area">
+
   <div class="composer">
-   <textarea id="question" placeholder="Message ZAQTIVO AI..." rows="2"></textarea>
+
+   <textarea
+    id="question"
+    placeholder="Message ZAQTIVO AI..."
+    rows="2"
+   ></textarea>
+
    <div id="fileName"></div>
+
    <div class="composer-bottom">
+
     <div>
-     <button class="attach" onclick="document.getElementById('image').click()">＋ Photo</button>
-     <input type="file" id="image" accept="image/*" hidden onchange="showFile()">
+     <button
+      class="attach"
+      onclick="document.getElementById('image').click()"
+     >
+      ＋ Photo
+     </button>
+
+     <input
+      type="file"
+      id="image"
+      accept="image/*"
+      hidden
+      onchange="showFile()"
+     >
     </div>
-    <button class="send" id="sendBtn" onclick="sendMessage()">Send ↑</button>
+
+    <button
+     class="send"
+     id="sendBtn"
+     onclick="sendMessage()"
+    >
+     Send ↑
+    </button>
+
    </div>
+
   </div>
-  <div class="hint">ZAQTIVO AI can make mistakes. Check important information.</div>
+
+  <div class="hint">
+   ZAQTIVO AI can make mistakes.
+   Check important information.
+  </div>
+
  </section>
+
 </main>
 
 <script>
-let chats = JSON.parse(localStorage.getItem("zaqtivo_chats") || "[]");
+let chats = JSON.parse(
+ localStorage.getItem("zaqtivo_chats") || "[]"
+);
+
 let currentChat = [];
 let selectedImage = null;
 let busy = false;
@@ -225,217 +525,343 @@ const messages = document.getElementById("messages");
 const question = document.getElementById("question");
 const sendBtn = document.getElementById("sendBtn");
 
-/* LATEX CLEANER */
+
+/* LATEX CLEANER
+   IMPORTANT: CODE BLOCKS ARE PRESERVED
+   CSS/HTML/JS BRACES WILL NOT BE REMOVED
+*/
+
 function cleanMath(text){
+
  if(typeof text !== "string") return "";
 
- const sub = "₀₁₂₃₄₅₆₇₈₉";
- const sup = "⁰¹²³⁴⁵⁶⁷⁸⁹";
- const toSub = value => [...value].map(c => sub[Number(c)] || c).join("");
- const toSup = value => [...value].map(c => sup[Number(c)] || c).join("");
+ const parts = text.split(
+  /(```[\s\S]*?```|`[^`\n]*`)/g
+ );
 
- return text
+ return parts.map((part,index)=>{
 
-  // Remove LaTeX math wrappers
-  .replace(/\$\$([\s\S]*?)\$\$/g, "$1")
-  .replace(/\\\[([\s\S]*?)\\\]/g, "$1")
-  .replace(/\\\(([\s\S]*?)\\\)/g, "$1")
-  .replace(/\$([^$\n]+)\$/g, "$1")
+  // Preserve code blocks and inline code exactly
+  if(index % 2 === 1){
+   return part;
+  }
 
-  // Convert common LaTeX commands
-  .replace(/\\text\s*\{([^{}]*)\}/g, "$1")
-  .replace(/\\mathrm\s*\{([^{}]*)\}/g, "$1")
-  .replace(/\\mathbf\s*\{([^{}]*)\}/g, "$1")
-  .replace(/\\mathit\s*\{([^{}]*)\}/g, "$1")
-  .replace(/\\operatorname\s*\{([^{}]*)\}/g, "$1")
+  const sub = "₀₁₂₃₄₅₆₇₈₉";
+  const sup = "⁰¹²³⁴⁵⁶⁷⁸⁹";
 
-  // Convert arrows and symbols
-  .replace(/\\xrightarrow\s*\{([^{}]*)\}/g, " --$1--> ")
-  .replace(/\\longrightarrow|\\rightarrow|\\to/g, " → ")
-  .replace(/\\Rightarrow/g, " ⇒ ")
-  .replace(/\\leftarrow/g, " ← ")
-  .replace(/\\times/g, " × ")
-  .replace(/\\div/g, " ÷ ")
-  .replace(/\\cdot/g, " · ")
-  .replace(/\\pm/g, " ± ")
-  .replace(/\\leq|\\le/g, " ≤ ")
-  .replace(/\\geq|\\ge/g, " ≥ ")
-  .replace(/\\neq|\\ne/g, " ≠ ")
-  .replace(/\\approx/g, " ≈ ")
-  .replace(/\\pi/g, "π")
-  .replace(/\\infty/g, "∞")
-  .replace(/\\degree/g, "°")
-  .replace(/\\sqrt\s*\{([^{}]*)\}/g, "√($1)")
+  const toSub = value =>
+   [...value].map(c=>sub[Number(c)] || c).join("");
 
-  // Convert subscripts and superscripts
-  .replace(/_\{(\d+)\}/g, (_, n) => toSub(n))
-  .replace(/_(\d+)/g, (_, n) => toSub(n))
-  .replace(/\^\{(\d+)\}/g, (_, n) => toSup(n))
-  .replace(/\^(\d+)/g, (_, n) => toSup(n))
+  const toSup = value =>
+   [...value].map(c=>sup[Number(c)] || c).join("");
 
-  // Remove common layout commands
-  .replace(/\\(left|right|displaystyle|textstyle|quad|qquad)/g, "")
-  .replace(/\\[a-zA-Z]+/g, "")
+  return part
 
-  // Clean leftover braces and spacing
-  .replace(/[{}]/g, "")
-  .replace(/[ \t]{2,}/g, " ")
-  .replace(/ *\n */g, "\n")
-  .trim();
+   // Remove LaTeX math wrappers
+   .replace(/\$\$([\s\S]*?)\$\$/g,"$1")
+   .replace(/\\\[([\s\S]*?)\\\]/g,"$1")
+   .replace(/\\\(([\s\S]*?)\\\)/g,"$1")
+   .replace(/\$([^$\n]+)\$/g,"$1")
+
+   // Convert common LaTeX commands
+   .replace(/\\text\s*\{([^{}]*)\}/g,"$1")
+   .replace(/\\mathrm\s*\{([^{}]*)\}/g,"$1")
+   .replace(/\\mathbf\s*\{([^{}]*)\}/g,"$1")
+   .replace(/\\mathit\s*\{([^{}]*)\}/g,"$1")
+   .replace(/\\operatorname\s*\{([^{}]*)\}/g,"$1")
+
+   // Convert arrows and symbols
+   .replace(/\\xrightarrow\s*\{([^{}]*)\}/g," --$1--> ")
+   .replace(/\\longrightarrow|\\rightarrow|\\to/g," → ")
+   .replace(/\\Rightarrow/g," ⇒ ")
+   .replace(/\\leftarrow/g," ← ")
+   .replace(/\\times/g," × ")
+   .replace(/\\div/g," ÷ ")
+   .replace(/\\cdot/g," · ")
+   .replace(/\\pm/g," ± ")
+   .replace(/\\leq|\\le/g," ≤ ")
+   .replace(/\\geq|\\ge/g," ≥ ")
+   .replace(/\\neq|\\ne/g," ≠ ")
+   .replace(/\\approx/g," ≈ ")
+   .replace(/\\pi/g,"π")
+   .replace(/\\infty/g,"∞")
+   .replace(/\\degree/g,"°")
+   .replace(/\\sqrt\s*\{([^{}]*)\}/g,"√($1)")
+
+   // Convert subscripts and superscripts
+   .replace(/_\{(\d+)\}/g,(_,n)=>toSub(n))
+   .replace(/_(\d+)/g,(_,n)=>toSub(n))
+   .replace(/\^\{(\d+)\}/g,(_,n)=>toSup(n))
+   .replace(/\^(\d+)/g,(_,n)=>toSup(n))
+
+   // Remove common layout commands
+   .replace(/\\(left|right|displaystyle|textstyle|quad|qquad)/g,"")
+   .replace(/\\[a-zA-Z]+/g,"")
+
+   // IMPORTANT: Do not remove curly braces
+   .replace(/[ \t]{2,}/g," ")
+   .replace(/ *\n */g,"\n")
+   .trim();
+
+ }).join("");
 }
 
+
 /* LANGUAGE SETTINGS */
+
 document.getElementById("language").value =
  localStorage.getItem("zaqtivo_language") || "Auto";
 
 function saveLanguage(){
+
  localStorage.setItem(
   "zaqtivo_language",
   document.getElementById("language").value
  );
+
 }
 
 function toggleSettings(){
- const p=document.getElementById("settingsPanel");
- p.style.display=p.style.display==="block"?"none":"block";
+
+ const p = document.getElementById("settingsPanel");
+
+ p.style.display =
+  p.style.display === "block" ? "none" : "block";
+
 }
+
 
 /* IMAGE UPLOAD */
+
 function showFile(){
- selectedImage=document.getElementById("image").files[0] || null;
- document.getElementById("fileName").textContent=
-  selectedImage ? "📎 "+selectedImage.name : "";
+
+ selectedImage =
+  document.getElementById("image").files[0] || null;
+
+ document.getElementById("fileName").textContent =
+  selectedImage ? "📎 " + selectedImage.name : "";
+
 }
 
+
 /* CHAT DISPLAY */
+
 function renderWelcome(){
- messages.innerHTML=`
+
+ messages.innerHTML = `
  <div class="welcome" id="welcome">
   <h1>What can I help with?</h1>
   <p>Ask anything. Learn anything. ZAQTIVO AI is ready to help you.</p>
  </div>`;
+
 }
 
 function addMessage(role,text,imageUrl){
- const wrap=document.createElement("div");
- wrap.className="message";
 
- const avatar=document.createElement("div");
- avatar.className="avatar";
- avatar.textContent=role==="user"?"Y":"Z";
+ const wrap = document.createElement("div");
+ wrap.className = "message";
 
- const content=document.createElement("div");
- content.className="message-content";
+ const avatar = document.createElement("div");
+ avatar.className = "avatar";
+ avatar.textContent = role === "user" ? "Y" : "Z";
 
- // IMPORTANT: Clean answer before displaying
- const cleanText=cleanMath(text);
- content.textContent=cleanText;
+ const content = document.createElement("div");
+ content.className = "message-content";
+
+ // Clean normal text but preserve code blocks
+ const cleanText = cleanMath(text);
+
+ content.textContent = cleanText;
 
  if(imageUrl){
-  const img=document.createElement("img");
-  img.src=imageUrl;
+
+  const img = document.createElement("img");
+  img.src = imageUrl;
+
   content.appendChild(document.createElement("br"));
   content.appendChild(img);
+
  }
 
- if(role==="ai"){
-  const actions=document.createElement("div");
-  actions.className="message-actions";
+ if(role === "ai"){
 
-  const copy=document.createElement("button");
-  copy.textContent="Copy answer";
+  const actions = document.createElement("div");
+  actions.className = "message-actions";
 
-  // Copy the cleaned answer
-  copy.onclick=()=>navigator.clipboard.writeText(cleanText);
+  const copy = document.createElement("button");
+  copy.textContent = "Copy answer";
+
+  copy.onclick = async ()=>{
+
+   try{
+    await navigator.clipboard.writeText(cleanText);
+    copy.textContent = "Copied!";
+    setTimeout(()=>copy.textContent="Copy answer",1500);
+   }catch(error){
+    alert("Copy failed. Please select and copy the answer.");
+   }
+
+  };
 
   actions.appendChild(copy);
   content.appendChild(actions);
+
  }
 
  wrap.append(avatar,content);
+
  messages.appendChild(wrap);
- messages.scrollTop=messages.scrollHeight;
+ messages.scrollTop = messages.scrollHeight;
+
 }
 
-/* SAVE CHAT */
-function saveChat(){
- if(!currentChat.length)return;
 
- // Save cleaned text in chat history too
- currentChat=currentChat.map(m=>({
+/* SAVE CHAT */
+
+function saveChat(){
+
+ if(!currentChat.length) return;
+
+ // Code blocks remain unchanged during saving
+ currentChat = currentChat.map(m=>({
   ...m,
   text:cleanMath(m.text)
  }));
 
- const first=currentChat.find(m=>m.role==="user");
- const title=first ? first.text.slice(0,45) : "New Chat";
- const oldIndex=chats.findIndex(c=>c.id===activeChatId);
+ const first = currentChat.find(m=>m.role==="user");
 
- const item={
+ const title = first
+  ? first.text.slice(0,45)
+  : "New Chat";
+
+ const oldIndex = chats.findIndex(
+  c=>c.id===activeChatId
+ );
+
+ const item = {
   id:activeChatId,
   title,
   messages:currentChat
  };
 
- if(oldIndex>=0)chats[oldIndex]=item;
- else chats.unshift(item);
+ if(oldIndex >= 0){
+  chats[oldIndex] = item;
+ }else{
+  chats.unshift(item);
+ }
 
- localStorage.setItem("zaqtivo_chats",JSON.stringify(chats));
+ try{
+
+  localStorage.setItem(
+   "zaqtivo_chats",
+   JSON.stringify(chats)
+  );
+
+ }catch(error){
+
+  console.error("Chat saving failed:",error);
+  alert("Storage is full. Some old chats may need to be deleted.");
+
+ }
+
  renderHistory();
+
 }
 
+
 /* CHAT HISTORY */
+
 function renderHistory(){
- const box=document.getElementById("history");
- box.innerHTML="";
+
+ const box = document.getElementById("history");
+
+ box.innerHTML = "";
 
  chats.forEach(chat=>{
-  const b=document.createElement("button");
-  b.textContent=chat.title;
-  b.onclick=()=>openChat(chat.id);
+
+  const b = document.createElement("button");
+
+  b.textContent = chat.title;
+
+  b.onclick = ()=>openChat(chat.id);
+
   box.appendChild(b);
+
  });
+
 }
 
 function openChat(id){
- const chat=chats.find(c=>c.id===id);
- if(!chat)return;
 
- activeChatId=chat.id;
- currentChat=chat.messages || [];
+ const chat = chats.find(c=>c.id===id);
+
+ if(!chat) return;
+
+ activeChatId = chat.id;
+ currentChat = chat.messages || [];
+
+ selectedImage = null;
+
+ document.getElementById("image").value = "";
+ document.getElementById("fileName").textContent = "";
+ question.value = "";
 
  renderWelcome();
 
- currentChat.forEach(m=>addMessage(
-  m.role,m.text,m.imageData
- ));
+ currentChat.forEach(m=>{
+
+  addMessage(
+   m.role,
+   m.text,
+   null
+  );
+
+ });
+
 }
+
+
+/* NEW CHAT */
 
 function newChat(){
- currentChat=[];
- activeChatId=Date.now().toString();
- selectedImage=null;
 
- document.getElementById("image").value="";
- document.getElementById("fileName").textContent="";
- question.value="";
+ currentChat = [];
+
+ activeChatId = Date.now().toString();
+
+ selectedImage = null;
+
+ document.getElementById("image").value = "";
+
+ document.getElementById("fileName").textContent = "";
+
+ question.value = "";
 
  renderWelcome();
+
 }
 
-/* SEND MESSAGE */
-async function sendMessage(){
- if(busy)return;
 
- const text=question.value.trim();
+/* SEND MESSAGE */
+
+async function sendMessage(){
+
+ if(busy) return;
+
+ const text = question.value.trim();
 
  if(!text && !selectedImage){
+
   alert("Please write a question or select a photo.");
   return;
+
  }
 
- const image=selectedImage;
- const imageUrl=image ? URL.createObjectURL(image) : null;
+ const image = selectedImage;
+
+ const imageUrl = image
+  ? URL.createObjectURL(image)
+  : null;
 
  currentChat.push({
   role:"user",
@@ -449,85 +875,144 @@ async function sendMessage(){
   imageUrl
  );
 
- // Save user message immediately
  saveChat();
 
- question.value="";
- selectedImage=null;
+ question.value = "";
 
- document.getElementById("image").value="";
- document.getElementById("fileName").textContent="";
+ selectedImage = null;
 
- busy=true;
- sendBtn.disabled=true;
- sendBtn.textContent="...";
- document.getElementById("typing").textContent="ZAQTIVO AI is thinking...";
+ document.getElementById("image").value = "";
+
+ document.getElementById("fileName").textContent = "";
+
+ busy = true;
+
+ sendBtn.disabled = true;
+ sendBtn.textContent = "...";
+
+ document.getElementById("typing").textContent =
+  "ZAQTIVO AI is thinking...";
+
 
  try{
-  const language=document.getElementById("language").value;
 
-  const history=currentChat.slice(-12).map(m=>
-   (m.role==="user"?"User: ":"Assistant: ")+cleanMath(m.text)
+  const language =
+   document.getElementById("language").value;
+
+  // Keep recent conversation context
+  const history = currentChat.slice(-12).map(m=>
+   (m.role==="user" ? "User: " : "Assistant: ") +
+   cleanMath(m.text)
   ).join("\n\n");
 
-  const formattingRules=`
+  const formattingRules = `
 IMPORTANT ANSWER FORMATTING:
-1. Never use LaTeX formatting.
-2. Never use $$, $, \\text{}, \\mathrm{}, \\frac{}, or other LaTeX commands.
-3. Write all formulas in normal readable text.
-4. Use Unicode subscripts and superscripts where possible.
-5. Write chemical formulas like H₂O, CO₂, O₂ and C₆H₁₂O₆.
-6. Write equations using normal arrows like →.
-7. Do not put mathematical expressions inside dollar signs.
-8. Keep the answer clean and easy to read.
+
+1. Answer the latest user question first.
+2. Never use LaTeX formatting.
+3. Never use $$, $, \\text{}, \\mathrm{}, \\frac{}, or other LaTeX commands.
+4. Write formulas in normal readable text.
+5. Use Unicode subscripts and superscripts where possible.
+6. Write chemical formulas like H₂O, CO₂, O₂ and C₆H₁₂O₆.
+7. Write equations using normal arrows like →.
+8. Do not put mathematical expressions inside dollar signs.
+9. Keep the answer clean and easy to read.
+10. Preserve all programming syntax.
+11. CSS selectors must have correct opening and closing braces.
+12. HTML, CSS, JavaScript and JSON code must be complete and valid.
+13. If the user requests only code, return only the code.
+14. Do not remove required symbols, brackets or braces.
 `;
 
-  const prompt=
-   (language==="Auto" ? "" :
-    "Please answer in "+language+". ") +
-   "Continue this conversation naturally. Use the previous messages as context.\n"+
-   formattingRules+"\n"+
-   history+"\n\nAssistant:";
+  const prompt =
+   (language === "Auto"
+    ? ""
+    : "Please answer in " + language + ". ") +
 
-  const form=new FormData();
+   "Continue this conversation naturally. " +
+   "Use previous messages only when relevant. " +
+   "Prioritize the latest user question.\n" +
+
+   formattingRules + "\n" +
+
+   history + "\n\nAssistant:";
+
+
+  const form = new FormData();
+
   form.append("question",prompt);
 
-  if(image)form.append("image",image);
-
-  const controller=new AbortController();
-  const timeout=setTimeout(()=>controller.abort(),90000);
-
-  const response=await fetch("/api/solve",{
-   method:"POST",
-   body:form,
-   signal:controller.signal
-  });
-
-  clearTimeout(timeout);
-
-  const data=await response.json();
-
-  if(!response.ok){
-   throw new Error(data.error || "Request failed");
+  if(image){
+   form.append("image",image);
   }
 
-  // Clean AI answer before saving and displaying
-  const answer=cleanMath(data.answer || "No answer received.");
-console.log("RAW AI RESPONSE:", JSON.stringify(data.answer));
+
+  const controller = new AbortController();
+
+  const timeout = setTimeout(
+   ()=>controller.abort(),
+   90000
+  );
+
+
+  let response;
+
+  try{
+
+   response = await fetch("/api/solve",{
+    method:"POST",
+    body:form,
+    signal:controller.signal
+   });
+
+  }finally{
+
+   clearTimeout(timeout);
+
+  }
+
+
+  const data = await response.json();
+
+  if(!response.ok){
+
+   throw new Error(
+    data.error || "Request failed"
+   );
+
+  }
+
+
+  // Preserve raw code formatting
+  const answer = cleanMath(
+   data.answer || "No answer received."
+  );
+
+  console.log(
+   "RAW AI RESPONSE:",
+   JSON.stringify(data.answer)
+  );
+
+
   currentChat.push({
    role:"ai",
    text:answer
   });
 
   addMessage("ai",answer);
+
   saveChat();
 
- }catch(error){
-  const msg=error.name==="AbortError"
-   ?"The response is taking too long. Please try again."
-   :error.message;
 
-  const errorText="Error: "+msg;
+ }catch(error){
+
+  console.error("AI request error:",error);
+
+  const msg = error.name === "AbortError"
+   ? "The response is taking too long. Please try again."
+   : error.message;
+
+  const errorText = "Error: " + msg;
 
   currentChat.push({
    role:"ai",
@@ -535,27 +1020,47 @@ console.log("RAW AI RESPONSE:", JSON.stringify(data.answer));
   });
 
   addMessage("ai",errorText);
+
   saveChat();
 
- }finally{
-  if(imageUrl)URL.revokeObjectURL(imageUrl);
 
-  busy=false;
-  sendBtn.disabled=false;
-  sendBtn.textContent="Send ↑";
-  document.getElementById("typing").textContent="";
+ }finally{
+
+  if(imageUrl){
+   URL.revokeObjectURL(imageUrl);
+  }
+
+  busy = false;
+
+  sendBtn.disabled = false;
+  sendBtn.textContent = "Send ↑";
+
+  document.getElementById("typing").textContent = "";
+
  }
+
 }
 
+
 /* ENTER TO SEND */
+
 question.addEventListener("keydown",e=>{
- if(e.key==="Enter" && !e.shiftKey){
+
+ if(e.key === "Enter" && !e.shiftKey){
+
   e.preventDefault();
+
   sendMessage();
+
  }
+
 });
 
+
+/* START APP */
+
 renderHistory();
+
 </script>
 
 </body>
