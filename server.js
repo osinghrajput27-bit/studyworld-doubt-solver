@@ -7,7 +7,7 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 const MODEL = "gemini-3.5-flash-lite";
 
-const upload = multer({
+const uplhoad = multer({
   storage: multer.memoryStorage(),
   limits: { fileSize: 10 * 1024 * 1024 }
 });
