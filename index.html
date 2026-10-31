@@ -513,7 +513,7 @@ IMPORTANT ANSWER FORMATTING:
 
   // Clean AI answer before saving and displaying
   const answer=cleanMath(data.answer || "No answer received.");
-
+console.log("RAW AI RESPONSE:", JSON.stringify(data.answer));
   currentChat.push({
    role:"ai",
    text:answer
