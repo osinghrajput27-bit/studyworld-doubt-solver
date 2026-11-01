@@ -1,1036 +1,676 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="theme-color" content="#171923">
-<title>ZAQTIVO AI</title>
+<meta name="theme-color" content="#f3efff">
+<title>AI Assistant</title>
 
 <style>
 *{box-sizing:border-box}
-
+:root{
+ --purple:#7655e9;
+ --blue:#6485f5;
+ --ink:#25243a;
+ --muted:#85849b;
+ --surface:#fff;
+}
 body{
- margin:0;font-family:Arial,sans-serif;background:#f5f6fa;
- color:#202123;height:100vh;height:100dvh;
- display:flex;overflow:hidden
+ margin:0;
+ font-family:Arial,sans-serif;
+ color:var(--ink);
+ background:linear-gradient(135deg,#f3efff,#edf5ff,#fff1fa);
+ min-height:100vh;
 }
-
-button,textarea,select{font:inherit}
+button,input,textarea{font:inherit}
 button{cursor:pointer}
-
-.sidebar{
- width:260px;flex-shrink:0;background:#171923;color:white;
- padding:16px;display:flex;flex-direction:column
-}
-
-.logo{
- font-size:23px;font-weight:bold;margin:12px 0 25px;
- letter-spacing:.5px
-}
-
-.newchat{
- padding:13px;background:#292d3b;color:white;
- border:1px solid #444;border-radius:10px;
- text-align:left;font-size:15px
-}
-.newchat:hover{background:#353a4c}
-
-.sidebar h4{color:#aab0c0;margin-top:25px}
-.history{overflow:auto;flex:1}
-
-.history button{
- display:block;width:100%;padding:11px;border:0;
- background:transparent;color:#ddd;text-align:left;
- border-radius:8px;overflow:hidden;text-overflow:ellipsis;
- white-space:nowrap;margin-bottom:3px
-}
-.history button:hover,.history button.active{background:#292d3b}
-
-.sidebar-bottom{border-top:1px solid #444;padding-top:12px}
-.sidebar-bottom button{
- width:100%;padding:10px;background:transparent;
- color:white;border:0;text-align:left
-}
-
-.main{
- flex:1;display:flex;flex-direction:column;
- min-width:0;position:relative
-}
-
 .topbar{
- height:65px;flex-shrink:0;background:white;
- border-bottom:1px solid #eee;display:flex;
+ height:70px;padding:0 22px;display:flex;
  align-items:center;justify-content:space-between;
- padding:0 20px
 }
-
-.brand{font-weight:bold;font-size:19px}
-.top-actions{display:flex;gap:8px}
-.top-actions button{
- padding:9px 12px;border:1px solid #ddd;
- background:white;border-radius:8px
+.iconbtn{
+ border:0;background:#ffffffc9;border-radius:14px;
+ width:43px;height:43px;font-size:21px;color:#5544a0;
 }
-.top-actions button:hover{background:#f1f2f6}
-
-.messages{
- flex:1;overflow-y:auto;padding:25px 15px;
- display:flex;flex-direction:column;gap:22px;
- scroll-behavior:smooth
+.brand{font-size:19px;font-weight:800}
+.top-actions{display:flex;gap:10px;align-items:center}
+.pro-small{
+ border:0;border-radius:20px;padding:10px 14px;
+ background:#fff0b8;color:#79521a;font-weight:700;
 }
-
-.welcome{
- text-align:center;margin:auto;max-width:550px;padding:20px
-}
-.welcome h1{font-size:32px;margin-bottom:12px}
-.welcome p{color:#707789;line-height:1.6}
-
-.message{
- max-width:850px;width:100%;margin:0 auto;
- display:flex;gap:12px;line-height:1.7;
- overflow-wrap:anywhere
-}
-
 .avatar{
- width:34px;height:34px;flex-shrink:0;border-radius:50%;
- background:#e4e8ff;display:flex;align-items:center;
- justify-content:center;font-weight:bold;color:#3949ab
+ width:40px;height:40px;border-radius:50%;
+ background:linear-gradient(135deg,#8c6aff,#59a4f5);
+ color:white;display:grid;place-items:center;font-weight:bold;
 }
-
-.message-content{
- flex:1;min-width:0;padding-top:3px;overflow-wrap:anywhere
+main{max-width:920px;margin:25px auto;padding:15px}
+.hero{text-align:center;margin:25px 0 27px}
+.logo{
+ width:76px;height:76px;margin:auto auto 17px;
+ border-radius:25px;background:linear-gradient(135deg,#7556ec,#5799f5);
+ display:grid;place-items:center;color:white;font-size:39px;
+ box-shadow:0 12px 28px #8069df44;
 }
-
-.message-content p{margin:0 0 12px}
-.message-content strong{font-weight:700;color:#171923}
-.message-content em{font-style:italic}
-
-.message-content h1,
-.message-content h2,
-.message-content h3{
- line-height:1.35;margin:18px 0 9px
+.hero h1{font-size:34px;margin:8px 0}
+.hero p{color:var(--muted);margin:10px 0}
+.askbox{
+ background:white;border:1px solid #e8e2fa;
+ border-radius:25px;padding:14px;
+ box-shadow:0 12px 35px #7865b51a;
 }
-.message-content h1{font-size:23px}
-.message-content h2{font-size:20px}
-.message-content h3{font-size:17px}
-
-.message-content ul,
-.message-content ol{
- padding-left:25px;margin:8px 0 15px
+.askbox textarea{
+ width:100%;height:75px;border:0;outline:0;resize:vertical;
+ font-size:16px;padding:8px;color:var(--ink);
 }
-.message-content li{margin:5px 0}
-
-.message-content blockquote{
- border-left:3px solid #9ba3b5;padding:5px 13px;
- margin:12px 0;color:#596174
+.askbottom{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.asktools{display:flex;gap:8px;align-items:center}
+.smallbtn{
+ border:0;background:#f4f1ff;color:#6550bd;
+ border-radius:12px;padding:10px 12px;
 }
-
-.message-content hr{
- border:0;border-top:1px solid #ddd;margin:15px 0
+.sendbtn{
+ border:0;background:linear-gradient(135deg,#7855ed,#5d8ff4);
+ color:white;border-radius:14px;padding:12px 20px;font-weight:bold;
 }
-
-/* CODE BLOCK DESIGN */
-
-.message-content pre{
- position:relative;
- white-space:pre;
- overflow-x:auto;
- background:#171923;
- color:#f5f5f5;
- padding:48px 16px 17px;
- border-radius:10px;
- margin:12px 0;
- font-size:13px;
- line-height:1.7;
- border:1px solid #343849;
- tab-size:4;
+.language{
+ margin-top:12px;display:flex;justify-content:center;gap:8px;
+ align-items:center;color:var(--muted);font-size:13px;
 }
-
-.code-header{
- position:absolute;
- top:0;left:0;right:0;
- height:36px;
- padding:7px 12px;
- background:#252a39;
- border-bottom:1px solid #3b4050;
- display:flex;
- align-items:center;
- justify-content:space-between;
+.language select{
+ border:1px solid #e5def8;border-radius:12px;
+ padding:8px;background:white;color:#51468b;
 }
-
-.code-language{
- color:#b9c2d5;
- font-size:11px;
- text-transform:uppercase;
- letter-spacing:.6px;
- font-weight:bold;
+.section-title{
+ font-size:18px;font-weight:800;margin:30px 0 14px;
 }
-
-.code-copy{
- padding:5px 10px;
- background:#41495d;
- color:white;
- border:0;
- border-radius:5px;
- font-size:11px;
+.features{
+ display:grid;grid-template-columns:repeat(3,1fr);gap:13px;
 }
-
-.code-copy:hover{background:#58627c}
-
-.message-content pre code{
- display:block;
- color:#f5f5f5;
- background:transparent;
- padding:0;
- border-radius:0;
- white-space:pre;
- font-family:Consolas,Monaco,monospace;
- font-size:13px;
+.feature{
+ background:#ffffffd9;border:1px solid #eee9fb;
+ border-radius:19px;padding:17px 10px;text-align:center;
+ min-height:112px;transition:.2s;
 }
-
-.message-content code{
- font-family:Consolas,Monaco,monospace;
- background:#e9eaf0;
- padding:2px 5px;
- border-radius:4px;
- font-size:.92em;
+.feature:active{transform:scale(.97)}
+.feature .emoji{font-size:27px;display:block;margin-bottom:9px}
+.feature strong{font-size:14px}
+.prompts{display:grid;grid-template-columns:repeat(2,1fr);gap:11px}
+.prompt{
+ background:#ffffffd9;border:1px solid #eee9fb;
+ border-radius:15px;padding:15px;text-align:left;
+ color:#514b72;font-size:14px;
 }
-
-.message img{
- max-width:min(260px,100%);
- border-radius:12px;margin-top:8px
+.upgrade{
+ margin:25px 0 95px;padding:19px;border-radius:20px;
+ background:linear-gradient(110deg,#fff0b9,#ffe4cb);
+ display:flex;justify-content:space-between;align-items:center;gap:12px;
 }
-
-.message-actions{margin-top:9px}
-.message-actions button{
- border:0;background:transparent;color:#697386;
- padding:6px 0;margin-right:12px;font-size:12px
+.upgrade strong{display:block;margin-bottom:5px}
+.upgrade p{margin:0;font-size:13px;color:#8c7042}
+.upgrade button{
+ border:0;border-radius:13px;background:#fff;
+ color:#8c6325;padding:11px 14px;font-weight:bold;
 }
-.message-actions button:hover{color:#3949ab}
-
-.composer-area{
- flex-shrink:0;padding:12px 15px 15px;background:#f5f6fa
+.bottomnav{
+ position:fixed;bottom:0;left:0;right:0;
+ background:#ffffffed;backdrop-filter:blur(12px);
+ border-top:1px solid #eee9f7;display:flex;
+ justify-content:space-around;padding:10px 5px 14px;
+ z-index:5;
 }
-
-.composer{
- max-width:850px;margin:auto;background:white;
- border:1px solid #ddd;border-radius:16px;
- padding:10px;box-shadow:0 3px 12px #0000000a
+.navitem{
+ border:0;background:transparent;color:#9992b0;
+ font-size:12px;display:grid;gap:5px;justify-items:center;
 }
-
-textarea{
- width:100%;border:0;outline:none;resize:none;
- min-height:55px;max-height:160px;font-size:16px;
- padding:10px;background:transparent;font-family:inherit
+.navitem span{font-size:20px}
+.navitem.active{color:var(--purple);font-weight:bold}
+#chatScreen,#otherScreen{display:none}
+.panel{
+ background:#ffffffd9;border:1px solid #eee9fb;
+ border-radius:20px;padding:18px;margin-top:15px;
 }
-
-.composer-bottom{
- display:flex;justify-content:space-between;
- align-items:center;gap:8px
+.chathead{display:flex;align-items:center;gap:10px;margin-bottom:15px}
+.chathead button{border:0;background:#f0ecff;padding:10px;border-radius:12px}
+.messages{display:flex;flex-direction:column;gap:13px}
+.msg{
+ max-width:90%;padding:13px 15px;border-radius:17px;
+ line-height:1.55;white-space:pre-wrap;overflow-wrap:anywhere;
 }
-
-.composer-bottom button{
- border:0;border-radius:9px;padding:10px 13px
+.user{align-self:flex-end;background:#e9e3ff}
+.ai{align-self:flex-start;background:#fff;border:1px solid #eee9f7}
+.msg pre{
+ white-space:pre-wrap;overflow-x:auto;background:#25243a;
+ color:#fff;padding:13px;border-radius:12px;
 }
-
-.attach{background:#eee;color:#222}
-.attach:hover{background:#e2e2e2}
-.send{background:#252b45;color:white}
-.send:hover{background:#39415f}
-.send:disabled{opacity:.5;cursor:not-allowed}
-
-.hint{
- text-align:center;color:#9298a5;font-size:12px;margin:10px
+.msg code{font-family:monospace}
+.msg-actions{display:flex;gap:8px;margin-top:9px}
+.msg-actions button{
+ border:0;background:#f0ecff;color:#6251ad;
+ padding:7px 10px;border-radius:9px;font-size:12px;
 }
-
-#fileName{font-size:12px;color:#555;padding:5px}
-#typing{color:#777;font-size:13px;text-align:center;padding:4px}
-
-#settingsPanel{
- display:none;position:absolute;right:15px;top:60px;
- background:white;border:1px solid #ddd;border-radius:12px;
- padding:16px;width:260px;box-shadow:0 5px 20px #0002;z-index:5
+.chatinput{
+ display:flex;gap:8px;margin-top:16px;
 }
-
-#settingsPanel select{
- width:100%;padding:10px;margin-top:10px;
- border:1px solid #ddd;border-radius:8px;background:white
+.chatinput textarea{
+ flex:1;min-width:0;resize:vertical;min-height:48px;
+ border:1px solid #e6e0f5;border-radius:14px;padding:13px;
 }
-
-#settingsPanel button{
- margin-top:10px;padding:8px 15px;border:0;
- border-radius:7px;background:#252b45;color:white
+.chatinput button{
+ border:0;background:var(--purple);color:white;
+ border-radius:13px;padding:0 17px;
 }
-
-@media(max-width:650px){
- .sidebar{width:65px;padding:8px}
- .logo{
-  font-size:12px;writing-mode:vertical-rl;
-  margin:10px auto
- }
- .newchat{font-size:0;text-align:center;padding:12px 4px}
- .newchat:after{content:"+";font-size:20px}
- .sidebar h4,.sidebar-bottom span,.history{display:none}
- .sidebar-bottom button{text-align:center;font-size:0}
- .sidebar-bottom button:after{content:"⚙";font-size:18px}
- .welcome h1{font-size:26px}
- .messages{padding:18px 10px}
- .topbar{padding:0 12px}
+.status{font-size:13px;color:#817b9a;margin:10px 0}
+.settingrow{
+ display:flex;justify-content:space-between;align-items:center;
+ padding:14px 0;border-bottom:1px solid #eee9f7;gap:12px;
+}
+.settingrow button{
+ border:0;background:#f0ecff;color:#5e4bb1;
+ border-radius:10px;padding:9px 12px;
+}
+.empty{text-align:center;color:var(--muted);padding:25px}
+.hidden{display:none!important}
+@media(max-width:600px){
+ main{padding:12px;margin:10px auto}
+ .hero h1{font-size:29px}
+ .features{grid-template-columns:repeat(2,1fr)}
+ .topbar{padding:0 13px}
  .brand{font-size:16px}
- .top-actions button{padding:8px;font-size:12px}
- .message{gap:8px}
- .avatar{width:30px;height:30px}
- .composer-area{padding:8px 9px 10px}
- .hint{font-size:11px}
- .message-content pre{font-size:12px}
+ .pro-small{padding:9px;font-size:12px}
+ .upgrade{align-items:flex-start}
 }
 </style>
 </head>
 
 <body>
 
-<aside class="sidebar">
- <div class="logo">ZAQTIVO AI</div>
- <button class="newchat" onclick="newChat()">＋ New Chat</button>
- <h4>Recent Chats</h4>
- <div class="history" id="history"></div>
- <div class="sidebar-bottom">
-  <button onclick="toggleSettings()">⚙ <span>Settings & Language</span></button>
+<header class="topbar">
+ <button class="iconbtn" onclick="toggleMenu()" aria-label="Menu">☰</button>
+ <div class="brand">AI Assistant</div>
+ <div class="top-actions">
+  <button class="pro-small" onclick="showUpgrade()">♛ Pro</button>
+  <div class="avatar">A</div>
  </div>
-</aside>
+</header>
 
-<main class="main">
-
- <header class="topbar">
-  <div class="brand">ZAQTIVO AI</div>
-  <div class="top-actions">
-   <button onclick="newChat()">＋ New</button>
-   <button onclick="toggleSettings()">🌐 Language</button>
+<main>
+ <section id="homeScreen">
+  <div class="hero">
+   <div class="logo">🧠</div>
+   <h1>AI Assistant</h1>
+   <p>Ask • Learn • Create • Explore</p>
   </div>
- </header>
 
- <div id="settingsPanel">
-  <b>Answer Language</b>
-  <select id="language" onchange="saveLanguage()">
-   <option value="Auto">Auto detect / Same as user</option>
-   <option>Hindi</option>
-   <option>English</option>
-   <option>Hinglish</option>
-   <option>Urdu</option>
-   <option>Sanskrit</option>
-   <option>Arabic</option>
-   <option>French</option>
-   <option>Spanish</option>
-   <option>German</option>
-   <option>Portuguese</option>
-   <option>Russian</option>
-   <option>Chinese</option>
-   <option>Japanese</option>
-   <option>Korean</option>
-   <option>Italian</option>
-   <option>Turkish</option>
-   <option>Bengali</option>
-   <option>Punjabi</option>
-   <option>Tamil</option>
-   <option>Telugu</option>
-   <option>Marathi</option>
-   <option>Gujarati</option>
-   <option>Malayalam</option>
-   <option>Kannada</option>
-   <option>Indonesian</option>
-   <option>Thai</option>
-   <option>Vietnamese</option>
-   <option>Dutch</option>
-   <option>Greek</option>
-   <option>Hebrew</option>
-   <option>Polish</option>
-   <option>Swahili</option>
-   <option>Other supported language</option>
-  </select>
+  <div class="askbox">
+   <textarea id="question" placeholder="Ask me anything..."></textarea>
+   <div class="askbottom">
+    <div class="asktools">
+     <button class="smallbtn" onclick="document.getElementById('photoInput').click()">＋ Photo</button>
+     <button class="smallbtn" onclick="startVoice()">🎙</button>
+    </div>
+    <button class="sendbtn" onclick="sendQuestion()">Send ➤</button>
+   </div>
+   <input id="photoInput" type="file" accept="image/*" hidden onchange="photoSelected(event)">
+   <div id="photoName" class="status"></div>
+  </div>
 
-  <p style="font-size:12px;color:#777">
-   Choose a language for AI answers. Auto detect follows your message.
-  </p>
-  <button onclick="toggleSettings()">Done</button>
- </div>
+  <div class="language">
+   Answer language:
+   <select id="languageSelect">
+    <option value="auto">Auto – Follow my question</option>
+    <option value="English">English</option>
+    <option value="Hindi">हिन्दी</option>
+    <option value="Hinglish">Hinglish</option>
+    <option value="Bengali">বাংলা</option>
+    <option value="Tamil">தமிழ்</option>
+    <option value="Telugu">తెలుగు</option>
+    <option value="Marathi">मराठी</option>
+    <option value="Gujarati">ગુજરાતી</option>
+    <option value="Punjabi">ਪੰਜਾਬੀ</option>
+    <option value="Urdu">اردو</option>
+    <option value="Other">Other – Follow my message</option>
+   </select>
+  </div>
 
- <section class="messages" id="messages">
-  <div class="welcome" id="welcome">
-   <h1>What can I help with?</h1>
-   <p>Ask anything. Learn anything. ZAQTIVO AI is ready to help you.</p>
+  <div class="section-title">Explore Features</div>
+  <div class="features">
+   <button class="feature" onclick="newChat()"><span class="emoji">💬</span><strong>New Chat</strong></button>
+   <button class="feature" onclick="document.getElementById('photoInput').click()"><span class="emoji">🖼️</span><strong>Upload Photo</strong></button>
+   <button class="feature" onclick="openCamera()"><span class="emoji">📷</span><strong>Use Camera</strong></button>
+   <button class="feature" onclick="startVoice()"><span class="emoji">🎙️</span><strong>Voice Input</strong></button>
+   <button class="feature" onclick="quickPrompt('Give me a short and clear answer to my question.')"><span class="emoji">⚡</span><strong>Quick Answers</strong></button>
+   <button class="feature" onclick="quickPrompt('Help me understand this topic step by step.')"><span class="emoji">📚</span><strong>Study Help</strong></button>
+  </div>
+
+  <div class="section-title">Popular Prompts</div>
+  <div class="prompts">
+   <button class="prompt" onclick="quickPrompt('Explain this topic in simple words: ')">📖 Explain this topic</button>
+   <button class="prompt" onclick="quickPrompt('Summarize this text: ')">📝 Summarize this text</button>
+   <button class="prompt" onclick="quickPrompt('Solve this problem step by step: ')">➗ Solve this problem</button>
+   <button class="prompt" onclick="quickPrompt('Help me write code for: ')">💻 Write code</button>
+  </div>
+
+  <div class="upgrade">
+   <div><strong>✨ Upgrade to Pro</strong><p>Explore more possibilities with AI.</p></div>
+   <button onclick="showUpgrade()">Explore</button>
   </div>
  </section>
 
- <div id="typing"></div>
-
- <section class="composer-area">
-  <div class="composer">
-   <textarea id="question" placeholder="Message ZAQTIVO AI..." rows="2"></textarea>
-   <div id="fileName"></div>
-
-   <div class="composer-bottom">
-    <div>
-     <button class="attach" onclick="document.getElementById('image').click()">＋ Photo</button>
-     <input type="file" id="image"
-      accept="image/jpeg,image/png,image/webp"
-      hidden onchange="showFile()">
-    </div>
-    <button class="send" id="sendBtn" onclick="sendMessage()">Send ↑</button>
+ <section id="chatScreen">
+  <div class="panel">
+   <div class="chathead">
+    <button onclick="goHome()">← Home</button>
+    <strong>AI Assistant</strong>
+    <button style="margin-left:auto" onclick="newChat()">＋ New</button>
+   </div>
+   <div id="messages" class="messages"></div>
+   <div id="chatStatus" class="status"></div>
+   <div class="chatinput">
+    <textarea id="chatQuestion" placeholder="Type your message..."></textarea>
+    <button onclick="sendChatQuestion()">➤</button>
+   </div>
+   <input id="chatPhoto" type="file" accept="image/*" hidden onchange="chatPhotoSelected(event)">
+   <div style="margin-top:10px">
+    <button class="smallbtn" onclick="document.getElementById('chatPhoto').click()">＋ Upload photo</button>
+    <button class="smallbtn" onclick="startVoice('chatQuestion')">🎙 Voice</button>
    </div>
   </div>
-
-  <div class="hint">
-   ZAQTIVO AI can make mistakes. Check important information.
-  </div>
  </section>
 
+ <section id="otherScreen">
+  <div class="panel">
+   <div class="chathead">
+    <button onclick="goHome()">← Home</button>
+    <strong id="otherTitle">History</strong>
+   </div>
+   <div id="otherContent"></div>
+  </div>
+ </section>
 </main>
 
+<nav class="bottomnav">
+ <button class="navitem active" onclick="goHome()" id="navHome"><span>⌂</span>Home</button>
+ <button class="navitem" onclick="showHistory()" id="navHistory"><span>◷</span>History</button>
+ <button class="navitem" onclick="showFavorites()" id="navFavorites"><span>☆</span>Favorites</button>
+ <button class="navitem" onclick="showSettings()" id="navSettings"><span>⚙</span>Settings</button>
+</nav>
+
 <script>
-
-/* APP STATE */
-
-let chats=[];
-try{
- chats=JSON.parse(localStorage.getItem("zaqtivo_chats")||"[]");
- if(!Array.isArray(chats)) chats=[];
-}catch(error){chats=[];}
-
-let currentChat=[];
 let selectedImage=null;
-let busy=false;
-let activeChatId=Date.now().toString();
+let chatImage=null;
+let currentConversation=[];
+let historyData=JSON.parse(localStorage.getItem("zaqtivo_history")||"[]");
+let favorites=JSON.parse(localStorage.getItem("zaqtivo_favorites")||"[]");
 
-const messages=document.getElementById("messages");
-const question=document.getElementById("question");
-const sendBtn=document.getElementById("sendBtn");
-
-
-/* HTML ESCAPING */
-
-function escapeHTML(text){
- return String(text).replace(/[&<>"']/g,char=>({
-  "&":"&amp;",
-  "<":"&lt;",
-  ">":"&gt;",
-  '"':"&quot;",
-  "'":"&#39;"
- }[char]));
+function saveData(){
+ localStorage.setItem("zaqtivo_history",JSON.stringify(historyData));
+ localStorage.setItem("zaqtivo_favorites",JSON.stringify(favorites));
 }
 
-
-/* MATH CLEANER - PROTECT CODE */
-
-function cleanMath(text){
-
- if(typeof text!=="string") return "";
-
- const parts=text.split(/(```[\s\S]*?```|`[^`\n]*`)/g);
-
- return parts.map((part,index)=>{
-
-  if(index%2===1) return part;
-
-  const sub="₀₁₂₃₄₅₆₇₈₉";
-  const sup="⁰¹²³⁴⁵⁶⁷⁸⁹";
-
-  const toSub=value=>[...value].map(c=>sub[Number(c)]||c).join("");
-  const toSup=value=>[...value].map(c=>sup[Number(c)]||c).join("");
-
-  return part
-   .replace(/\$\$([\s\S]*?)\$\$/g,"$1")
-   .replace(/\\\[([\s\S]*?)\\\]/g,"$1")
-   .replace(/\\\(([\s\S]*?)\\\)/g,"$1")
-   .replace(/\$([^$\n]+)\$/g,"$1")
-   .replace(/\\text\s*\{([^{}]*)\}/g,"$1")
-   .replace(/\\mathrm\s*\{([^{}]*)\}/g,"$1")
-   .replace(/\\mathbf\s*\{([^{}]*)\}/g,"$1")
-   .replace(/\\mathit\s*\{([^{}]*)\}/g,"$1")
-   .replace(/\\operatorname\s*\{([^{}]*)\}/g,"$1")
-   .replace(/\\xrightarrow\s*\{([^{}]*)\}/g," --$1--> ")
-   .replace(/\\longrightarrow|\\rightarrow|\\to/g," → ")
-   .replace(/\\Rightarrow/g," ⇒ ")
-   .replace(/\\leftarrow/g," ← ")
-   .replace(/\\times/g," × ")
-   .replace(/\\div/g," ÷ ")
-   .replace(/\\cdot/g," · ")
-   .replace(/\\pm/g," ± ")
-   .replace(/\\leq|\\le/g," ≤ ")
-   .replace(/\\geq|\\ge/g," ≥ ")
-   .replace(/\\neq|\\ne/g," ≠ ")
-   .replace(/\\approx/g," ≈ ")
-   .replace(/\\pi/g,"π")
-   .replace(/\\infty/g,"∞")
-   .replace(/\\degree/g,"°")
-   .replace(/\\sqrt\s*\{([^{}]*)\}/g,"√($1)")
-   .replace(/_\{(\d+)\}/g,(_,n)=>toSub(n))
-   .replace(/_(\d+)/g,(_,n)=>toSub(n))
-   .replace(/\^\{(\d+)\}/g,(_,n)=>toSup(n))
-   .replace(/\^(\d+)/g,(_,n)=>toSup(n))
-   .replace(/\\(left|right|displaystyle|textstyle|quad|qquad)/g,"")
-   .replace(/\\[a-zA-Z]+/g,"")
-   .replace(/[ \t]{2,}/g," ")
-   .replace(/ *\n */g,"\n")
-   .trim();
-
- }).join("");
+function hideScreens(){
+ document.getElementById("homeScreen").style.display="none";
+ document.getElementById("chatScreen").style.display="none";
+ document.getElementById("otherScreen").style.display="none";
+ document.querySelectorAll(".navitem").forEach(x=>x.classList.remove("active"));
 }
 
+function goHome(){
+ hideScreens();
+ document.getElementById("homeScreen").style.display="block";
+ document.getElementById("navHome").classList.add("active");
+}
 
-/* MARKDOWN RENDERER */
+function openChat(){
+ hideScreens();
+ document.getElementById("chatScreen").style.display="block";
+}
 
-function renderMarkdown(text){
+function newChat(){
+ currentConversation=[];
+ chatImage=null;
+ document.getElementById("messages").innerHTML="";
+ document.getElementById("chatQuestion").value="";
+ document.getElementById("chatStatus").textContent="";
+ openChat();
+}
 
- const codeBlocks=[];
- let safe=String(text);
-
- // First protect fenced code blocks
- safe=safe.replace(
-  /(^|\n)[ \t]*```([a-zA-Z0-9_+#.-]*)[ \t]*\r?\n([\s\S]*?)\r?\n[ \t]*```(?=\n|$)/g,
-  (match,start,language,code)=>{
-
-   const id=codeBlocks.length;
-
-   codeBlocks.push({
-    language:escapeHTML(language||"Code"),
-    code:escapeHTML(code)
-   });
-
-   return start+`%%CODEBLOCK${id}%%`;
-  }
- );
-
- // Protect single-line fenced blocks too
- safe=safe.replace(
-  /```([a-zA-Z0-9_+#.-]*)[ \t]*\r?\n([\s\S]*?)```/g,
-  (match,language,code)=>{
-
-   const id=codeBlocks.length;
-
-   codeBlocks.push({
-    language:escapeHTML(language||"Code"),
-    code:escapeHTML(code.replace(/^\n|\n$/g,""))
-   });
-
-   return `%%CODEBLOCK${id}%%`;
-  }
- );
-
- // Escape remaining normal text
- safe=escapeHTML(safe);
-
- // Inline formatting
- safe=safe
-  .replace(/`([^`\n]+)`/g,"<code>$1</code>")
-  .replace(/\*\*(.+?)\*\*/g,"<strong>$1</strong>")
-  .replace(/__(.+?)__/g,"<strong>$1</strong>")
-  .replace(/(^|[^*])\*([^*\n]+)\*(?!\*)/g,"$1<em>$2</em>")
-  .replace(/(^|[^_])_([^_\n]+)_(?!_)/g,"$1<em>$2</em>");
-
- const lines=safe.split("\n");
- let output=[];
- let paragraph=[];
- let listType=null;
-
- function flushParagraph(){
-  if(paragraph.length){
-   output.push(`<p>${paragraph.join("<br>")}</p>`);
-   paragraph=[];
-  }
+function startChatFromHome(question){
+ newChat();
+ if(question){
+  document.getElementById("chatQuestion").value=question;
  }
+}
 
- function closeList(){
-  if(listType){
-   output.push(listType==="ul"?"</ul>":"</ol>");
-   listType=null;
-  }
+function quickPrompt(prompt){
+ document.getElementById("question").value=prompt;
+ document.getElementById("question").focus();
+}
+
+function photoSelected(event){
+ const file=event.target.files[0];
+ if(!file)return;
+ if(file.size>10*1024*1024){
+  alert("Image size must be 10 MB or less.");
+  event.target.value="";
+  return;
  }
-
- for(const line of lines){
-
-  const trimmed=line.trim();
-
-  if(!trimmed){
-   flushParagraph();
-   closeList();
-   continue;
-  }
-
-  if(/^%%CODEBLOCK\d+%%$/.test(trimmed)){
-   flushParagraph();
-   closeList();
-   output.push(trimmed);
-   continue;
-  }
-
-  const heading=trimmed.match(/^(#{1,3})\s+(.+)$/);
-
-  if(heading){
-   flushParagraph();
-   closeList();
-   const level=heading[1].length;
-   output.push(`<h${level}>${heading[2]}</h${level}>`);
-   continue;
-  }
-
-  if(/^([-*_])\1\1+$/.test(trimmed)){
-   flushParagraph();
-   closeList();
-   output.push("<hr>");
-   continue;
-  }
-
-  if(trimmed.startsWith("&gt; ")){
-   flushParagraph();
-   closeList();
-   output.push(`<blockquote>${trimmed.slice(5)}</blockquote>`);
-   continue;
-  }
-
-  const unordered=trimmed.match(/^[-*+]\s+(.+)$/);
-
-  if(unordered){
-   flushParagraph();
-   if(listType!=="ul"){
-    closeList();
-    output.push("<ul>");
-    listType="ul";
-   }
-   output.push(`<li>${unordered[1]}</li>`);
-   continue;
-  }
-
-  const ordered=trimmed.match(/^\d+[.)]\s+(.+)$/);
-
-  if(ordered){
-   flushParagraph();
-   if(listType!=="ol"){
-    closeList();
-    output.push("<ol>");
-    listType="ol";
-   }
-   output.push(`<li>${ordered[1]}</li>`);
-   continue;
-  }
-
-  closeList();
-  paragraph.push(trimmed);
- }
-
- flushParagraph();
- closeList();
-
- let result=output.join("");
-
- // Restore protected code blocks
- result=result.replace(
-  /%%CODEBLOCK(\d+)%%/g,
-  (match,id)=>{
-
-   const block=codeBlocks[Number(id)];
-   if(!block) return "";
-
-   return `
-    <pre>
-     <div class="code-header">
-      <span class="code-language">${block.language}</span>
-      <button class="code-copy" type="button">Copy Code</button>
-     </div>
-     <code>${block.code}</code>
-    </pre>
-   `;
-  }
- );
-
- return result;
-}
-
-
-/* LANGUAGE SETTINGS */
-
-const languageSelect=document.getElementById("language");
-
-languageSelect.value=localStorage.getItem("zaqtivo_language")||"Auto";
-
-function saveLanguage(){
- localStorage.setItem("zaqtivo_language",languageSelect.value);
-}
-
-function toggleSettings(){
- const panel=document.getElementById("settingsPanel");
- panel.style.display=panel.style.display==="block"?"none":"block";
-}
-
-
-/* IMAGE UPLOAD */
-
-function showFile(){
-
- const file=document.getElementById("image").files[0]||null;
  selectedImage=file;
-
- if(file&&!["image/jpeg","image/png","image/webp"].includes(file.type)){
-  alert("Please upload JPG, PNG or WEBP image.");
-  selectedImage=null;
-  document.getElementById("image").value="";
- }
-
- if(file&&file.size>10*1024*1024){
-  alert("Image size must be below 10 MB.");
-  selectedImage=null;
-  document.getElementById("image").value="";
- }
-
- document.getElementById("fileName").textContent=
-  selectedImage?"📎 "+selectedImage.name:"";
+ document.getElementById("photoName").textContent="Selected: "+file.name;
 }
 
-
-/* WELCOME SCREEN */
-
-function renderWelcome(){
- messages.innerHTML=`
-  <div class="welcome" id="welcome">
-   <h1>What can I help with?</h1>
-   <p>Ask anything. Learn anything. ZAQTIVO AI is ready to help you.</p>
-  </div>
- `;
+function chatPhotoSelected(event){
+ const file=event.target.files[0];
+ if(!file)return;
+ if(file.size>10*1024*1024){
+  alert("Image size must be 10 MB or less.");
+  event.target.value="";
+  return;
+ }
+ chatImage=file;
+ document.getElementById("chatStatus").textContent="Photo selected: "+file.name;
 }
 
+function openCamera(){
+ const input=document.createElement("input");
+ input.type="file";
+ input.accept="image/*";
+ input.capture="environment";
+ input.onchange=function(e){
+  const file=e.target.files[0];
+  if(!file)return;
+  if(file.size>10*1024*1024){
+   alert("Image size must be 10 MB or less.");
+   return;
+  }
+  selectedImage=file;
+  document.getElementById("photoName").textContent="Camera photo: "+file.name;
+ };
+ input.click();
+}
 
-/* MESSAGE DISPLAY */
+function startVoice(target="question"){
+ const SpeechRecognition=window.SpeechRecognition||window.webkitSpeechRecognition;
+ if(!SpeechRecognition){
+  alert("Voice input is not supported in this browser.");
+  return;
+ }
+ const recognition=new SpeechRecognition();
+ recognition.lang="auto";
+ recognition.interimResults=false;
+ recognition.onresult=function(event){
+  const text=event.results[0][0].transcript;
+  const el=document.getElementById(target);
+  el.value+=(el.value?" ":"")+text;
+ };
+ recognition.onerror=function(){
+  alert("Voice input could not start. Please check microphone permission.");
+ };
+ recognition.start();
+}
 
-function addMessage(role,text,imageUrl){
-
+function addMessage(text,type){
+ const messages=document.getElementById("messages");
  const wrap=document.createElement("div");
- wrap.className="message";
-
- const avatar=document.createElement("div");
- avatar.className="avatar";
- avatar.textContent=role==="user"?"Y":"Z";
-
+ wrap.className="msg "+type;
  const content=document.createElement("div");
- content.className="message-content";
+ content.textContent=text;
+ wrap.appendChild(content);
 
- // AI answers are cleaned with code protection
- const cleanText=role==="ai"?cleanMath(text):text;
-
- if(role==="ai"){
-  content.innerHTML=renderMarkdown(cleanText);
- }else{
-  content.textContent=cleanText;
- }
-
- if(imageUrl){
-  const img=document.createElement("img");
-  img.src=imageUrl;
-  img.alt="Uploaded image";
-  img.onload=()=>URL.revokeObjectURL(imageUrl);
-  img.onerror=()=>URL.revokeObjectURL(imageUrl);
-  content.appendChild(document.createElement("br"));
-  content.appendChild(img);
- }
-
- if(role==="ai"){
-
+ if(type==="ai"){
   const actions=document.createElement("div");
-  actions.className="message-actions";
-
+  actions.className="msg-actions";
   const copy=document.createElement("button");
-  copy.textContent="📋 Copy Answer";
-
-  copy.onclick=async()=>{
-   try{
-    await navigator.clipboard.writeText(cleanText);
-    copy.textContent="Copied!";
-    setTimeout(()=>copy.textContent="📋 Copy Answer",1500);
-   }catch(error){
-    alert("Copy failed. Please select and copy the answer.");
-   }
-  };
-
-  actions.appendChild(copy);
-  content.appendChild(actions);
-
-  // Attach working Copy Code buttons
-  content.querySelectorAll(".code-copy").forEach(button=>{
-
-   button.addEventListener("click",async()=>{
-
-    const code=button.closest("pre")?.querySelector("code");
-    if(!code) return;
-
-    try{
-     await navigator.clipboard.writeText(code.textContent);
-     button.textContent="Copied!";
-     setTimeout(()=>button.textContent="Copy Code",1500);
-    }catch(error){
-     alert("Unable to copy code.");
-    }
-   });
-
-  });
+  copy.textContent="Copy";
+  copy.onclick=()=>copyText(text);
+  const save=document.createElement("button");
+  save.textContent="☆ Save";
+  save.onclick=()=>saveFavorite(text);
+  actions.append(copy,save);
+  wrap.appendChild(actions);
  }
-
- wrap.append(avatar,content);
  messages.appendChild(wrap);
  messages.scrollTop=messages.scrollHeight;
 }
 
-
-/* SAVE CHAT */
-
-function saveChat(){
-
- if(!currentChat.length) return;
-
- const first=currentChat.find(m=>m.role==="user");
- const title=first?first.text.slice(0,45)||"Image question":"New Chat";
-
- const oldIndex=chats.findIndex(c=>c.id===activeChatId);
-
- const item={
-  id:activeChatId,
-  title,
-  messages:currentChat
- };
-
- if(oldIndex>=0){
-  chats[oldIndex]=item;
+function copyText(text){
+ if(navigator.clipboard&&navigator.clipboard.writeText){
+  navigator.clipboard.writeText(text).then(()=>alert("Copied!")).catch(()=>alert("Could not copy text."));
  }else{
-  chats.unshift(item);
+  const t=document.createElement("textarea");
+  t.value=text;document.body.appendChild(t);t.select();
+  document.execCommand("copy");t.remove();alert("Copied!");
  }
-
- chats=chats.slice(0,50);
-
- try{
-  localStorage.setItem("zaqtivo_chats",JSON.stringify(chats));
- }catch(error){
-  console.error("Chat saving failed:",error);
-  alert("Storage is full. Some old chats may need to be deleted.");
- }
-
- renderHistory();
 }
 
-
-/* CHAT HISTORY */
-
-function renderHistory(){
-
- const box=document.getElementById("history");
- box.innerHTML="";
-
- chats.forEach(chat=>{
-
-  const button=document.createElement("button");
-  button.textContent=chat.title||"New Chat";
-
-  if(chat.id===activeChatId) button.classList.add("active");
-
-  button.onclick=()=>openChat(chat.id);
-  box.appendChild(button);
- });
-}
-
-function openChat(id){
-
- const chat=chats.find(c=>c.id===id);
- if(!chat) return;
-
- activeChatId=chat.id;
- currentChat=chat.messages||[];
- selectedImage=null;
-
- document.getElementById("image").value="";
- document.getElementById("fileName").textContent="";
- question.value="";
-
- renderWelcome();
-
- currentChat.forEach(message=>{
-  addMessage(message.role,message.text,null);
- });
-
- renderHistory();
-}
-
-
-/* NEW CHAT */
-
-function newChat(){
-
- currentChat=[];
- activeChatId=Date.now().toString();
- selectedImage=null;
-
- document.getElementById("image").value="";
- document.getElementById("fileName").textContent="";
- question.value="";
-
- renderWelcome();
- renderHistory();
-}
-
-
-/* SEND MESSAGE */
-
-async function sendMessage(){
-
- if(busy) return;
-
- const text=question.value.trim();
-
- if(!text&&!selectedImage){
-  alert("Please write a question or select a photo.");
+function saveFavorite(answer){
+ if(favorites.includes(answer)){
+  alert("Already saved in Favorites.");
   return;
  }
+ favorites.unshift(answer);
+ saveData();
+ alert("Saved to Favorites!");
+}
 
- const image=selectedImage;
- const imageUrl=image?URL.createObjectURL(image):null;
+function getLanguageInstruction(){
+ const language=document.getElementById("languageSelect").value;
+ if(language==="auto"||language==="Other"){
+  return "Reply in the same language as the user's question. If the user mixes languages, respond naturally in that language mix.";
+ }
+ return "Reply in "+language+".";
+}
 
- currentChat.push({
-  role:"user",
-  text:text||"Please inspect the uploaded image.",
-  imageData:null
- });
+async function askBackend(question,imageFile){
+ const formData=new FormData();
+ formData.append("question",question+"\n\n"+getLanguageInstruction());
+ if(imageFile)formData.append("image",imageFile);
 
- addMessage(
-  "user",
-  text||"Please inspect the uploaded image.",
-  imageUrl
- );
-
- saveChat();
-
- question.value="";
- selectedImage=null;
-
- document.getElementById("image").value="";
- document.getElementById("fileName").textContent="";
-
- busy=true;
- sendBtn.disabled=true;
- sendBtn.textContent="...";
-
- document.getElementById("typing").textContent="ZAQTIVO AI is thinking...";
+ const controller=new AbortController();
+ const timeout=setTimeout(()=>controller.abort(),90000);
 
  try{
-
-  const language=languageSelect.value;
-
-  const history=currentChat.slice(-12).map(message=>
-   (message.role==="user"?"User: ":"Assistant: ")+message.text
-  ).join("\n\n");
-
-  const formattingRules=`
-ANSWER FORMATTING:
-
-- Answer the latest question first.
-- Use natural paragraphs, headings, bullets or numbered steps when useful.
-- Use Markdown for bold text, headings, lists and code blocks.
-- Use **bold** for important words and labels.
-- Put each numbered point on a separate line.
-- Do not put the entire answer inside a code block.
-- Do not use LaTeX.
-- Write formulas in readable normal text.
-- Use Unicode subscripts and superscripts where possible.
-- Write chemical formulas like H₂O, CO₂, O₂ and C₆H₁₂O₆.
-- Use normal arrows such as →.
-- Preserve programming syntax exactly.
-- Put programming code inside fenced code blocks with the language name.
-- If the user requests only code, return only code inside a fenced code block with the correct language name.
-- Do not remove required symbols, brackets or braces.
-- Keep simple answers concise and explain complex answers clearly.
-`;
-
-  const prompt=
-   (language==="Auto"?"":"Please answer in "+language+". ")+
-   "You are ZAQTIVO AI. Continue this conversation naturally. "+
-   "Use previous messages only when relevant. "+
-   "Prioritize the latest user question.\n\n"+
-   formattingRules+"\n\n"+
-   "CONVERSATION HISTORY:\n"+
-   history+
-   "\n\nAnswer the latest user message.";
-
-  const form=new FormData();
-  form.append("question",prompt);
-
-  if(image) form.append("image",image);
-
-  const controller=new AbortController();
-  const timeout=setTimeout(()=>controller.abort(),90000);
-
-  let response;
-
-  try{
-   response=await fetch("/api/solve",{
-    method:"POST",
-    body:form,
-    signal:controller.signal
-   });
-  }finally{
-   clearTimeout(timeout);
+  const response=await fetch("/api/solve",{
+   method:"POST",
+   body:formData,
+   signal:controller.signal
+  });
+  const data=await response.json().catch(()=>({}));
+  if(!response.ok){
+   throw new Error(data.error||data.message||"Server error ("+response.status+").");
   }
-
-  const data=await response.json();
-
-  if(!response.ok) throw new Error(data.error||"Request failed");
-
-  const answer=data.answer||"No answer received.";
-
-  currentChat.push({
-   role:"ai",
-   text:answer
-  });
-
-  addMessage("ai",answer);
-  saveChat();
-
- }catch(error){
-
-  console.error("AI request error:",error);
-
-  const message=error.name==="AbortError"
-   ?"The response is taking too long. Please try again."
-   :error.message;
-
-  const errorText="Error: "+message;
-
-  currentChat.push({
-   role:"ai",
-   text:errorText
-  });
-
-  addMessage("ai",errorText);
-  saveChat();
-
+  const answer=data.answer||data.text||data.response||data.result;
+  if(!answer)throw new Error("The AI returned an empty answer. Please try again.");
+  return answer;
  }finally{
-
-  busy=false;
-  sendBtn.disabled=false;
-  sendBtn.textContent="Send ↑";
-  document.getElementById("typing").textContent="";
+  clearTimeout(timeout);
  }
 }
 
+async function sendQuestion(){
+ const question=document.getElementById("question").value.trim();
+ if(!question&&!selectedImage){
+  alert("Please type a question or upload a photo.");
+  return;
+ }
+ const image=selectedImage;
+ selectedImage=null;
+ document.getElementById("photoInput").value="";
+ document.getElementById("photoName").textContent="";
+ startChatFromHome();
+ await sendToAI(question||"Please explain the uploaded image.",image);
+ document.getElementById("question").value="";
+}
 
-/* ENTER TO SEND */
+async function sendChatQuestion(){
+ const question=document.getElementById("chatQuestion").value.trim();
+ if(!question&&!chatImage){
+  alert("Please type a question or upload a photo.");
+  return;
+ }
+ const image=chatImage;
+ chatImage=null;
+ document.getElementById("chatPhoto").value="";
+ document.getElementById("chatQuestion").value="";
+ await sendToAI(question||"Please explain the uploaded image.",image);
+}
 
-question.addEventListener("keydown",event=>{
- if(event.key==="Enter"&&!event.shiftKey){
-  event.preventDefault();
-  sendMessage();
+async function sendToAI(question,image){
+ addMessage(question+(image?"\n[Image attached]":""),"user");
+ currentConversation.push({role:"user",text:question});
+ const status=document.getElementById("chatStatus");
+ status.textContent="AI is thinking... Please wait.";
+
+ const sendButtons=document.querySelectorAll(".chatinput button");
+ sendButtons.forEach(b=>b.disabled=true);
+
+ try{
+  const answer=await askBackend(question,image);
+  addMessage(answer,"ai");
+  currentConversation.push({role:"ai",text:answer});
+  historyData.unshift({
+   question:question,
+   answer:answer,
+   date:new Date().toLocaleString()
+  });
+  historyData=historyData.slice(0,100);
+  saveData();
+  status.textContent="";
+ }catch(error){
+  let message=error.name==="AbortError"
+   ?"The request took too long. Please try again."
+   :(error.message||"Something went wrong. Please try again.");
+  addMessage("Sorry, I couldn't get an answer.\n"+message,"ai");
+  status.textContent="Please try again.";
+ }finally{
+  sendButtons.forEach(b=>b.disabled=false);
+ }
+}
+
+function showHistory(){
+ hideScreens();
+ document.getElementById("otherScreen").style.display="block";
+ document.getElementById("otherTitle").textContent="History";
+ document.getElementById("navHistory").classList.add("active");
+ const box=document.getElementById("otherContent");
+ box.innerHTML="";
+ if(!historyData.length){
+  box.innerHTML='<div class="empty">No chats yet.</div>';
+  return;
+ }
+ historyData.forEach((item)=>{
+  const div=document.createElement("div");
+  div.className="panel";
+  const q=document.createElement("strong");
+  q.textContent=item.question;
+  const date=document.createElement("p");
+  date.className="status";
+  date.textContent=item.date;
+  const a=document.createElement("p");
+  a.textContent=item.answer;
+  const copy=document.createElement("button");
+  copy.className="smallbtn";
+  copy.textContent="Copy answer";
+  copy.onclick=()=>copyText(item.answer);
+  div.append(q,date,a,copy);
+  box.appendChild(div);
+ });
+}
+
+function showFavorites(){
+ hideScreens();
+ document.getElementById("otherScreen").style.display="block";
+ document.getElementById("otherTitle").textContent="Favorites";
+ document.getElementById("navFavorites").classList.add("active");
+ const box=document.getElementById("otherContent");
+ box.innerHTML="";
+ if(!favorites.length){
+  box.innerHTML='<div class="empty">No saved answers yet.</div>';
+  return;
+ }
+ favorites.forEach((item,index)=>{
+  const div=document.createElement("div");
+  div.className="panel";
+  const p=document.createElement("p");
+  p.textContent=item;
+  const row=document.createElement("div");
+  const copy=document.createElement("button");
+  copy.className="smallbtn";
+  copy.textContent="Copy";
+  copy.onclick=()=>copyText(item);
+  const remove=document.createElement("button");
+  remove.className="smallbtn";
+  remove.textContent="Remove";
+  remove.style.marginLeft="8px";
+  remove.onclick=()=>{
+   favorites.splice(index,1);
+   saveData();
+   showFavorites();
+  };
+  row.append(copy,remove);
+  div.append(p,row);
+  box.appendChild(div);
+ });
+}
+
+function showSettings(){
+ hideScreens();
+ document.getElementById("otherScreen").style.display="block";
+ document.getElementById("otherTitle").textContent="Settings";
+ document.getElementById("navSettings").classList.add("active");
+ const box=document.getElementById("otherContent");
+ box.innerHTML="";
+
+ const language=document.createElement("div");
+ language.className="settingrow";
+ language.innerHTML="<span>Answer language</span>";
+ const select=document.getElementById("languageSelect").cloneNode(true);
+ select.onchange=()=>document.getElementById("languageSelect").value=select.value;
+ language.appendChild(select);
+ box.appendChild(language);
+
+ const clear=document.createElement("div");
+ clear.className="settingrow";
+ clear.innerHTML="<span>Clear chat history</span>";
+ const clearBtn=document.createElement("button");
+ clearBtn.textContent="Clear";
+ clearBtn.onclick=()=>{
+  if(confirm("Clear all chat history?")){
+   historyData=[];saveData();showHistory();
+  }
+ };
+ clear.appendChild(clearBtn);
+ box.appendChild(clear);
+
+ const about=document.createElement("div");
+ about.className="settingrow";
+ about.innerHTML="<span>About AI Assistant</span><span>Version 1.0</span>";
+ box.appendChild(about);
+}
+
+function toggleMenu(){
+ const choice=prompt("Type:\n1. Home\n2. History\n3. Favorites\n4. Settings");
+ if(choice==="1")goHome();
+ if(choice==="2")showHistory();
+ if(choice==="3")showFavorites();
+ if(choice==="4")showSettings();
+}
+
+function showUpgrade(){
+ alert("Pro features are not available yet. The current AI Assistant continues to use its existing free service limits.");
+}
+
+document.getElementById("question").addEventListener("keydown",function(e){
+ if(e.key==="Enter"&&!e.shiftKey){
+  e.preventDefault();sendQuestion();
+ }
+});
+document.getElementById("chatQuestion").addEventListener("keydown",function(e){
+ if(e.key==="Enter"&&!e.shiftKey){
+  e.preventDefault();sendChatQuestion();
  }
 });
 
-
-/* START APP */
-
-renderHistory();
-
+goHome();
 </script>
-
 </body>
-</html>
+    </html>
