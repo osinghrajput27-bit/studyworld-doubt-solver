@@ -3,181 +3,375 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="theme-color" content="#f3efff">
-<title>AI Assistant</title>
+<meta name="theme-color" content="#10065c">
+<title>ZAQTIVO AI</title>
 
 <style>
 *{box-sizing:border-box}
 :root{
- --purple:#7655e9;
- --blue:#6485f5;
- --ink:#25243a;
- --muted:#85849b;
- --surface:#fff;
+ --purple:#9b35ff;
+ --blue:#00c8ff;
+ --dark:#080b48;
+ --white:#fff;
 }
 body{
  margin:0;
- font-family:Arial,sans-serif;
- color:var(--ink);
- background:linear-gradient(135deg,#f3efff,#edf5ff,#fff1fa);
  min-height:100vh;
+ font-family:Arial,sans-serif;
+ color:white;
+ background:
+ radial-gradient(ellipse at 15% 15%,#9b21ff 0,transparent 35%),
+ radial-gradient(ellipse at 90% 30%,#007bff 0,transparent 38%),
+ radial-gradient(ellipse at 50% 90%,#3511bb 0,transparent 45%),
+ linear-gradient(135deg,#08052f,#101078,#080c50);
+ background-attachment:fixed;
 }
 button,input,textarea{font:inherit}
 button{cursor:pointer}
+button:disabled{opacity:.55;cursor:not-allowed}
+
+body:before{
+ content:"";
+ position:fixed;
+ inset:0;
+ pointer-events:none;
+ background:
+ radial-gradient(circle at 8% 35%,#b84aff55,transparent 20%),
+ radial-gradient(circle at 90% 75%,#00baff44,transparent 25%);
+ z-index:-1;
+}
 .topbar{
- height:70px;padding:0 22px;display:flex;
- align-items:center;justify-content:space-between;
+ max-width:1100px;
+ margin:auto;
+ padding:20px 24px;
+ display:flex;
+ align-items:center;
+ justify-content:space-between;
 }
-.iconbtn{
- border:0;background:#ffffffc9;border-radius:14px;
- width:43px;height:43px;font-size:21px;color:#5544a0;
+.top-left,.top-right{
+ display:flex;
+ align-items:center;
+ gap:14px;
 }
-.brand{font-size:19px;font-weight:800}
-.top-actions{display:flex;gap:10px;align-items:center}
-.pro-small{
- border:0;border-radius:20px;padding:10px 14px;
- background:#fff0b8;color:#79521a;font-weight:700;
+.glass{
+ background:linear-gradient(135deg,#ffffff32,#ffffff0b);
+ border:1px solid #ffffff70;
+ box-shadow:inset 0 1px 1px #ffffff55,0 8px 28px #02042e55;
+ backdrop-filter:blur(18px);
+ -webkit-backdrop-filter:blur(18px);
+}
+.roundbtn{
+ width:48px;height:48px;
+ border-radius:50%;
+ border:1px solid #ffffff70;
+ color:white;
+ background:#ffffff22;
+ font-size:23px;
+}
+.probtn{
+ border:1px solid #ffe7a0;
+ border-radius:30px;
+ padding:11px 20px;
+ color:#fff4cf;
+ font-weight:bold;
+ background:linear-gradient(135deg,#fff2a5,#9b5c16,#ffe9a0);
+ box-shadow:0 0 20px #ffcc5555;
 }
 .avatar{
- width:40px;height:40px;border-radius:50%;
- background:linear-gradient(135deg,#8c6aff,#59a4f5);
- color:white;display:grid;place-items:center;font-weight:bold;
+ width:48px;height:48px;
+ border-radius:50%;
+ display:grid;place-items:center;
+ font-size:24px;
+ background:linear-gradient(135deg,#00cfff,#6c31ff);
+ border:2px solid #ffffffaa;
 }
-main{max-width:920px;margin:25px auto;padding:15px}
-.hero{text-align:center;margin:25px 0 27px}
-.logo{
- width:76px;height:76px;margin:auto auto 17px;
- border-radius:25px;background:linear-gradient(135deg,#7556ec,#5799f5);
- display:grid;place-items:center;color:white;font-size:39px;
- box-shadow:0 12px 28px #8069df44;
+main{
+ width:min(100% - 28px,950px);
+ margin:0 auto;
+ padding-bottom:40px;
 }
-.hero h1{font-size:34px;margin:8px 0}
-.hero p{color:var(--muted);margin:10px 0}
+.hero{
+ text-align:center;
+ padding:4px 0 24px;
+}
+.brain{
+ font-size:100px;
+ line-height:1.2;
+ filter:drop-shadow(0 0 14px #00cfff)
+        drop-shadow(0 0 25px #ad36ff);
+}
+.hero h1{
+ font-size:clamp(32px,7vw,56px);
+ margin:5px 0;
+ letter-spacing:1px;
+ text-shadow:0 0 20px #36caff88;
+}
+.hero p{
+ margin:8px 0 22px;
+ font-size:clamp(15px,3vw,23px);
+ color:#e4eaff;
+}
 .askbox{
- background:white;border:1px solid #e8e2fa;
- border-radius:25px;padding:14px;
- box-shadow:0 12px 35px #7865b51a;
+ display:flex;
+ align-items:center;
+ gap:12px;
+ padding:12px 15px;
+ border-radius:35px;
+ margin:0 auto 26px;
+ max-width:900px;
 }
+.askicon{font-size:30px}
 .askbox textarea{
- width:100%;height:75px;border:0;outline:0;resize:vertical;
- font-size:16px;padding:8px;color:var(--ink);
+ flex:1;
+ min-width:0;
+ height:55px;
+ resize:none;
+ border:0;
+ outline:0;
+ background:transparent;
+ color:white;
+ padding:16px 5px;
+ font-size:17px;
 }
-.askbottom{display:flex;align-items:center;justify-content:space-between;gap:10px}
-.asktools{display:flex;gap:8px;align-items:center}
-.smallbtn{
- border:0;background:#f4f1ff;color:#6550bd;
- border-radius:12px;padding:10px 12px;
+.askbox textarea::placeholder,
+.chatinput textarea::placeholder{
+ color:#e0e6ff;
 }
 .sendbtn{
- border:0;background:linear-gradient(135deg,#7855ed,#5d8ff4);
- color:white;border-radius:14px;padding:12px 20px;font-weight:bold;
-}
-.language{
- margin-top:12px;display:flex;justify-content:center;gap:8px;
- align-items:center;color:var(--muted);font-size:13px;
-}
-.language select{
- border:1px solid #e5def8;border-radius:12px;
- padding:8px;background:white;color:#51468b;
+ width:65px;height:65px;
+ border:1px solid #ffffff88;
+ border-radius:50%;
+ color:white;
+ font-size:30px;
+ background:linear-gradient(135deg,#bd22ff,#5224ff,#007fff);
+ box-shadow:0 0 22px #9c35ff99;
 }
 .section-title{
- font-size:18px;font-weight:800;margin:30px 0 14px;
+ display:flex;
+ align-items:center;
+ justify-content:space-between;
+ font-size:22px;
+ font-weight:bold;
+ margin:27px 5px 15px;
+}
+.seeall{
+ border:0;
+ background:transparent;
+ color:#42e7ff;
+ font-weight:bold;
+ font-size:16px;
 }
 .features{
- display:grid;grid-template-columns:repeat(3,1fr);gap:13px;
+ display:grid;
+ grid-template-columns:repeat(3,1fr);
+ gap:15px;
 }
 .feature{
- background:#ffffffd9;border:1px solid #eee9fb;
- border-radius:19px;padding:17px 10px;text-align:center;
- min-height:112px;transition:.2s;
+ min-height:145px;
+ border-radius:25px;
+ padding:15px 8px;
+ color:white;
+ text-align:center;
+ transition:.2s;
 }
 .feature:active{transform:scale(.97)}
-.feature .emoji{font-size:27px;display:block;margin-bottom:9px}
-.feature strong{font-size:14px}
-.prompts{display:grid;grid-template-columns:repeat(2,1fr);gap:11px}
+.feature .emoji{
+ display:block;
+ font-size:43px;
+ margin-bottom:10px;
+ filter:drop-shadow(0 0 9px #00cfff);
+}
+.feature strong{font-size:17px}
+.feature:nth-child(1){background:linear-gradient(135deg,#b32aff55,#007dff55)}
+.feature:nth-child(2){background:linear-gradient(135deg,#007dff55,#632aff55)}
+.feature:nth-child(3){background:linear-gradient(135deg,#8c32ff66,#00cfff55)}
+.feature:nth-child(4){background:linear-gradient(135deg,#7c24ff66,#225cff55)}
+.feature:nth-child(5){background:linear-gradient(135deg,#ffb31f55,#8b26ff55)}
+.feature:nth-child(6){background:linear-gradient(135deg,#00cfff55,#642bff66)}
+
+.prompts{
+ display:grid;
+ grid-template-columns:repeat(2,1fr);
+ gap:12px;
+}
 .prompt{
- background:#ffffffd9;border:1px solid #eee9fb;
- border-radius:15px;padding:15px;text-align:left;
- color:#514b72;font-size:14px;
+ min-height:78px;
+ border-radius:19px;
+ padding:14px;
+ display:flex;
+ align-items:center;
+ gap:13px;
+ color:white;
+ text-align:left;
+ font-weight:bold;
+ font-size:15px;
 }
+.prompt .emoji{font-size:29px}
 .upgrade{
- margin:25px 0 95px;padding:19px;border-radius:20px;
- background:linear-gradient(110deg,#fff0b9,#ffe4cb);
- display:flex;justify-content:space-between;align-items:center;gap:12px;
+ margin:25px 0 20px;
+ border-radius:25px;
+ padding:17px 20px;
+ display:flex;
+ justify-content:space-between;
+ align-items:center;
+ gap:12px;
+ color:#301300;
+ background:linear-gradient(110deg,#ffe48a,#ffb82d,#ffdf78);
+ border:1px solid #fff2b0;
+ box-shadow:0 0 25px #ffca5266;
 }
-.upgrade strong{display:block;margin-bottom:5px}
-.upgrade p{margin:0;font-size:13px;color:#8c7042}
+.upgrade strong{font-size:20px}
+.upgrade p{margin:5px 0 0}
 .upgrade button{
- border:0;border-radius:13px;background:#fff;
- color:#8c6325;padding:11px 14px;font-weight:bold;
+ border:0;
+ border-radius:25px;
+ padding:13px 20px;
+ background:linear-gradient(135deg,#a600ff,#4920d7);
+ color:white;
+ font-weight:bold;
+ box-shadow:0 0 15px #832aff77;
 }
-.bottomnav{
- position:fixed;bottom:0;left:0;right:0;
- background:#ffffffed;backdrop-filter:blur(12px);
- border-top:1px solid #eee9f7;display:flex;
- justify-content:space-around;padding:10px 5px 14px;
- z-index:5;
+.status{
+ color:#d7e7ff;
+ font-size:13px;
+ margin:10px 4px;
 }
-.navitem{
- border:0;background:transparent;color:#9992b0;
- font-size:12px;display:grid;gap:5px;justify-items:center;
-}
-.navitem span{font-size:20px}
-.navitem.active{color:var(--purple);font-weight:bold}
 #chatScreen,#otherScreen{display:none}
 .panel{
- background:#ffffffd9;border:1px solid #eee9fb;
- border-radius:20px;padding:18px;margin-top:15px;
+ padding:18px;
+ border-radius:23px;
+ margin:15px 0;
 }
-.chathead{display:flex;align-items:center;gap:10px;margin-bottom:15px}
-.chathead button{border:0;background:#f0ecff;padding:10px;border-radius:12px}
-.messages{display:flex;flex-direction:column;gap:13px}
+.chathead{
+ display:flex;
+ align-items:center;
+ gap:12px;
+ margin-bottom:15px;
+}
+.backbtn{
+ border:0;
+ border-radius:12px;
+ padding:10px 14px;
+ color:white;
+ background:#ffffff25;
+}
+.messages{
+ display:flex;
+ flex-direction:column;
+ gap:13px;
+}
 .msg{
- max-width:90%;padding:13px 15px;border-radius:17px;
- line-height:1.55;white-space:pre-wrap;overflow-wrap:anywhere;
+ max-width:92%;
+ padding:14px;
+ border-radius:18px;
+ line-height:1.55;
+ white-space:pre-wrap;
+ overflow-wrap:anywhere;
 }
-.user{align-self:flex-end;background:#e9e3ff}
-.ai{align-self:flex-start;background:#fff;border:1px solid #eee9f7}
-.msg pre{
- white-space:pre-wrap;overflow-x:auto;background:#25243a;
- color:#fff;padding:13px;border-radius:12px;
+.user{
+ align-self:flex-end;
+ background:linear-gradient(135deg,#8c35ff,#155eea);
 }
-.msg code{font-family:monospace}
-.msg-actions{display:flex;gap:8px;margin-top:9px}
-.msg-actions button{
- border:0;background:#f0ecff;color:#6251ad;
- padding:7px 10px;border-radius:9px;font-size:12px;
+.ai{
+ align-self:flex-start;
+ background:#ffffff18;
+ border:1px solid #ffffff55;
+}
+.msg-actions{
+ display:flex;
+ gap:8px;
+ margin-top:10px;
+}
+.msg-actions button,.smallbtn{
+ border:1px solid #ffffff66;
+ color:white;
+ background:#ffffff20;
+ border-radius:10px;
+ padding:8px 11px;
 }
 .chatinput{
- display:flex;gap:8px;margin-top:16px;
+ display:flex;
+ gap:8px;
+ margin-top:16px;
 }
 .chatinput textarea{
- flex:1;min-width:0;resize:vertical;min-height:48px;
- border:1px solid #e6e0f5;border-radius:14px;padding:13px;
+ flex:1;
+ min-width:0;
+ min-height:50px;
+ resize:vertical;
+ border:1px solid #ffffff66;
+ border-radius:15px;
+ padding:13px;
+ color:white;
+ background:#ffffff1c;
+ outline:none;
 }
 .chatinput button{
- border:0;background:var(--purple);color:white;
- border-radius:13px;padding:0 17px;
+ border:0;
+ border-radius:14px;
+ padding:0 18px;
+ color:white;
+ background:linear-gradient(135deg,#a72aff,#155dff);
 }
-.status{font-size:13px;color:#817b9a;margin:10px 0}
+.empty{text-align:center;padding:25px;color:#dbe4ff}
+.historyitem{
+ padding:14px;
+ margin:10px 0;
+ border-radius:15px;
+ overflow-wrap:anywhere;
+}
 .settingrow{
- display:flex;justify-content:space-between;align-items:center;
- padding:14px 0;border-bottom:1px solid #eee9f7;gap:12px;
+ display:flex;
+ justify-content:space-between;
+ align-items:center;
+ gap:10px;
+ padding:14px 0;
+ border-bottom:1px solid #ffffff33;
 }
-.settingrow button{
- border:0;background:#f0ecff;color:#5e4bb1;
- border-radius:10px;padding:9px 12px;
+.settingrow button,.settingrow select{
+ padding:9px;
+ border:1px solid #ffffff66;
+ border-radius:10px;
+ background:#ffffff22;
+ color:white;
 }
-.empty{text-align:center;color:var(--muted);padding:25px}
+.settingrow option{color:#111}
+.menu{
+ display:none;
+ position:absolute;
+ top:76px;
+ left:18px;
+ width:200px;
+ padding:10px;
+ border-radius:18px;
+ z-index:10;
+}
+.menu button{
+ width:100%;
+ padding:13px;
+ text-align:left;
+ border:0;
+ border-radius:10px;
+ color:white;
+ background:transparent;
+}
+.menu button:hover{background:#ffffff22}
 .hidden{display:none!important}
+
 @media(max-width:600px){
- main{padding:12px;margin:10px auto}
- .hero h1{font-size:29px}
- .features{grid-template-columns:repeat(2,1fr)}
- .topbar{padding:0 13px}
- .brand{font-size:16px}
- .pro-small{padding:9px;font-size:12px}
- .upgrade{align-items:flex-start}
+ .topbar{padding:14px 7px}
+ .features{gap:9px}
+ .feature{min-height:120px;padding:12px 5px}
+ .feature .emoji{font-size:35px}
+ .feature strong{font-size:14px}
+ .prompts{gap:9px}
+ .prompt{padding:11px;font-size:13px}
+ .brain{font-size:82px}
+ .upgrade{padding:14px}
+ .upgrade strong{font-size:16px}
+ .upgrade p{font-size:12px}
+ .upgrade button{padding:11px 13px}
+ .askbox textarea{font-size:15px}
 }
 </style>
 </head>
@@ -185,120 +379,123 @@ main{max-width:920px;margin:25px auto;padding:15px}
 <body>
 
 <header class="topbar">
- <button class="iconbtn" onclick="toggleMenu()" aria-label="Menu">☰</button>
- <div class="brand">AI Assistant</div>
- <div class="top-actions">
-  <button class="pro-small" onclick="showUpgrade()">♛ Pro</button>
-  <div class="avatar">A</div>
+ <div class="top-left">
+  <button class="roundbtn" onclick="toggleMenu()">☰</button>
+ </div>
+ <div class="top-right">
+  <button class="probtn" onclick="showUpgrade()">👑 Pro</button>
+  <button class="avatar" onclick="showSettings()">♙</button>
  </div>
 </header>
 
+<div class="menu glass" id="menu">
+ <button onclick="goHome()">⌂ Home</button>
+ <button onclick="showHistory()">◷ Chat History</button>
+ <button onclick="showFavorites()">☆ Favorites</button>
+ <button onclick="showSettings()">⚙ Settings</button>
+</div>
+
 <main>
- <section id="homeScreen">
-  <div class="hero">
-   <div class="logo">🧠</div>
-   <h1>AI Assistant</h1>
-   <p>Ask • Learn • Create • Explore</p>
-  </div>
+<section id="homeScreen">
+ <div class="hero">
+  <div class="brain">🧠</div>
+  <h1>ZAQTIVO AI</h1>
+  <p>Ask • Learn • Create • Explore</p>
+ </div>
 
-  <div class="askbox">
-   <textarea id="question" placeholder="Ask me anything..."></textarea>
-   <div class="askbottom">
-    <div class="asktools">
-     <button class="smallbtn" onclick="document.getElementById('photoInput').click()">＋ Photo</button>
-     <button class="smallbtn" onclick="startVoice()">🎙</button>
-    </div>
-    <button class="sendbtn" onclick="sendQuestion()">Send ➤</button>
-   </div>
-   <input id="photoInput" type="file" accept="image/*" hidden onchange="photoSelected(event)">
-   <div id="photoName" class="status"></div>
-  </div>
+ <div class="askbox glass">
+  <div class="askicon">💬</div>
+  <textarea id="question" placeholder="Ask me anything..."></textarea>
+  <button class="sendbtn" onclick="sendQuestion()">➤</button>
+ </div>
+ <input id="photoInput" type="file" accept="image/*" hidden onchange="photoSelected(event)">
+ <div id="photoName" class="status"></div>
 
-  <div class="language">
-   Answer language:
-   <select id="languageSelect">
-    <option value="auto">Auto – Follow my question</option>
-    <option value="English">English</option>
-    <option value="Hindi">हिन्दी</option>
-    <option value="Hinglish">Hinglish</option>
-    <option value="Bengali">বাংলা</option>
-    <option value="Tamil">தமிழ்</option>
-    <option value="Telugu">తెలుగు</option>
-    <option value="Marathi">मराठी</option>
-    <option value="Gujarati">ગુજરાતી</option>
-    <option value="Punjabi">ਪੰਜਾਬੀ</option>
-    <option value="Urdu">اردو</option>
-    <option value="Other">Other – Follow my message</option>
-   </select>
-  </div>
+ <div class="features">
+  <button class="feature glass" onclick="newChat()">
+   <span class="emoji">💬</span><strong>New Chat</strong>
+  </button>
+  <button class="feature glass" onclick="document.getElementById('photoInput').click()">
+   <span class="emoji">🖼️</span><strong>Upload Photo</strong>
+  </button>
+  <button class="feature glass" onclick="openCamera()">
+   <span class="emoji">📷</span><strong>Use Camera</strong>
+  </button>
+  <button class="feature glass" onclick="startVoice()">
+   <span class="emoji">🎙️</span><strong>Voice Input</strong>
+  </button>
+  <button class="feature glass" onclick="quickPrompt('Give me a short and clear answer to my question: ')">
+   <span class="emoji">⚡</span><strong>Quick Answers</strong>
+  </button>
+  <button class="feature glass" onclick="quickPrompt('Help me understand this topic step by step: ')">
+   <span class="emoji">📖</span><strong>Study Help</strong>
+  </button>
+ </div>
 
-  <div class="section-title">Explore Features</div>
-  <div class="features">
-   <button class="feature" onclick="newChat()"><span class="emoji">💬</span><strong>New Chat</strong></button>
-   <button class="feature" onclick="document.getElementById('photoInput').click()"><span class="emoji">🖼️</span><strong>Upload Photo</strong></button>
-   <button class="feature" onclick="openCamera()"><span class="emoji">📷</span><strong>Use Camera</strong></button>
-   <button class="feature" onclick="startVoice()"><span class="emoji">🎙️</span><strong>Voice Input</strong></button>
-   <button class="feature" onclick="quickPrompt('Give me a short and clear answer to my question.')"><span class="emoji">⚡</span><strong>Quick Answers</strong></button>
-   <button class="feature" onclick="quickPrompt('Help me understand this topic step by step.')"><span class="emoji">📚</span><strong>Study Help</strong></button>
-  </div>
+ <div class="section-title">
+  <span>🔥 Popular Prompts</span>
+  <button class="seeall" onclick="showAllPrompts()">See all →</button>
+ </div>
 
-  <div class="section-title">Popular Prompts</div>
-  <div class="prompts">
-   <button class="prompt" onclick="quickPrompt('Explain this topic in simple words: ')">📖 Explain this topic</button>
-   <button class="prompt" onclick="quickPrompt('Summarize this text: ')">📝 Summarize this text</button>
-   <button class="prompt" onclick="quickPrompt('Solve this problem step by step: ')">➗ Solve this problem</button>
-   <button class="prompt" onclick="quickPrompt('Help me write code for: ')">💻 Write code</button>
-  </div>
+ <div class="prompts">
+  <button class="prompt glass" onclick="quickPrompt('Explain this topic in simple words: ')">
+   <span class="emoji">💡</span>Explain this topic →
+  </button>
+  <button class="prompt glass" onclick="quickPrompt('Summarize this text: ')">
+   <span class="emoji">📄</span>Summarize this text →
+  </button>
+  <button class="prompt glass" onclick="quickPrompt('Solve this problem step by step: ')">
+   <span class="emoji">🧮</span>Solve this problem →
+  </button>
+  <button class="prompt glass" onclick="quickPrompt('Help me write code for: ')">
+   <span class="emoji">💻</span>Write code →
+  </button>
+ </div>
 
-  <div class="upgrade">
-   <div><strong>✨ Upgrade to Pro</strong><p>Explore more possibilities with AI.</p></div>
-   <button onclick="showUpgrade()">Explore</button>
+ <div class="upgrade">
+  <div>
+   <strong>👑 Upgrade to Pro</strong>
+   <p>Unlock more features!</p>
   </div>
- </section>
+  <button onclick="showUpgrade()">Explore ❯</button>
+ </div>
+</section>
 
- <section id="chatScreen">
-  <div class="panel">
-   <div class="chathead">
-    <button onclick="goHome()">← Home</button>
-    <strong>AI Assistant</strong>
-    <button style="margin-left:auto" onclick="newChat()">＋ New</button>
-   </div>
-   <div id="messages" class="messages"></div>
-   <div id="chatStatus" class="status"></div>
-   <div class="chatinput">
-    <textarea id="chatQuestion" placeholder="Type your message..."></textarea>
-    <button onclick="sendChatQuestion()">➤</button>
-   </div>
-   <input id="chatPhoto" type="file" accept="image/*" hidden onchange="chatPhotoSelected(event)">
-   <div style="margin-top:10px">
-    <button class="smallbtn" onclick="document.getElementById('chatPhoto').click()">＋ Upload photo</button>
-    <button class="smallbtn" onclick="startVoice('chatQuestion')">🎙 Voice</button>
-   </div>
+<section id="chatScreen">
+ <div class="panel glass">
+  <div class="chathead">
+   <button class="backbtn" onclick="goHome()">← Back</button>
+   <strong>ZAQTIVO AI</strong>
+   <button class="backbtn" style="margin-left:auto" onclick="newChat()">＋ New</button>
   </div>
- </section>
+  <div id="messages" class="messages"></div>
+  <div id="chatStatus" class="status"></div>
+  <div class="chatinput">
+   <textarea id="chatQuestion" placeholder="Type your message..."></textarea>
+   <button onclick="sendChatQuestion()">➤</button>
+  </div>
+  <div style="margin-top:10px">
+   <button class="smallbtn" onclick="document.getElementById('chatPhoto').click()">＋ Upload Photo</button>
+   <button class="smallbtn" onclick="startVoice('chatQuestion')">🎙 Voice</button>
+  </div>
+  <input id="chatPhoto" type="file" accept="image/*" hidden onchange="chatPhotoSelected(event)">
+ </div>
+</section>
 
- <section id="otherScreen">
-  <div class="panel">
-   <div class="chathead">
-    <button onclick="goHome()">← Home</button>
-    <strong id="otherTitle">History</strong>
-   </div>
-   <div id="otherContent"></div>
+<section id="otherScreen">
+ <div class="panel glass">
+  <div class="chathead">
+   <button class="backbtn" onclick="goHome()">← Back</button>
+   <strong id="otherTitle">History</strong>
   </div>
- </section>
+  <div id="otherContent"></div>
+ </div>
+</section>
 </main>
-
-<nav class="bottomnav">
- <button class="navitem active" onclick="goHome()" id="navHome"><span>⌂</span>Home</button>
- <button class="navitem" onclick="showHistory()" id="navHistory"><span>◷</span>History</button>
- <button class="navitem" onclick="showFavorites()" id="navFavorites"><span>☆</span>Favorites</button>
- <button class="navitem" onclick="showSettings()" id="navSettings"><span>⚙</span>Settings</button>
-</nav>
 
 <script>
 let selectedImage=null;
 let chatImage=null;
-let currentConversation=[];
 let historyData=JSON.parse(localStorage.getItem("zaqtivo_history")||"[]");
 let favorites=JSON.parse(localStorage.getItem("zaqtivo_favorites")||"[]");
 
@@ -306,80 +503,75 @@ function saveData(){
  localStorage.setItem("zaqtivo_history",JSON.stringify(historyData));
  localStorage.setItem("zaqtivo_favorites",JSON.stringify(favorites));
 }
-
 function hideScreens(){
- document.getElementById("homeScreen").style.display="none";
- document.getElementById("chatScreen").style.display="none";
- document.getElementById("otherScreen").style.display="none";
- document.querySelectorAll(".navitem").forEach(x=>x.classList.remove("active"));
+ ["homeScreen","chatScreen","otherScreen"].forEach(id=>{
+  document.getElementById(id).style.display="none";
+ });
+ document.getElementById("menu").style.display="none";
 }
-
 function goHome(){
  hideScreens();
  document.getElementById("homeScreen").style.display="block";
- document.getElementById("navHome").classList.add("active");
 }
-
 function openChat(){
  hideScreens();
  document.getElementById("chatScreen").style.display="block";
 }
-
 function newChat(){
- currentConversation=[];
- chatImage=null;
  document.getElementById("messages").innerHTML="";
  document.getElementById("chatQuestion").value="";
  document.getElementById("chatStatus").textContent="";
+ chatImage=null;
  openChat();
 }
-
-function startChatFromHome(question){
- newChat();
- if(question){
-  document.getElementById("chatQuestion").value=question;
- }
-}
-
 function quickPrompt(prompt){
  document.getElementById("question").value=prompt;
  document.getElementById("question").focus();
+ window.scrollTo({top:0,behavior:"smooth"});
 }
-
+function toggleMenu(){
+ const menu=document.getElementById("menu");
+ menu.style.display=menu.style.display==="block"?"none":"block";
+}
+function showUpgrade(){
+ alert("Pro features are not available yet. Existing free AI service limits still apply.");
+}
+function showAllPrompts(){
+ document.getElementById("question").focus();
+ window.scrollTo({top:0,behavior:"smooth"});
+}
 function photoSelected(event){
  const file=event.target.files[0];
  if(!file)return;
  if(file.size>10*1024*1024){
-  alert("Image size must be 10 MB or less.");
+  alert("Image must be 10 MB or smaller.");
   event.target.value="";
   return;
  }
  selectedImage=file;
  document.getElementById("photoName").textContent="Selected: "+file.name;
 }
-
 function chatPhotoSelected(event){
  const file=event.target.files[0];
  if(!file)return;
  if(file.size>10*1024*1024){
-  alert("Image size must be 10 MB or less.");
+  alert("Image must be 10 MB or smaller.");
   event.target.value="";
   return;
  }
  chatImage=file;
  document.getElementById("chatStatus").textContent="Photo selected: "+file.name;
 }
-
 function openCamera(){
  const input=document.createElement("input");
  input.type="file";
  input.accept="image/*";
  input.capture="environment";
- input.onchange=function(e){
+ input.onchange=e=>{
   const file=e.target.files[0];
   if(!file)return;
   if(file.size>10*1024*1024){
-   alert("Image size must be 10 MB or less.");
+   alert("Image must be 10 MB or smaller.");
    return;
   }
   selectedImage=file;
@@ -387,7 +579,6 @@ function openCamera(){
  };
  input.click();
 }
-
 function startVoice(target="question"){
  const SpeechRecognition=window.SpeechRecognition||window.webkitSpeechRecognition;
  if(!SpeechRecognition){
@@ -395,27 +586,21 @@ function startVoice(target="question"){
   return;
  }
  const recognition=new SpeechRecognition();
- recognition.lang="auto";
+ recognition.lang=navigator.language||"en-US";
  recognition.interimResults=false;
- recognition.onresult=function(event){
-  const text=event.results[0][0].transcript;
+ recognition.onresult=e=>{
   const el=document.getElementById(target);
-  el.value+=(el.value?" ":"")+text;
+  el.value+=(el.value?" ":"")+e.results[0][0].transcript;
  };
- recognition.onerror=function(){
-  alert("Voice input could not start. Please check microphone permission.");
- };
+ recognition.onerror=()=>alert("Voice input failed. Check microphone permission.");
  recognition.start();
 }
-
 function addMessage(text,type){
- const messages=document.getElementById("messages");
  const wrap=document.createElement("div");
  wrap.className="msg "+type;
  const content=document.createElement("div");
  content.textContent=text;
  wrap.appendChild(content);
-
  if(type==="ai"){
   const actions=document.createElement("div");
   actions.className="msg-actions";
@@ -428,64 +613,48 @@ function addMessage(text,type){
   actions.append(copy,save);
   wrap.appendChild(actions);
  }
- messages.appendChild(wrap);
- messages.scrollTop=messages.scrollHeight;
+ document.getElementById("messages").appendChild(wrap);
+ wrap.scrollIntoView({behavior:"smooth",block:"end"});
 }
-
 function copyText(text){
  if(navigator.clipboard&&navigator.clipboard.writeText){
-  navigator.clipboard.writeText(text).then(()=>alert("Copied!")).catch(()=>alert("Could not copy text."));
+  navigator.clipboard.writeText(text).then(()=>alert("Copied!"))
+   .catch(()=>alert("Could not copy."));
  }else{
-  const t=document.createElement("textarea");
-  t.value=text;document.body.appendChild(t);t.select();
-  document.execCommand("copy");t.remove();alert("Copied!");
+  const el=document.createElement("textarea");
+  el.value=text;document.body.appendChild(el);el.select();
+  document.execCommand("copy");el.remove();
+  alert("Copied!");
  }
 }
-
 function saveFavorite(answer){
  if(favorites.includes(answer)){
-  alert("Already saved in Favorites.");
+  alert("Already saved.");
   return;
  }
  favorites.unshift(answer);
  saveData();
  alert("Saved to Favorites!");
 }
-
-function getLanguageInstruction(){
- const language=document.getElementById("languageSelect").value;
- if(language==="auto"||language==="Other"){
-  return "Reply in the same language as the user's question. If the user mixes languages, respond naturally in that language mix.";
- }
- return "Reply in "+language+".";
-}
-
 async function askBackend(question,imageFile){
  const formData=new FormData();
- formData.append("question",question+"\n\n"+getLanguageInstruction());
+ formData.append("question",question);
  if(imageFile)formData.append("image",imageFile);
-
  const controller=new AbortController();
  const timeout=setTimeout(()=>controller.abort(),90000);
-
  try{
   const response=await fetch("/api/solve",{
-   method:"POST",
-   body:formData,
-   signal:controller.signal
+   method:"POST",body:formData,signal:controller.signal
   });
   const data=await response.json().catch(()=>({}));
-  if(!response.ok){
-   throw new Error(data.error||data.message||"Server error ("+response.status+").");
-  }
+  if(!response.ok)throw new Error(data.error||data.message||"Server error "+response.status);
   const answer=data.answer||data.text||data.response||data.result;
-  if(!answer)throw new Error("The AI returned an empty answer. Please try again.");
+  if(!answer)throw new Error("AI returned an empty answer.");
   return answer;
  }finally{
   clearTimeout(timeout);
  }
 }
-
 async function sendQuestion(){
  const question=document.getElementById("question").value.trim();
  if(!question&&!selectedImage){
@@ -496,11 +665,10 @@ async function sendQuestion(){
  selectedImage=null;
  document.getElementById("photoInput").value="";
  document.getElementById("photoName").textContent="";
- startChatFromHome();
- await sendToAI(question||"Please explain the uploaded image.",image);
  document.getElementById("question").value="";
+ newChat();
+ await sendToAI(question||"Please explain the uploaded image.",image);
 }
-
 async function sendChatQuestion(){
  const question=document.getElementById("chatQuestion").value.trim();
  if(!question&&!chatImage){
@@ -513,74 +681,56 @@ async function sendChatQuestion(){
  document.getElementById("chatQuestion").value="";
  await sendToAI(question||"Please explain the uploaded image.",image);
 }
-
 async function sendToAI(question,image){
  addMessage(question+(image?"\n[Image attached]":""),"user");
- currentConversation.push({role:"user",text:question});
  const status=document.getElementById("chatStatus");
- status.textContent="AI is thinking... Please wait.";
-
- const sendButtons=document.querySelectorAll(".chatinput button");
- sendButtons.forEach(b=>b.disabled=true);
-
+ status.textContent="ZAQTIVO AI is thinking...";
+ document.querySelectorAll(".chatinput button").forEach(b=>b.disabled=true);
  try{
   const answer=await askBackend(question,image);
   addMessage(answer,"ai");
-  currentConversation.push({role:"ai",text:answer});
   historyData.unshift({
-   question:question,
-   answer:answer,
-   date:new Date().toLocaleString()
+   question,answer,date:new Date().toLocaleString()
   });
   historyData=historyData.slice(0,100);
   saveData();
   status.textContent="";
  }catch(error){
-  let message=error.name==="AbortError"
-   ?"The request took too long. Please try again."
-   :(error.message||"Something went wrong. Please try again.");
+  const message=error.name==="AbortError"
+   ?"Request timed out. Please try again."
+   :(error.message||"Please try again.");
   addMessage("Sorry, I couldn't get an answer.\n"+message,"ai");
-  status.textContent="Please try again.";
+  status.textContent="Request failed.";
  }finally{
-  sendButtons.forEach(b=>b.disabled=false);
+  document.querySelectorAll(".chatinput button").forEach(b=>b.disabled=false);
  }
 }
-
 function showHistory(){
  hideScreens();
  document.getElementById("otherScreen").style.display="block";
- document.getElementById("otherTitle").textContent="History";
- document.getElementById("navHistory").classList.add("active");
+ document.getElementById("otherTitle").textContent="Chat History";
  const box=document.getElementById("otherContent");
  box.innerHTML="";
  if(!historyData.length){
   box.innerHTML='<div class="empty">No chats yet.</div>';
   return;
  }
- historyData.forEach((item)=>{
+ historyData.forEach(item=>{
   const div=document.createElement("div");
-  div.className="panel";
+  div.className="historyitem glass";
   const q=document.createElement("strong");
   q.textContent=item.question;
   const date=document.createElement("p");
-  date.className="status";
-  date.textContent=item.date;
-  const a=document.createElement("p");
-  a.textContent=item.answer;
-  const copy=document.createElement("button");
-  copy.className="smallbtn";
-  copy.textContent="Copy answer";
-  copy.onclick=()=>copyText(item.answer);
-  div.append(q,date,a,copy);
+  date.className="status";date.textContent=item.date;
+  const a=document.createElement("p");a.textContent=item.answer;
+  div.append(q,date,a);
   box.appendChild(div);
  });
 }
-
 function showFavorites(){
  hideScreens();
  document.getElementById("otherScreen").style.display="block";
  document.getElementById("otherTitle").textContent="Favorites";
- document.getElementById("navFavorites").classList.add("active");
  const box=document.getElementById("otherContent");
  box.innerHTML="";
  if(!favorites.length){
@@ -589,88 +739,46 @@ function showFavorites(){
  }
  favorites.forEach((item,index)=>{
   const div=document.createElement("div");
-  div.className="panel";
-  const p=document.createElement("p");
-  p.textContent=item;
-  const row=document.createElement("div");
+  div.className="historyitem glass";
+  const p=document.createElement("p");p.textContent=item;
   const copy=document.createElement("button");
-  copy.className="smallbtn";
-  copy.textContent="Copy";
+  copy.className="smallbtn";copy.textContent="Copy";
   copy.onclick=()=>copyText(item);
   const remove=document.createElement("button");
-  remove.className="smallbtn";
-  remove.textContent="Remove";
+  remove.className="smallbtn";remove.textContent="Remove";
   remove.style.marginLeft="8px";
   remove.onclick=()=>{
-   favorites.splice(index,1);
-   saveData();
-   showFavorites();
+   favorites.splice(index,1);saveData();showFavorites();
   };
-  row.append(copy,remove);
-  div.append(p,row);
-  box.appendChild(div);
+  div.append(p,copy,remove);box.appendChild(div);
  });
 }
-
 function showSettings(){
  hideScreens();
  document.getElementById("otherScreen").style.display="block";
  document.getElementById("otherTitle").textContent="Settings";
- document.getElementById("navSettings").classList.add("active");
  const box=document.getElementById("otherContent");
- box.innerHTML="";
-
- const language=document.createElement("div");
- language.className="settingrow";
- language.innerHTML="<span>Answer language</span>";
- const select=document.getElementById("languageSelect").cloneNode(true);
- select.onchange=()=>document.getElementById("languageSelect").value=select.value;
- language.appendChild(select);
- box.appendChild(language);
-
- const clear=document.createElement("div");
- clear.className="settingrow";
- clear.innerHTML="<span>Clear chat history</span>";
- const clearBtn=document.createElement("button");
- clearBtn.textContent="Clear";
- clearBtn.onclick=()=>{
+ box.innerHTML=`
+  <div class="settingrow"><span>App</span><strong>ZAQTIVO AI</strong></div>
+  <div class="settingrow"><span>Language</span><select id="lang">
+   <option>Auto</option><option>English</option><option>Hindi</option>
+  </select></div>
+  <div class="settingrow"><span>Clear chat history</span><button id="clearHistory">Clear</button></div>
+  <div class="settingrow"><span>Version</span><strong>1.0</strong></div>
+ `;
+ document.getElementById("clearHistory").onclick=()=>{
   if(confirm("Clear all chat history?")){
    historyData=[];saveData();showHistory();
   }
  };
- clear.appendChild(clearBtn);
- box.appendChild(clear);
-
- const about=document.createElement("div");
- about.className="settingrow";
- about.innerHTML="<span>About AI Assistant</span><span>Version 1.0</span>";
- box.appendChild(about);
 }
-
-function toggleMenu(){
- const choice=prompt("Type:\n1. Home\n2. History\n3. Favorites\n4. Settings");
- if(choice==="1")goHome();
- if(choice==="2")showHistory();
- if(choice==="3")showFavorites();
- if(choice==="4")showSettings();
-}
-
-function showUpgrade(){
- alert("Pro features are not available yet. The current AI Assistant continues to use its existing free service limits.");
-}
-
-document.getElementById("question").addEventListener("keydown",function(e){
- if(e.key==="Enter"&&!e.shiftKey){
-  e.preventDefault();sendQuestion();
- }
+document.getElementById("question").addEventListener("keydown",e=>{
+ if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();sendQuestion();}
 });
-document.getElementById("chatQuestion").addEventListener("keydown",function(e){
- if(e.key==="Enter"&&!e.shiftKey){
-  e.preventDefault();sendChatQuestion();
- }
+document.getElementById("chatQuestion").addEventListener("keydown",e=>{
+ if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();sendChatQuestion();}
 });
-
 goHome();
 </script>
 </body>
-    </html>
+  </html>
