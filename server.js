@@ -1,3 +1,4 @@
+
 import express from "express";
 import multer from "multer";
 import { GoogleGenAI } from "@google/genai";
@@ -20,7 +21,15 @@ const __dirname = path.dirname(__filename);
 const PORT = Number(process.env.PORT) || 3000;
 
 const MODEL =
-  process.env.GEMINI_MODEL || "gemini-flash-latest";
+  process.env.GEMINI_MODEL || "gemini-3.8-flash";
+
+const FALLBACK_MODELS = (
+  process.env.GEMINI_FALLBACK_MODELS ||
+  "gemini-3.7-flash,gemini-3.5-flash"
+)
+  .split(",")
+  .map(model => model.trim())
+  .filter(Boolean);
 
 const IMAGE_MODEL =
   process.env.GEMINI_IMAGE_MODEL || "gemini-3.1-flash-image";
@@ -30,8 +39,6 @@ const VIDEO_MODEL =
 
 const apiKey = process.env.GEMINI_API_KEY;
 
-// Give each API request a bounded timeout.
-// Retry only temporary server errors, not quota errors (429).
 const ai = apiKey
   ? new GoogleGenAI({
       apiKey,
@@ -69,7 +76,6 @@ const VIDEO_DIRECTORY = path.join(
 
 fs.mkdirSync(VIDEO_DIRECTORY, { recursive: true });
 
-// Support OfficeParser package export variations.
 const OfficeParser =
   OfficeParserModule.OfficeParser ||
   OfficeParserModule.default ||
@@ -206,9 +212,7 @@ const videoJobs = new Map();
 app.disable("x-powered-by");
 app.set("trust proxy", 1);
 
-app.use(express.json({
-  limit: "2mb"
-}));
+app.use(express.json({ limit: "2mb" }));
 
 app.use(express.urlencoded({
   extended: true,
@@ -320,10 +324,7 @@ function cleanString(value, maxLength = 5000) {
 }
 
 function getLanguageInstruction(language) {
-  const selectedLanguage = cleanString(
-    language,
-    100
-  );
+  const selectedLanguage = cleanString(language, 100);
 
   if (
     !selectedLanguage ||
@@ -365,7 +366,118 @@ function requireAI(res) {
 }
 
 // ========================================
-// 10. ERROR HANDLING
+// 10. ERROR CLASSIFICATION
+// ========================================
+
+function getErrorStatus(error) {
+  const candidates = [
+    error?.status,
+    error?.statusCode,
+    error?.code,
+    error?.response?.status
+  ];
+
+  for (const candidate of candidates) {
+    const number = Number(candidate);
+
+    if (
+      Number.isInteger(number) &&
+      number >= 400 &&
+      number <= 599
+    ) {
+      return number;
+    }
+  }
+
+  const message = String(error?.message || "");
+  const match = message.match(/\b(400|401|403|404|429|500|502|503|504)\b/);
+
+  return match ? Number(match[1]) : 0;
+}
+
+function isQuotaError(error) {
+  const status = getErrorStatus(error);
+  const message = String(error?.message || "").toLowerCase();
+
+  return (
+    status === 429 ||
+    message.includes("resource_exhausted") ||
+    message.includes("quota") ||
+    message.includes("too many requests") ||
+    message.includes("rate limit")
+  );
+}
+
+function isFallbackError(error) {
+  const status = getErrorStatus(error);
+  const message = String(error?.message || "").toLowerCase();
+
+  return (
+    status === 503 ||
+    status === 502 ||
+    status === 500 ||
+    status === 404 ||
+    message.includes("high demand") ||
+    message.includes("overloaded") ||
+    message.includes("unavailable") ||
+    message.includes("not found")
+  );
+}
+
+// ========================================
+// 11. CHAT MODEL FALLBACK
+// ========================================
+
+async function generateChatWithFallback(request) {
+  const models = [
+    ...new Set([MODEL, ...FALLBACK_MODELS])
+  ];
+
+  let lastError;
+
+  for (const model of models) {
+    try {
+      console.log("Trying chat model:", model);
+
+      const response = await ai.models.generateContent({
+        ...request,
+        model
+      });
+
+      console.log("Chat succeeded with model:", model);
+
+      return {
+        response,
+        model
+      };
+
+    } catch (error) {
+      lastError = error;
+
+      console.error(
+        `Chat model ${model} failed:`,
+        error?.message || error
+      );
+
+      // A quota error must not be bypassed by switching models.
+      if (isQuotaError(error)) {
+        throw error;
+      }
+
+      // Only temporary service/model errors try the next model.
+      if (!isFallbackError(error)) {
+        throw error;
+      }
+    }
+  }
+
+  throw lastError || new Error(
+    "All configured chat models are unavailable."
+  );
+}
+
+// ========================================
+// 12. ERROR RESPONSE HANDLING
 // ========================================
 
 function handleAIError(error, res) {
@@ -374,33 +486,11 @@ function handleAIError(error, res) {
     error?.message || error
   );
 
+  const status = getErrorStatus(error);
   const message = String(error?.message || "");
   const lower = message.toLowerCase();
 
-  const errorCode = String(
-    error?.code ||
-    error?.status ||
-    error?.statusCode ||
-    ""
-  ).toLowerCase();
-
-  const status = Number(
-    error?.status ||
-    error?.statusCode ||
-    error?.code
-  );
-
-  // Quota and rate-limit errors.
-  // Do not automatically retry these requests.
-  if (
-    status === 429 ||
-    errorCode.includes("resource_exhausted") ||
-    errorCode.includes("quota") ||
-    message.includes("429") ||
-    lower.includes("quota") ||
-    lower.includes("rate limit") ||
-    lower.includes("resource_exhausted")
-  ) {
+  if (isQuotaError(error)) {
     return res.status(429).json({
       success: false,
       error:
@@ -408,13 +498,12 @@ function handleAIError(error, res) {
     });
   }
 
-  // Temporary Gemini service overload.
   if (
     status === 503 ||
-    message.includes("503") ||
+    status === 502 ||
     lower.includes("high demand") ||
     lower.includes("overloaded") ||
-    errorCode.includes("unavailable")
+    lower.includes("unavailable")
   ) {
     return res.status(503).json({
       success: false,
@@ -423,13 +512,7 @@ function handleAIError(error, res) {
     });
   }
 
-  // Authentication errors.
-  if (
-    status === 401 ||
-    status === 403 ||
-    message.includes("401") ||
-    message.includes("403")
-  ) {
+  if (status === 401 || status === 403) {
     return res.status(502).json({
       success: false,
       error:
@@ -437,24 +520,15 @@ function handleAIError(error, res) {
     });
   }
 
-  // Model not found.
-  if (
-    status === 404 ||
-    message.includes("404") ||
-    lower.includes("not found")
-  ) {
+  if (status === 404 || lower.includes("not found")) {
     return res.status(502).json({
       success: false,
       error:
-        "The configured AI model is unavailable. Check your Render model settings."
+        "The configured AI model is unavailable. Check your model settings."
     });
   }
 
-  // Invalid request.
-  if (
-    status === 400 ||
-    message.includes("400")
-  ) {
+  if (status === 400) {
     return res.status(400).json({
       success: false,
       error:
@@ -462,7 +536,6 @@ function handleAIError(error, res) {
     });
   }
 
-  // Request timeout.
   if (
     lower.includes("timeout") ||
     lower.includes("timed out") ||
@@ -484,7 +557,7 @@ function handleAIError(error, res) {
 }
 
 // ========================================
-// 11. RESPONSE HELPERS
+// 13. RESPONSE HELPERS
 // ========================================
 
 function getResponseText(response) {
@@ -508,10 +581,7 @@ function getVideoData(interaction) {
 
   if (Array.isArray(interaction?.outputs)) {
     for (const output of interaction.outputs) {
-      if (
-        output?.type === "video" &&
-        output?.data
-      ) {
+      if (output?.type === "video" && output?.data) {
         return output.data;
       }
     }
@@ -523,18 +593,14 @@ function getVideoData(interaction) {
       i >= 0;
       i--
     ) {
-      const step = interaction.steps[i];
-      const content = step?.content;
+      const content = interaction.steps[i]?.content;
 
       if (!Array.isArray(content)) {
         continue;
       }
 
       for (const item of content) {
-        if (
-          item?.type === "video" &&
-          item?.data
-        ) {
+        if (item?.type === "video" && item?.data) {
           return item.data;
         }
       }
@@ -557,19 +623,13 @@ async function saveVideo(jobId, base64Data) {
     `${jobId}.mp4`
   );
 
-  const buffer = Buffer.from(
-    base64Data,
-    "base64"
-  );
+  const buffer = Buffer.from(base64Data, "base64");
 
   if (!buffer.length) {
     throw new Error("Generated video file is empty.");
   }
 
-  await fs.promises.writeFile(
-    videoPath,
-    buffer
-  );
+  await fs.promises.writeFile(videoPath, buffer);
 
   const stats = await fs.promises.stat(videoPath);
 
@@ -581,9 +641,7 @@ async function saveVideo(jobId, base64Data) {
 }
 
 async function removeDirectory(directory) {
-  if (!directory) {
-    return;
-  }
+  if (!directory) return;
 
   try {
     await fs.promises.rm(directory, {
@@ -599,7 +657,7 @@ async function removeDirectory(directory) {
 }
 
 // ========================================
-// 12. DOCUMENT EXTRACTION
+// 14. DOCUMENT EXTRACTION
 // ========================================
 
 async function extractDocumentText(file) {
@@ -672,12 +730,11 @@ async function extractDocumentText(file) {
 }
 
 // ========================================
-// 13. PROCESS MULTIPLE DOCUMENTS
+// 15. PROCESS MULTIPLE DOCUMENTS
 // ========================================
 
 async function processDocuments(files) {
   const documents = [];
-
   let totalCharacters = 0;
 
   for (const file of files) {
@@ -693,9 +750,7 @@ async function processDocuments(files) {
     const remainingCharacters =
       MAX_TOTAL_DOCUMENT_TEXT - totalCharacters;
 
-    if (remainingCharacters <= 0) {
-      break;
-    }
+    if (remainingCharacters <= 0) break;
 
     const allowedCharacters = Math.min(
       MAX_DOCUMENT_TEXT,
@@ -723,7 +778,7 @@ async function processDocuments(files) {
 }
 
 // ========================================
-// 14. BUILD CHAT PROMPT
+// 16. BUILD CHAT PROMPT
 // ========================================
 
 function buildPrompt(
@@ -772,7 +827,7 @@ function buildPrompt(
 }
 
 // ========================================
-// 15. HEALTH CHECK
+// 17. HEALTH CHECK
 // ========================================
 
 app.get("/health", (req, res) => {
@@ -782,6 +837,7 @@ app.get("/health", (req, res) => {
 
     models: {
       chat: MODEL,
+      chatFallbacks: FALLBACK_MODELS,
       image: IMAGE_MODEL,
       video: VIDEO_MODEL
     },
@@ -796,70 +852,50 @@ app.get("/health", (req, res) => {
       videoGeneration: true
     },
 
-    supportedDocuments:
-      DOCUMENT_EXTENSIONS,
-
-    supportedImages:
-      Object.keys(IMAGE_TYPES),
-
-    documentTasks:
-      Object.keys(DOCUMENT_TASKS),
+    supportedDocuments: DOCUMENT_EXTENSIONS,
+    supportedImages: Object.keys(IMAGE_TYPES),
+    documentTasks: Object.keys(DOCUMENT_TASKS),
 
     limits: {
       maxImages: MAX_IMAGES,
       maxDocuments: MAX_DOCUMENTS,
       maxFileSizeMB: 10,
-      maxDocumentCharacters:
-        MAX_TOTAL_DOCUMENT_TEXT
+      maxDocumentCharacters: MAX_TOTAL_DOCUMENT_TEXT
     },
 
-    activeVideoJobs:
-      videoJobs.size
+    activeVideoJobs: videoJobs.size
   });
 });
 
 // ========================================
-// 16. HOME PAGE
+// 18. HOME PAGE
 // ========================================
 
 app.get("/", (req, res) => {
-  const indexPath = path.join(
-    __dirname,
-    "index.html"
-  );
+  const indexPath = path.join(__dirname, "index.html");
 
   if (fs.existsSync(indexPath)) {
     return res.sendFile(indexPath);
   }
 
-  return res.send(
-    "ZAQTIVO AI backend is running."
-  );
+  return res.send("ZAQTIVO AI backend is running.");
 });
 
 // ========================================
-// 17. CHAT + PHOTO + DOCUMENT API
+// 19. CHAT + PHOTO + DOCUMENT API
 // ========================================
 
 app.post(
   "/api/solve",
 
   upload.fields([
-    {
-      name: "images",
-      maxCount: MAX_IMAGES
-    },
-    {
-      name: "documents",
-      maxCount: MAX_DOCUMENTS
-    }
+    { name: "images", maxCount: MAX_IMAGES },
+    { name: "documents", maxCount: MAX_DOCUMENTS }
   ]),
 
   async (req, res) => {
     try {
-      if (!requireAI(res)) {
-        return;
-      }
+      if (!requireAI(res)) return;
 
       const question = cleanString(
         req.body?.question,
@@ -876,11 +912,8 @@ app.post(
         100
       );
 
-      const images =
-        req.files?.images || [];
-
-      const documentFiles =
-        req.files?.documents || [];
+      const images = req.files?.images || [];
+      const documentFiles = req.files?.documents || [];
 
       if (
         !question &&
@@ -890,8 +923,7 @@ app.post(
       ) {
         return res.status(400).json({
           success: false,
-          error:
-            "Please enter a question or upload a file."
+          error: "Please enter a question or upload a file."
         });
       }
 
@@ -901,17 +933,13 @@ app.post(
       ) {
         return res.status(400).json({
           success: false,
-          error:
-            "Unsupported document task."
+          error: "Unsupported document task."
         });
       }
 
       for (const file of images) {
-        const extension =
-          getFileExtension(file);
-
-        const expectedMime =
-          IMAGE_TYPES[extension];
+        const extension = getFileExtension(file);
+        const expectedMime = IMAGE_TYPES[extension];
 
         if (
           !expectedMime ||
@@ -919,8 +947,7 @@ app.post(
         ) {
           return res.status(400).json({
             success: false,
-            error:
-              `Unsupported image: ${file.originalname}`
+            error: `Unsupported image: ${file.originalname}`
           });
         }
       }
@@ -930,10 +957,7 @@ app.post(
 
       let finalQuestion = question;
 
-      if (
-        !finalQuestion &&
-        documents.length > 0
-      ) {
+      if (!finalQuestion && documents.length > 0) {
         finalQuestion =
           "Please summarize and explain the uploaded document in simple language.";
       }
@@ -959,11 +983,7 @@ app.post(
         language
       );
 
-      const parts = [
-        {
-          text: prompt
-        }
-      ];
+      const parts = [{ text: prompt }];
 
       for (const file of images) {
         parts.push({
@@ -974,30 +994,23 @@ app.post(
         });
       }
 
-      const response =
-        await ai.models.generateContent({
-          model: MODEL,
-
-          contents: [
-            {
-              role: "user",
-              parts
-            }
-          ],
-
-          config: {
-            systemInstruction: SYSTEM_PROMPT,
-            temperature: 0.3,
-
-            // Restored to the original value.
-            // This preserves the previous chat response allowance.
-            maxOutputTokens:
-              task === "chat" ? 450 : 2048
+      const result = await generateChatWithFallback({
+        contents: [
+          {
+            role: "user",
+            parts
           }
-        });
+        ],
 
-      const answer =
-        getResponseText(response);
+        config: {
+          systemInstruction: SYSTEM_PROMPT,
+          temperature: 0.3,
+          maxOutputTokens:
+            task === "chat" ? 450 : 2048
+        }
+      });
+
+      const answer = getResponseText(result.response);
 
       if (!answer.trim()) {
         return res.status(502).json({
@@ -1010,14 +1023,11 @@ app.post(
       return res.json({
         success: true,
         answer,
-        model: MODEL,
+        model: result.model,
         task,
 
-        imagesProcessed:
-          images.length,
-
-        documentsProcessed:
-          documents.length,
+        imagesProcessed: images.length,
+        documentsProcessed: documents.length,
 
         documentNames:
           documents.map(d => d.name),
@@ -1025,10 +1035,8 @@ app.post(
         documentDetails:
           documents.map(d => ({
             name: d.name,
-            charactersProcessed:
-              d.processedCharacters,
-            truncated:
-              d.truncated
+            charactersProcessed: d.processedCharacters,
+            truncated: d.truncated
           }))
       });
 
@@ -1054,7 +1062,7 @@ app.post(
 );
 
 // ========================================
-// 18. IMAGE GENERATION
+// 20. IMAGE GENERATION
 // ========================================
 
 app.post(
@@ -1062,9 +1070,7 @@ app.post(
 
   async (req, res) => {
     try {
-      if (!requireAI(res)) {
-        return;
-      }
+      if (!requireAI(res)) return;
 
       const prompt = cleanString(
         req.body?.prompt,
@@ -1089,22 +1095,13 @@ app.post(
       if (!prompt) {
         return res.status(400).json({
           success: false,
-          error:
-            "Please enter an image description."
+          error: "Please enter an image description."
         });
       }
 
       const allowedRatios = [
-        "1:1",
-        "3:4",
-        "4:3",
-        "9:16",
-        "16:9",
-        "2:3",
-        "3:2",
-        "4:5",
-        "5:4",
-        "21:9"
+        "1:1", "3:4", "4:3", "9:16", "16:9",
+        "2:3", "3:2", "4:5", "5:4", "21:9"
       ];
 
       const safeRatio =
@@ -1112,12 +1109,7 @@ app.post(
           ? aspectRatio
           : "1:1";
 
-      const allowedSizes = [
-        "512",
-        "1K",
-        "2K",
-        "4K"
-      ];
+      const allowedSizes = ["512", "1K", "2K", "4K"];
 
       const safeSize =
         allowedSizes.includes(imageSize)
@@ -1140,14 +1132,10 @@ Do not return only a written description.
       const response =
         await ai.models.generateContent({
           model: IMAGE_MODEL,
-
           contents: imagePrompt,
 
           config: {
-            responseModalities: [
-              "TEXT",
-              "IMAGE"
-            ],
+            responseModalities: ["TEXT", "IMAGE"],
 
             imageConfig: {
               aspectRatio: safeRatio,
@@ -1160,7 +1148,6 @@ Do not return only a written description.
         response.candidates?.[0]?.content?.parts || [];
 
       const generatedImages = [];
-
       let description = "";
 
       for (const part of parts) {
@@ -1170,11 +1157,8 @@ Do not return only a written description.
 
         if (part.inlineData?.data) {
           generatedImages.push({
-            mimeType:
-              part.inlineData.mimeType || "image/png",
-
-            data:
-              part.inlineData.data
+            mimeType: part.inlineData.mimeType || "image/png",
+            data: part.inlineData.data
           });
         }
       }
@@ -1203,7 +1187,7 @@ Do not return only a written description.
 );
 
 // ========================================
-// 19. VIDEO GENERATION - START JOB
+// 21. VIDEO GENERATION - START JOB
 // ========================================
 
 app.post(
@@ -1211,9 +1195,7 @@ app.post(
 
   async (req, res) => {
     try {
-      if (!requireAI(res)) {
-        return;
-      }
+      if (!requireAI(res)) return;
 
       const prompt = cleanString(
         req.body?.prompt,
@@ -1233,15 +1215,11 @@ app.post(
       if (!prompt) {
         return res.status(400).json({
           success: false,
-          error:
-            "Please enter a video description."
+          error: "Please enter a video description."
         });
       }
 
-      const allowedRatios = [
-        "16:9",
-        "9:16"
-      ];
+      const allowedRatios = ["16:9", "9:16"];
 
       const safeRatio =
         allowedRatios.includes(aspectRatio)
@@ -1275,8 +1253,7 @@ Create a video matching this description.
       if (!interaction?.id) {
         return res.status(502).json({
           success: false,
-          error:
-            "The video service did not return a job ID."
+          error: "The video service did not return a job ID."
         });
       }
 
@@ -1292,15 +1269,10 @@ Create a video matching this description.
         error: null
       });
 
-      const videoData =
-        getVideoData(interaction);
+      const videoData = getVideoData(interaction);
 
       if (videoData) {
-        const videoPath = await saveVideo(
-          jobId,
-          videoData
-        );
-
+        const videoPath = await saveVideo(jobId, videoData);
         const job = videoJobs.get(jobId);
 
         job.videoPath = videoPath;
@@ -1311,8 +1283,7 @@ Create a video matching this description.
       return res.status(202).json({
         success: true,
         jobId,
-        status:
-          videoJobs.get(jobId).status,
+        status: videoJobs.get(jobId).status,
         model: VIDEO_MODEL,
         message:
           "Video generation started. Check the job status."
@@ -1325,7 +1296,7 @@ Create a video matching this description.
 );
 
 // ========================================
-// 20. VIDEO GENERATION - CHECK STATUS
+// 22. VIDEO GENERATION - CHECK STATUS
 // ========================================
 
 app.get(
@@ -1333,15 +1304,10 @@ app.get(
 
   async (req, res) => {
     try {
-      if (!requireAI(res)) {
-        return;
-      }
+      if (!requireAI(res)) return;
 
-      const jobId =
-        cleanString(req.params.jobId, 100);
-
-      const job =
-        videoJobs.get(jobId);
+      const jobId = cleanString(req.params.jobId, 100);
+      const job = videoJobs.get(jobId);
 
       if (!job) {
         return res.status(404).json({
@@ -1355,8 +1321,7 @@ app.get(
         return res.status(500).json({
           success: false,
           status: "failed",
-          error:
-            job.error || "Video generation failed."
+          error: job.error || "Video generation failed."
         });
       }
 
@@ -1364,15 +1329,12 @@ app.get(
         return res.json({
           success: true,
           status: "completed",
-          videoUrl:
-            `/api/generated-video/${jobId}`
+          videoUrl: `/api/generated-video/${jobId}`
         });
       }
 
       const interaction =
-        await ai.interactions.get(
-          job.interactionId
-        );
+        await ai.interactions.get(job.interactionId);
 
       job.updatedAt = Date.now();
 
@@ -1380,11 +1342,7 @@ app.get(
         String(interaction?.status || "").toLowerCase();
 
       if (
-        [
-          "failed",
-          "cancelled",
-          "canceled"
-        ].includes(interactionStatus)
+        ["failed", "cancelled", "canceled"].includes(interactionStatus)
       ) {
         job.status = "failed";
 
@@ -1395,13 +1353,11 @@ app.get(
         return res.status(500).json({
           success: false,
           status: "failed",
-          error:
-            "Video generation failed. Please try again."
+          error: "Video generation failed. Please try again."
         });
       }
 
-      const videoData =
-        getVideoData(interaction);
+      const videoData = getVideoData(interaction);
 
       const isCompleted =
         interactionStatus === "completed" ||
@@ -1413,8 +1369,7 @@ app.get(
         return res.json({
           success: true,
           status: "processing",
-          message:
-            "Video is still being generated."
+          message: "Video is still being generated."
         });
       }
 
@@ -1431,10 +1386,7 @@ app.get(
         });
       }
 
-      const videoPath = await saveVideo(
-        jobId,
-        videoData
-      );
+      const videoPath = await saveVideo(jobId, videoData);
 
       job.videoPath = videoPath;
       job.status = "completed";
@@ -1443,10 +1395,8 @@ app.get(
       return res.json({
         success: true,
         status: "completed",
-        videoUrl:
-          `/api/generated-video/${jobId}`,
-        message:
-          "Your video is ready."
+        videoUrl: `/api/generated-video/${jobId}`,
+        message: "Your video is ready."
       });
 
     } catch (error) {
@@ -1461,15 +1411,14 @@ app.get(
 );
 
 // ========================================
-// 21. SERVE GENERATED VIDEO
+// 23. SERVE GENERATED VIDEO
 // ========================================
 
 app.get(
   "/api/generated-video/:jobId",
 
   (req, res) => {
-    const job =
-      videoJobs.get(req.params.jobId);
+    const job = videoJobs.get(req.params.jobId);
 
     if (
       !job ||
@@ -1478,23 +1427,18 @@ app.get(
     ) {
       return res.status(404).json({
         success: false,
-        error:
-          "Generated video is not available."
+        error: "Generated video is not available."
       });
     }
 
     if (!fs.existsSync(job.videoPath)) {
       return res.status(404).json({
         success: false,
-        error:
-          "Generated video file is no longer available."
+        error: "Generated video file is no longer available."
       });
     }
 
-    res.setHeader(
-      "Content-Type",
-      "video/mp4"
-    );
+    res.setHeader("Content-Type", "video/mp4");
 
     res.setHeader(
       "Cache-Control",
@@ -1518,8 +1462,7 @@ app.get(
           if (!res.headersSent) {
             res.status(500).json({
               success: false,
-              error:
-                "Could not serve the generated video."
+              error: "Could not serve the generated video."
             });
           }
         }
@@ -1529,7 +1472,7 @@ app.get(
 );
 
 // ========================================
-// 22. API INFORMATION
+// 24. API INFORMATION
 // ========================================
 
 app.get("/api", (req, res) => {
@@ -1549,7 +1492,7 @@ app.get("/api", (req, res) => {
 });
 
 // ========================================
-// 23. VIDEO JOB CLEANUP
+// 25. VIDEO JOB CLEANUP
 // ========================================
 
 async function cleanupVideoJobs() {
@@ -1594,7 +1537,7 @@ const cleanupTimer = setInterval(() => {
 cleanupTimer.unref?.();
 
 // ========================================
-// 24. MULTER + GENERAL ERROR HANDLING
+// 26. MULTER + GENERAL ERROR HANDLING
 // ========================================
 
 app.use((error, req, res, next) => {
@@ -1620,8 +1563,7 @@ app.use((error, req, res, next) => {
     if (error.code === "LIMIT_UNEXPECTED_FILE") {
       return res.status(400).json({
         success: false,
-        error:
-          "Unexpected upload field or too many files."
+        error: "Unexpected upload field or too many files."
       });
     }
 
@@ -1634,9 +1576,7 @@ app.use((error, req, res, next) => {
   if (error) {
     return res.status(400).json({
       success: false,
-      error:
-        error.message ||
-        "File upload failed."
+      error: error.message || "File upload failed."
     });
   }
 
@@ -1644,7 +1584,7 @@ app.use((error, req, res, next) => {
 });
 
 // ========================================
-// 25. START SERVER
+// 27. START SERVER
 // ========================================
 
 const server = app.listen(PORT, () => {
@@ -1653,15 +1593,14 @@ const server = app.listen(PORT, () => {
   console.log("----------------------------------");
 
   console.log(`Port: ${PORT}`);
-  console.log(`Chat model: ${MODEL}`);
+  console.log(`Primary chat model: ${MODEL}`);
+  console.log(`Fallback chat models: ${FALLBACK_MODELS.join(", ")}`);
   console.log(`Image model: ${IMAGE_MODEL}`);
   console.log(`Video model: ${VIDEO_MODEL}`);
-
-  console.log(
-    `API key configured: ${Boolean(apiKey)}`
-  );
+  console.log(`API key configured: ${Boolean(apiKey)}`);
 
   console.log("Chat enabled");
+  console.log("Automatic chat fallback enabled");
   console.log("Photo understanding enabled");
   console.log("Document understanding enabled");
   console.log("Image generation enabled");
@@ -1673,7 +1612,7 @@ const server = app.listen(PORT, () => {
 });
 
 // ========================================
-// 26. GRACEFUL SHUTDOWN
+// 28. GRACEFUL SHUTDOWN
 // ========================================
 
 function shutdown(signal) {
