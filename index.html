@@ -438,8 +438,8 @@ body.chat-open .msg.ai blockquote{
   <button class="smallbtn" onclick="document.getElementById('homeCamera').click()">📷 Camera</button>
  </div>
 
- <input id="photoInput" type="file" accept="image/*" multiple hidden onchange="photoSelected(event)">
- <input id="homeCamera" type="file" accept="image/*" capture="environment" hidden onchange="photoSelected(event)">
+ <input id="photoInput" type="file" accept="image/jpeg,image/png,image/webp" multiple hidden onchange="photoSelected(event)">
+ <input id="homeCamera" type="file" accept="image/jpeg,image/png,image/webp" capture="environment" hidden onchange="photoSelected(event)">
 
  <div id="photoName" class="status"></div>
  <div id="homePhotoPreviews" class="photo-preview-list"></div>
@@ -519,8 +519,8 @@ body.chat-open .msg.ai blockquote{
    <button class="smallbtn" onclick="startVoice('chatQuestion','chatVoiceStatus')">🎙 Voice</button>
   </div>
 
-  <input id="chatPhoto" type="file" accept="image/*" multiple hidden onchange="chatPhotoSelected(event)">
-  <input id="chatCamera" type="file" accept="image/*" capture="environment" hidden onchange="chatPhotoSelected(event)">
+  <input id="chatPhoto" type="file" accept="image/jpeg,image/png,image/webp" multiple hidden onchange="chatPhotoSelected(event)">
+  <input id="chatCamera" type="file" accept="image/jpeg,image/png,image/webp" capture="environment" hidden onchange="chatPhotoSelected(event)">
 
   <div id="chatPhotoPreviews" class="photo-preview-list"></div>
   <div id="chatPhotoCount" class="photo-count"></div>
@@ -562,6 +562,7 @@ const MAX_IMAGE_SIZE=10*1024*1024;
 let selectedImages=[];
 let chatImages=[];
 let editingMessageElement=null;
+let editingRequiresImage=false;
 let activeController=null;
 let activeRecognition=null;
 let stopRequested=false;
@@ -695,6 +696,7 @@ function openChat(){
 function clearChatAttachments(){
  chatImages=[];
  document.getElementById("chatPhoto").value="";
+ document.getElementById("chatCamera").value="";
  renderImagePreviews("chat");
 }
 
@@ -706,6 +708,7 @@ function newChat(){
 
  activeSessionId=null;
  editingMessageElement=null;
+ editingRequiresImage=false;
  clearChatAttachments();
 
  document.getElementById("messages").innerHTML="";
@@ -727,6 +730,7 @@ function openSession(sessionId){
 
  activeSessionId=sessionId;
  editingMessageElement=null;
+ editingRequiresImage=false;
  clearChatAttachments();
 
  document.getElementById("messages").innerHTML="";
@@ -767,8 +771,14 @@ function showAllPrompts(){
 function validateImage(file){
  if(!file)return false;
 
- if(!file.type||!file.type.startsWith("image/")){
-  alert("Please select a valid image.");
+ const allowedTypes=[
+  "image/jpeg",
+  "image/png",
+  "image/webp"
+ ];
+
+ if(!allowedTypes.includes(file.type)){
+  alert("Please select a JPG, PNG or WEBP image.");
   return false;
  }
 
@@ -798,11 +808,11 @@ function addImages(target,files){
  }
 
  if(target==="home"){
-  selectedImages=current;
   document.getElementById("photoInput").value="";
+  document.getElementById("homeCamera").value="";
  }else{
-  chatImages=current;
   document.getElementById("chatPhoto").value="";
+  document.getElementById("chatCamera").value="";
  }
 
  renderImagePreviews(target);
@@ -853,14 +863,17 @@ function renderImagePreviews(target){
 
   const image=document.createElement("img");
   const url=URL.createObjectURL(file);
+
   image.src=url;
   image.alt="Selected photo "+(index+1);
   image.onload=()=>URL.revokeObjectURL(url);
+  image.onerror=()=>URL.revokeObjectURL(url);
 
   const remove=document.createElement("button");
   remove.type="button";
   remove.textContent="×";
   remove.title="Remove photo";
+  remove.setAttribute("aria-label","Remove photo "+(index+1));
   remove.onclick=()=>removeImage(target,index);
 
   card.append(image,remove);
@@ -870,10 +883,6 @@ function renderImagePreviews(target){
  count.textContent=files.length
   ?files.length+" of "+MAX_IMAGES+" photos selected"
   :"";
-}
-
-function openCamera(){
- document.getElementById("homeCamera").click();
 }
 
 /* =========================================
@@ -895,44 +904,40 @@ function startVoice(target="question",statusId="homeVoiceStatus"){
  }
 
  const recognition=new SpeechRecognition();
+
  recognition.lang=navigator.language||"en-US";
  recognition.interimResults=true;
  recognition.continuous=false;
 
  const status=document.getElementById(statusId);
- status.textContent="🎙 Listening... Speak now.";
+ const input=document.getElementById(target);
 
- let finalText="";
+ let finalTranscript="";
+ let hadError=false;
+
+ status.textContent="🎙 Listening... Speak now.";
  activeRecognition=recognition;
 
  recognition.onresult=event=>{
-  let interimText="";
+  let interimTranscript="";
 
   for(let i=event.resultIndex;i<event.results.length;i++){
    const transcript=event.results[i][0].transcript;
 
    if(event.results[i].isFinal){
-    finalText+=transcript;
+    finalTranscript+=transcript;
    }else{
-    interimText+=transcript;
+    interimTranscript+=transcript;
    }
   }
 
-  const input=document.getElementById(target);
-  const existing=input.value.trim();
-
-  if(finalText){
-   input.value=existing
-    ?existing+" "+finalText.trim()
-    :finalText.trim();
-  }
-
-  status.textContent=interimText
-   ?"Listening: "+interimText
-   :"";
+  status.textContent=interimTranscript
+   ?"Listening: "+interimTranscript
+   :"🎙 Processing voice...";
  };
 
  recognition.onerror=event=>{
+  hadError=true;
   status.textContent="";
 
   if(event.error==="not-allowed"){
@@ -943,8 +948,22 @@ function startVoice(target="question",statusId="homeVoiceStatus"){
  };
 
  recognition.onend=()=>{
+  if(finalTranscript.trim()&&!hadError){
+   const existing=input.value.trim();
+   const spoken=finalTranscript.trim();
+
+   input.value=existing
+    ?existing+" "+spoken
+    :spoken;
+
+   input.focus();
+  }
+
   status.textContent="";
-  if(activeRecognition===recognition)activeRecognition=null;
+
+  if(activeRecognition===recognition){
+   activeRecognition=null;
+  }
  };
 
  try{
@@ -1209,9 +1228,18 @@ function editUserMessage(messageElement){
  const input=document.getElementById("chatQuestion");
  const text=messageElement.querySelector("div").textContent;
 
- input.value=text;
+ const imageMarker=text.match(/\n\[\d+ image\(s\) attached\]$/);
+
+ editingRequiresImage=Boolean(imageMarker);
+
+ input.value=imageMarker
+  ?text.replace(/\n\[\d+ image\(s\) attached\]$/,"")
+  :text;
+
  document.getElementById("chatStatus").textContent=
-  "Editing message — send to update the conversation";
+  editingRequiresImage
+   ?"This message had an image. Please attach the image again before sending."
+   :"Editing message — send to update the conversation";
 
  input.focus();
  input.setSelectionRange(input.value.length,input.value.length);
@@ -1241,6 +1269,7 @@ function removeMessagesFromEditedMessage(){
  }
 
  editingMessageElement=null;
+ editingRequiresImage=false;
 }
 
 /* =========================================
@@ -1358,6 +1387,12 @@ function regenerateAnswer(aiMessage){
  if(userIndex<0)return;
 
  const question=all[userIndex].querySelector("div").textContent;
+
+ if(/\[\d+ image\(s\) attached\]/.test(question)){
+  alert("This message originally contained an image. Please send the question again with the image attached.");
+  return;
+ }
+
  const session=getActiveSession();
 
  if(session){
@@ -1399,6 +1434,7 @@ async function sendQuestion(){
  renderImagePreviews("home");
 
  newChat();
+
  await sendToAI(question||"Please explain the uploaded image(s).",images);
 }
 
@@ -1409,6 +1445,11 @@ async function sendChatQuestion(){
 
  if(!question&&!chatImages.length){
   alert("Please type a question or upload a photo.");
+  return;
+ }
+
+ if(editingRequiresImage&&!chatImages.length){
+  alert("Please attach the original image again before updating this message.");
   return;
  }
 
@@ -1781,7 +1822,7 @@ function showSettings(){
    <button id="clearHistory">Clear</button>
   </div>
   <div class="settingrow">
-   <span>Version</span><strong>1.2</strong>
+   <span>Version</span><strong>1.3</strong>
   </div>
  `;
 
@@ -1837,4 +1878,4 @@ goHome();
 
 </script>
 </body>
- </html>
+   </html>
