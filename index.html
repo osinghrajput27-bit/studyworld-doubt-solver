@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -134,6 +135,11 @@ main{width:min(100% - 28px,950px);margin:0 auto;padding-bottom:40px}
 .user{align-self:flex-end;background:linear-gradient(135deg,#8c35ff,#155eea)}
 .ai{align-self:flex-start;background:#ffffff18;border:1px solid #ffffff55}
 .msg-actions{display:flex;gap:8px;margin-top:10px}
+.edit-message-btn{
+ display:block;margin-top:9px;padding:7px 12px;
+ border:1px solid #ffffff70;border-radius:10px;
+ color:white;background:#ffffff22;font-size:13px
+}
 .msg-actions button,.smallbtn{
  border:1px solid #ffffff66;color:white;background:#ffffff20;
  border-radius:10px;padding:8px 11px
@@ -413,6 +419,7 @@ body.chat-open .msg.ai blockquote{
 <script>
 let selectedImage=null;
 let chatImage=null;
+let editingMessageElement=null;
 let historyData=JSON.parse(localStorage.getItem("zaqtivo_history")||"[]");
 let favorites=JSON.parse(localStorage.getItem("zaqtivo_favorites")||"[]");
 
@@ -440,6 +447,7 @@ function newChat(){
  document.getElementById("messages").innerHTML="";
  document.getElementById("chatQuestion").value="";
  document.getElementById("chatStatus").textContent="";
+ editingMessageElement=null;
  chatImage=null;
  openChat();
 }
@@ -606,29 +614,102 @@ function renderMarkdown(raw){
  closeParagraphAndList();
  return html;
 }
+
+/* USER MESSAGE + LONG-PRESS EDIT */
 function addMessage(text,type){
  const wrap=document.createElement("div");
  wrap.className="msg "+type;
+
  const content=document.createElement("div");
  if(type==="ai")content.innerHTML=renderMarkdown(text);
  else content.textContent=text;
  wrap.appendChild(content);
+
+ if(type==="user"){
+  let pressTimer=null;
+
+  function clearPressTimer(){
+   if(pressTimer){
+    clearTimeout(pressTimer);
+    pressTimer=null;
+   }
+  }
+
+  wrap.addEventListener("pointerdown",event=>{
+   if(event.target.closest("button"))return;
+   clearPressTimer();
+
+   pressTimer=setTimeout(()=>{
+    if(wrap.querySelector(".edit-message-btn"))return;
+
+    const edit=document.createElement("button");
+    edit.className="edit-message-btn";
+    edit.textContent="✎ Edit";
+
+    edit.addEventListener("pointerdown",event=>event.stopPropagation());
+    edit.addEventListener("click",()=>editUserMessage(wrap,text));
+
+    wrap.appendChild(edit);
+   },2000);
+  });
+
+  ["pointerup","pointerleave","pointercancel"].forEach(eventName=>{
+   wrap.addEventListener(eventName,clearPressTimer);
+  });
+
+  wrap.addEventListener("contextmenu",event=>event.preventDefault());
+ }
+
  if(type==="ai"){
   const actions=document.createElement("div");
   actions.className="msg-actions";
+
   const copy=document.createElement("button");
   copy.textContent="Copy";
   copy.onclick=()=>copyText(text);
+
   const save=document.createElement("button");
   save.textContent="☆ Save";
   save.onclick=()=>saveFavorite(text);
+
   actions.append(copy,save);
   wrap.appendChild(actions);
  }
+
  document.getElementById("messages").appendChild(wrap);
+
  const messages=document.getElementById("messages");
  messages.scrollTop=messages.scrollHeight;
 }
+
+/* LOAD MESSAGE INTO INPUT FOR EDITING */
+function editUserMessage(messageElement,text){
+ editingMessageElement=messageElement;
+
+ const input=document.getElementById("chatQuestion");
+ input.value=text;
+ document.getElementById("chatStatus").textContent=
+  "Editing message — send to update the conversation";
+
+ input.focus();
+ input.setSelectionRange(input.value.length,input.value.length);
+}
+
+/* REMOVE THE SELECTED MESSAGE AND LATER MESSAGES */
+function removeMessagesFromEditedMessage(){
+ if(!editingMessageElement)return;
+
+ const messages=document.getElementById("messages");
+ const allMessages=Array.from(messages.children);
+ const startIndex=allMessages.indexOf(editingMessageElement);
+
+ if(startIndex!==-1){
+  allMessages.slice(startIndex).forEach(message=>message.remove());
+ }
+
+ editingMessageElement=null;
+}
+
 function copyText(text){
  if(navigator.clipboard&&navigator.clipboard.writeText){
   navigator.clipboard.writeText(text).then(()=>alert("Copied!"))
@@ -678,10 +759,18 @@ async function sendChatQuestion(){
  if(!question&&!chatImage){
   alert("Please type a question or upload a photo.");return;
  }
+
  const image=chatImage;
  chatImage=null;
  document.getElementById("chatPhoto").value="";
  document.getElementById("chatQuestion").value="";
+
+ /* If editing, remove the selected message and everything after it */
+ if(editingMessageElement){
+  removeMessagesFromEditedMessage();
+ }
+
+ document.getElementById("chatStatus").textContent="";
  await sendToAI(question||"Please explain the uploaded image.",image);
 }
 async function sendToAI(question,image){
@@ -781,4 +870,4 @@ document.getElementById("chatQuestion").addEventListener("keydown",e=>{
 goHome();
 </script>
 </body>
-   </html>
+</html>
