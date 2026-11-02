@@ -1,8 +1,7 @@
-
 import express from "express";
 import multer from "multer";
 import { GoogleGenAI } from "@google/genai";
-import OfficeParser from "officeparser";
+import * as OfficeParserModule from "officeparser";
 import path from "path";
 import os from "os";
 import fs from "fs";
@@ -18,7 +17,7 @@ const __dirname = path.dirname(__filename);
 // 1. CONFIGURATION
 // ========================================
 
-const PORT = process.env.PORT || 3000;
+const PORT = Number(process.env.PORT) || 3000;
 
 const MODEL =
   process.env.GEMINI_MODEL || "gemini-flash-latest";
@@ -42,6 +41,7 @@ const MAX_FILE_SIZE = 10 * 1024 * 1024;
 const MAX_DOCUMENT_TEXT = 50000;
 const MAX_TOTAL_DOCUMENT_TEXT = 100000;
 
+const MAX_QUESTION_LENGTH = 20000;
 const MAX_IMAGE_PROMPT = 4000;
 const MAX_VIDEO_PROMPT = 3000;
 
@@ -54,6 +54,12 @@ const VIDEO_DIRECTORY = path.join(
 );
 
 fs.mkdirSync(VIDEO_DIRECTORY, { recursive: true });
+
+// Support OfficeParser package export variations.
+const OfficeParser =
+  OfficeParserModule.OfficeParser ||
+  OfficeParserModule.default ||
+  OfficeParserModule;
 
 // ========================================
 // 2. SUPPORTED FILE TYPES
@@ -97,14 +103,15 @@ GENERAL RESPONSIBILITIES:
 - Explain tables and spreadsheet information.
 - Help with science, mathematics, coding, writing and general knowledge.
 - Translate between languages when requested.
-- Support as many languages as the model can reasonably handle.
+- Support as many languages as you can reasonably handle.
 
 LANGUAGE RULES:
 - Reply in the language the user uses or requests.
 - Support languages beyond Hindi and English.
 - If the user writes in another language, try to reply in that language.
 - Respect the language preference supplied by the application.
-- If language preference is Auto, detect the language of the question.
+- If language preference is Auto, detect the question language.
+- Do not translate unless requested.
 
 DOCUMENT ANALYSIS:
 - Read and analyze uploaded document content.
@@ -180,6 +187,9 @@ const videoJobs = new Map();
 
 app.disable("x-powered-by");
 
+// Render runs behind a proxy.
+app.set("trust proxy", 1);
+
 app.use(express.json({
   limit: "2mb"
 }));
@@ -189,19 +199,29 @@ app.use(express.urlencoded({
   limit: "2mb"
 }));
 
-// Basic API rate limiting.
+// ========================================
+// 7. API RATE LIMITING
+// ========================================
+
 const requestCounts = new Map();
 
 const RATE_LIMIT_WINDOW = 60 * 1000;
 const MAX_REQUESTS_PER_WINDOW = 40;
 
 app.use("/api", (req, res, next) => {
-  const ip = req.ip || req.socket.remoteAddress || "unknown";
+  const ip =
+    req.ip ||
+    req.socket.remoteAddress ||
+    "unknown";
+
   const now = Date.now();
 
   let record = requestCounts.get(ip);
 
-  if (!record || now - record.start > RATE_LIMIT_WINDOW) {
+  if (
+    !record ||
+    now - record.start > RATE_LIMIT_WINDOW
+  ) {
     record = {
       start: now,
       count: 0
@@ -209,6 +229,7 @@ app.use("/api", (req, res, next) => {
   }
 
   record.count++;
+
   requestCounts.set(ip, record);
 
   if (record.count > MAX_REQUESTS_PER_WINDOW) {
@@ -221,7 +242,7 @@ app.use("/api", (req, res, next) => {
   next();
 });
 
-setInterval(() => {
+const rateLimitCleanup = setInterval(() => {
   const now = Date.now();
 
   for (const [ip, record] of requestCounts.entries()) {
@@ -229,10 +250,12 @@ setInterval(() => {
       requestCounts.delete(ip);
     }
   }
-}, 5 * 60 * 1000).unref();
+}, 5 * 60 * 1000);
+
+rateLimitCleanup.unref?.();
 
 // ========================================
-// 7. MULTER UPLOAD CONFIGURATION
+// 8. MULTER UPLOAD CONFIGURATION
 // ========================================
 
 const storage = multer.memoryStorage();
@@ -263,7 +286,7 @@ const upload = multer({
 });
 
 // ========================================
-// 8. HELPER FUNCTIONS
+// 9. HELPER FUNCTIONS
 // ========================================
 
 function getFileExtension(file) {
@@ -324,6 +347,10 @@ function requireAI(res) {
 
   return true;
 }
+
+// ========================================
+// 10. ERROR HANDLING
+// ========================================
 
 function handleAIError(error, res) {
   console.error(
@@ -409,6 +436,10 @@ function handleAIError(error, res) {
   });
 }
 
+// ========================================
+// 11. RESPONSE HELPERS
+// ========================================
+
 function getResponseText(response) {
   if (typeof response?.text === "string") {
     return response.text;
@@ -421,6 +452,89 @@ function getResponseText(response) {
     .filter(part => typeof part.text === "string")
     .map(part => part.text)
     .join("\n");
+}
+
+function getVideoData(interaction) {
+  // SDK convenience property.
+  if (interaction?.output_video?.data) {
+    return interaction.output_video.data;
+  }
+
+  // Check outputs array.
+  if (Array.isArray(interaction?.outputs)) {
+    for (const output of interaction.outputs) {
+      if (
+        output?.type === "video" &&
+        output?.data
+      ) {
+        return output.data;
+      }
+    }
+  }
+
+  // Check steps array.
+  if (Array.isArray(interaction?.steps)) {
+    for (
+      let i = interaction.steps.length - 1;
+      i >= 0;
+      i--
+    ) {
+      const step = interaction.steps[i];
+
+      const content = step?.content;
+
+      if (!Array.isArray(content)) {
+        continue;
+      }
+
+      for (const item of content) {
+        if (
+          item?.type === "video" &&
+          item?.data
+        ) {
+          return item.data;
+        }
+      }
+    }
+  }
+
+  return null;
+}
+
+async function saveVideo(jobId, base64Data) {
+  if (
+    typeof base64Data !== "string" ||
+    !base64Data.trim()
+  ) {
+    throw new Error("Invalid video data received.");
+  }
+
+  const videoPath = path.join(
+    VIDEO_DIRECTORY,
+    `${jobId}.mp4`
+  );
+
+  const buffer = Buffer.from(
+    base64Data,
+    "base64"
+  );
+
+  if (!buffer.length) {
+    throw new Error("Generated video file is empty.");
+  }
+
+  await fs.promises.writeFile(
+    videoPath,
+    buffer
+  );
+
+  const stats = await fs.promises.stat(videoPath);
+
+  if (!stats.isFile() || stats.size === 0) {
+    throw new Error("Generated video file is empty.");
+  }
+
+  return videoPath;
 }
 
 async function removeDirectory(directory) {
@@ -442,13 +556,14 @@ async function removeDirectory(directory) {
 }
 
 // ========================================
-// 9. DOCUMENT EXTRACTION
+// 12. DOCUMENT EXTRACTION
 // ========================================
 
 async function extractDocumentText(file) {
   const extension = getFileExtension(file);
 
   try {
+    // Plain text and CSV.
     if (
       extension === ".txt" ||
       extension === ".csv"
@@ -457,6 +572,15 @@ async function extractDocumentText(file) {
         .toString("utf8")
         .replace(/^\uFEFF/, "")
         .trim();
+    }
+
+    if (
+      !OfficeParser ||
+      typeof OfficeParser.parseOffice !== "function"
+    ) {
+      throw new Error(
+        "OfficeParser parseOffice function is unavailable. Check the installed officeparser version."
+      );
     }
 
     const parserOptions = {};
@@ -470,6 +594,12 @@ async function extractDocumentText(file) {
       parserOptions
     );
 
+    if (!ast || typeof ast.to !== "function") {
+      throw new Error(
+        "Document parser returned an invalid result."
+      );
+    }
+
     const result = await ast.to("text");
 
     const extractedText =
@@ -477,7 +607,10 @@ async function extractDocumentText(file) {
         ? result
         : result?.value || "";
 
-    if (!extractedText.trim()) {
+    if (
+      typeof extractedText !== "string" ||
+      !extractedText.trim()
+    ) {
       throw new Error("No readable text found.");
     }
 
@@ -491,13 +624,13 @@ async function extractDocumentText(file) {
     );
 
     throw new Error(
-      `Could not read ${file.originalname}. Check whether it is valid or password-protected.`
+      `Could not read ${file.originalname}. Check whether it is valid, supported or password-protected.`
     );
   }
 }
 
 // ========================================
-// 10. PROCESS MULTIPLE DOCUMENTS
+// 13. PROCESS MULTIPLE DOCUMENTS
 // ========================================
 
 async function processDocuments(files) {
@@ -553,7 +686,7 @@ async function processDocuments(files) {
 }
 
 // ========================================
-// 11. BUILD CHAT PROMPT
+// 14. BUILD CHAT PROMPT
 // ========================================
 
 function buildPrompt(
@@ -602,7 +735,7 @@ function buildPrompt(
 }
 
 // ========================================
-// 12. HEALTH CHECK
+// 15. HEALTH CHECK
 // ========================================
 
 app.get("/health", (req, res) => {
@@ -650,7 +783,7 @@ app.get("/health", (req, res) => {
 });
 
 // ========================================
-// 13. HOME PAGE
+// 16. HOME PAGE
 // ========================================
 
 app.get("/", (req, res) => {
@@ -669,7 +802,7 @@ app.get("/", (req, res) => {
 });
 
 // ========================================
-// 14. CHAT + PHOTO + DOCUMENT API
+// 17. CHAT + PHOTO + DOCUMENT API
 // ========================================
 
 app.post(
@@ -693,17 +826,17 @@ app.post(
       }
 
       const question = cleanString(
-        req.body.question,
-        20000
+        req.body?.question,
+        MAX_QUESTION_LENGTH
       );
 
       const task = cleanString(
-        req.body.task || "chat",
+        req.body?.task || "chat",
         50
       ).toLowerCase();
 
       const language = cleanString(
-        req.body.language || "auto",
+        req.body?.language || "auto",
         100
       );
 
@@ -737,7 +870,7 @@ app.post(
         });
       }
 
-      // Validate image MIME types.
+      // Validate uploaded image MIME types.
 
       for (const file of images) {
         const extension =
@@ -870,13 +1003,28 @@ app.post(
       });
 
     } catch (error) {
+      console.error(
+        "SOLVE ROUTE ERROR:",
+        error?.message || error
+      );
+
+      if (
+        error.message?.startsWith("Could not read") ||
+        error.message?.includes("does not contain readable text")
+      ) {
+        return res.status(400).json({
+          success: false,
+          error: error.message
+        });
+      }
+
       return handleAIError(error, res);
     }
   }
 );
 
 // ========================================
-// 15. IMAGE GENERATION
+// 18. IMAGE GENERATION
 // ========================================
 
 app.post(
@@ -889,22 +1037,22 @@ app.post(
       }
 
       const prompt = cleanString(
-        req.body.prompt,
+        req.body?.prompt,
         MAX_IMAGE_PROMPT
       );
 
       const aspectRatio = cleanString(
-        req.body.aspectRatio || "1:1",
+        req.body?.aspectRatio || "1:1",
         10
       );
 
       const language = cleanString(
-        req.body.language || "auto",
+        req.body?.language || "auto",
         100
       );
 
       const imageSize = cleanString(
-        req.body.imageSize || "1K",
+        req.body?.imageSize || "1K",
         5
       );
 
@@ -971,11 +1119,9 @@ Do not return only a written description.
               "IMAGE"
             ],
 
-            responseFormat: {
-              image: {
-                aspectRatio: safeRatio,
-                imageSize: safeSize
-              }
+            imageConfig: {
+              aspectRatio: safeRatio,
+              imageSize: safeSize
             }
           }
         });
@@ -1036,7 +1182,7 @@ Do not return only a written description.
 );
 
 // ========================================
-// 16. VIDEO GENERATION - START JOB
+// 19. VIDEO GENERATION - START JOB
 // ========================================
 
 app.post(
@@ -1049,17 +1195,17 @@ app.post(
       }
 
       const prompt = cleanString(
-        req.body.prompt,
+        req.body?.prompt,
         MAX_VIDEO_PROMPT
       );
 
       const aspectRatio = cleanString(
-        req.body.aspectRatio || "16:9",
+        req.body?.aspectRatio || "16:9",
         10
       );
 
       const language = cleanString(
-        req.body.language || "auto",
+        req.body?.language || "auto",
         100
       );
 
@@ -1109,7 +1255,7 @@ Create a video matching this description.
           }
         });
 
-      if (!interaction.id) {
+      if (!interaction?.id) {
         return res.status(502).json({
           success: false,
           error:
@@ -1119,34 +1265,31 @@ Create a video matching this description.
 
       const jobId = randomUUID();
 
+      const now = Date.now();
+
       videoJobs.set(jobId, {
         interactionId: interaction.id,
 
         status: "processing",
 
-        createdAt: Date.now(),
+        createdAt: now,
 
-        updatedAt: Date.now(),
+        updatedAt: now,
 
         videoPath: null,
 
         error: null
       });
 
-      // Save immediately if the API returned the video already.
+      // Check whether the API returned video immediately.
 
       const videoData =
-        interaction.output_video?.data;
+        getVideoData(interaction);
 
       if (videoData) {
-        const videoPath = path.join(
-          VIDEO_DIRECTORY,
-          `${jobId}.mp4`
-        );
-
-        await fs.promises.writeFile(
-          videoPath,
-          Buffer.from(videoData, "base64")
+        const videoPath = await saveVideo(
+          jobId,
+          videoData
         );
 
         const job = videoJobs.get(jobId);
@@ -1177,7 +1320,7 @@ Create a video matching this description.
 );
 
 // ========================================
-// 17. VIDEO GENERATION - CHECK STATUS
+// 20. VIDEO GENERATION - CHECK STATUS
 // ========================================
 
 app.get(
@@ -1235,7 +1378,7 @@ app.get(
       job.updatedAt = Date.now();
 
       const interactionStatus =
-        String(interaction.status || "").toLowerCase();
+        String(interaction?.status || "").toLowerCase();
 
       if (
         [
@@ -1247,7 +1390,7 @@ app.get(
         job.status = "failed";
 
         job.error =
-          interaction.error?.message ||
+          interaction?.error?.message ||
           "Video generation failed.";
 
         return res.status(500).json({
@@ -1261,11 +1404,12 @@ app.get(
       }
 
       const videoData =
-        interaction.output_video?.data;
+        getVideoData(interaction);
 
       const isCompleted =
         interactionStatus === "completed" ||
         interactionStatus === "complete" ||
+        interactionStatus === "idle" ||
         Boolean(videoData);
 
       if (!isCompleted) {
@@ -1283,7 +1427,7 @@ app.get(
         job.status = "failed";
 
         job.error =
-          "Video generation completed without video data.";
+          "Video generation completed without inline video data.";
 
         return res.status(502).json({
           success: false,
@@ -1296,24 +1440,10 @@ app.get(
 
       // Save the returned Base64 video.
 
-      const videoPath = path.join(
-        VIDEO_DIRECTORY,
-        `${jobId}.mp4`
+      const videoPath = await saveVideo(
+        jobId,
+        videoData
       );
-
-      await fs.promises.writeFile(
-        videoPath,
-        Buffer.from(videoData, "base64")
-      );
-
-      const stats =
-        await fs.promises.stat(videoPath);
-
-      if (!stats.isFile() || stats.size === 0) {
-        throw new Error(
-          "Generated video file is empty."
-        );
-      }
 
       job.videoPath = videoPath;
       job.status = "completed";
@@ -1343,7 +1473,7 @@ app.get(
 );
 
 // ========================================
-// 18. SERVE GENERATED VIDEO
+// 21. SERVE GENERATED VIDEO
 // ========================================
 
 app.get(
@@ -1414,7 +1544,7 @@ app.get(
 );
 
 // ========================================
-// 19. API INFORMATION
+// 22. API INFORMATION
 // ========================================
 
 app.get("/api", (req, res) => {
@@ -1435,7 +1565,7 @@ app.get("/api", (req, res) => {
 });
 
 // ========================================
-// 20. VIDEO JOB CLEANUP
+// 23. VIDEO JOB CLEANUP
 // ========================================
 
 async function cleanupVideoJobs() {
@@ -1480,7 +1610,7 @@ const cleanupTimer = setInterval(() => {
 cleanupTimer.unref?.();
 
 // ========================================
-// 21. MULTER + GENERAL ERROR HANDLING
+// 24. MULTER + GENERAL ERROR HANDLING
 // ========================================
 
 app.use((error, req, res, next) => {
@@ -1531,10 +1661,10 @@ app.use((error, req, res, next) => {
 });
 
 // ========================================
-// 22. START SERVER
+// 25. START SERVER
 // ========================================
 
-app.listen(PORT, () => {
+const server = app.listen(PORT, () => {
   console.log("----------------------------------");
   console.log("ZAQTIVO AI SERVER STARTED");
   console.log("----------------------------------");
@@ -1561,3 +1691,23 @@ app.listen(PORT, () => {
 
   console.log("----------------------------------");
 });
+
+// ========================================
+// 26. GRACEFUL SHUTDOWN
+// ========================================
+
+function shutdown(signal) {
+  console.log(`${signal} received. Shutting down ZAQTIVO AI...`);
+
+  server.close(() => {
+    console.log("ZAQTIVO AI server closed.");
+    process.exit(0);
+  });
+
+  setTimeout(() => {
+    process.exit(1);
+  }, 10000).unref();
+}
+
+process.on("SIGTERM", () => shutdown("SIGTERM"));
+process.on("SIGINT", () => shutdown("SIGINT"));
