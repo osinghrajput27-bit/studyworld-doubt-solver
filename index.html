@@ -18,7 +18,7 @@ body{
  linear-gradient(135deg,#08052f,#101078,#080c50);
  background-attachment:fixed
 }
-button,input,textarea{font:inherit}
+button,input,textarea,select{font:inherit}
 button{cursor:pointer}
 button:disabled{opacity:.55;cursor:not-allowed}
 body:before{
@@ -165,7 +165,7 @@ main{width:min(100% - 28px,950px);margin:0 auto;padding-bottom:40px}
 }
 .settingrow button,.settingrow select{
  padding:9px;border:1px solid #ffffff66;border-radius:10px;
- background:#ffffff22;color:white
+ background:#ffffff22;color:white;max-width:65%
 }
 .settingrow option{color:#111}
 .menu{
@@ -179,7 +179,7 @@ main{width:min(100% - 28px,950px);margin:0 auto;padding-bottom:40px}
 .menu button:hover{background:#ffffff22}
 .hidden{display:none!important}
 
-/* IMAGE AND DOCUMENT ATTACHMENTS */
+/* ATTACHMENTS */
 .attach-toolbar{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
 .photo-preview-list,.document-preview-list{
  display:flex;gap:10px;flex-wrap:wrap;padding:8px 2px;margin-top:8px
@@ -234,16 +234,20 @@ main{width:min(100% - 28px,950px);margin:0 auto;padding-bottom:40px}
 }
 .modal{width:min(100%,420px);padding:20px;border-radius:20px}
 .modal h3{margin-top:0}
-.modal input{
+.modal input,.modal select{
  width:100%;padding:12px;border-radius:10px;
  border:1px solid #ffffff66;background:#ffffff18;color:white
 }
+.modal select option{color:#111}
 .modal-actions{display:flex;justify-content:flex-end;gap:9px;margin-top:15px}
 .modal-actions button{
  border:1px solid #ffffff66;background:#ffffff20;
  color:white;border-radius:10px;padding:10px 14px
 }
 .modal-actions .primary{background:linear-gradient(135deg,#a72aff,#155dff);border:0}
+.language-modal{text-align:center}
+.language-modal p{color:#dce4ff;line-height:1.5}
+.language-modal select{margin-top:10px;text-align:left}
 
 /* FULL PAGE CHAT */
 body.chat-open{overflow:hidden}
@@ -399,10 +403,9 @@ body.chat-open .msg.ai blockquote{
 
  <input id="photoInput" type="file" accept="image/jpeg,image/png,image/webp" multiple hidden onchange="photoSelected(event)">
  <input id="homeCamera" type="file" accept="image/jpeg,image/png,image/webp" capture="environment" hidden onchange="photoSelected(event)">
-
  <input id="homeDocument" type="file"
-  accept=".pdf,.docx,.xlsx,.pptx,.csv,.txt,.rtf,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.openxmlformats-officedocument.presentationml.presentation,text/csv,text/plain,application/rtf"
-  multiple hidden onchange="homeDocumentsSelected(event)">
+ accept=".pdf,.docx,.xlsx,.pptx,.csv,.txt,.rtf,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.openxmlformats-officedocument.presentationml.presentation,text/csv,text/plain,application/rtf"
+ multiple hidden onchange="homeDocumentsSelected(event)">
 
  <div id="photoName" class="status"></div>
  <div id="homePhotoPreviews" class="photo-preview-list"></div>
@@ -487,10 +490,9 @@ body.chat-open .msg.ai blockquote{
 
   <input id="chatPhoto" type="file" accept="image/jpeg,image/png,image/webp" multiple hidden onchange="chatPhotoSelected(event)">
   <input id="chatCamera" type="file" accept="image/jpeg,image/png,image/webp" capture="environment" hidden onchange="chatPhotoSelected(event)">
-
   <input id="chatDocument" type="file"
-   accept=".pdf,.docx,.xlsx,.pptx,.csv,.txt,.rtf,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.openxmlformats-officedocument.presentationml.presentation,text/csv,text/plain,application/rtf"
-   multiple hidden onchange="chatDocumentsSelected(event)">
+  accept=".pdf,.docx,.xlsx,.pptx,.csv,.txt,.rtf,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.openxmlformats-officedocument.presentationml.presentation,text/csv,text/plain,application/rtf"
+  multiple hidden onchange="chatDocumentsSelected(event)">
 
   <div id="chatPhotoPreviews" class="photo-preview-list"></div>
   <div id="chatPhotoCount" class="photo-count"></div>
@@ -523,6 +525,19 @@ body.chat-open .msg.ai blockquote{
  </div>
 </div>
 
+<!-- FIRST-TIME LANGUAGE SELECTION -->
+<div class="modal-overlay" id="languageModal">
+ <div class="modal glass language-modal">
+  <div style="font-size:48px">🌍</div>
+  <h2>Welcome to ZAQTIVO AI</h2>
+  <p>Select your preferred AI response language. You can change it anytime in Settings.</p>
+  <select id="firstLanguageSelect"></select>
+  <div class="modal-actions">
+   <button class="primary" style="width:100%" onclick="saveFirstLanguage()">Continue →</button>
+  </div>
+ </div>
+</div>
+
 <script>
 /* =========================================
    CONFIGURATION
@@ -532,10 +547,96 @@ const MAX_IMAGES=5;
 const MAX_DOCUMENTS=5;
 const MAX_IMAGE_SIZE=10*1024*1024;
 const MAX_DOCUMENT_SIZE=10*1024*1024;
+const REQUEST_TIMEOUT=120000;
 
 const ALLOWED_DOCUMENT_EXTENSIONS=[
  "pdf","docx","xlsx","pptx","csv","txt","rtf"
 ];
+
+const LANGUAGE_OPTIONS=[
+ "Auto Detect",
+ "English",
+ "Hindi",
+ "Urdu",
+ "Bengali",
+ "Punjabi",
+ "Gujarati",
+ "Marathi",
+ "Tamil",
+ "Telugu",
+ "Kannada",
+ "Malayalam",
+ "Odia",
+ "Assamese",
+ "Nepali",
+ "Sanskrit",
+ "Arabic",
+ "Persian",
+ "French",
+ "Spanish",
+ "Portuguese",
+ "German",
+ "Italian",
+ "Russian",
+ "Chinese (Simplified)",
+ "Chinese (Traditional)",
+ "Japanese",
+ "Korean",
+ "Indonesian",
+ "Malay",
+ "Thai",
+ "Vietnamese",
+ "Turkish",
+ "Swahili",
+ "Dutch",
+ "Polish",
+ "Ukrainian",
+ "Greek",
+ "Hebrew"
+];
+
+const SPEECH_LOCALES={
+ "English":"en-US",
+ "Hindi":"hi-IN",
+ "Urdu":"ur-PK",
+ "Bengali":"bn-IN",
+ "Punjabi":"pa-IN",
+ "Gujarati":"gu-IN",
+ "Marathi":"mr-IN",
+ "Tamil":"ta-IN",
+ "Telugu":"te-IN",
+ "Kannada":"kn-IN",
+ "Malayalam":"ml-IN",
+ "Odia":"or-IN",
+ "Assamese":"as-IN",
+ "Nepali":"ne-NP",
+ "Sanskrit":"sa-IN",
+ "Arabic":"ar-SA",
+ "Persian":"fa-IR",
+ "French":"fr-FR",
+ "Spanish":"es-ES",
+ "Portuguese":"pt-PT",
+ "German":"de-DE",
+ "Italian":"it-IT",
+ "Russian":"ru-RU",
+ "Chinese (Simplified)":"zh-CN",
+ "Chinese (Traditional)":"zh-TW",
+ "Japanese":"ja-JP",
+ "Korean":"ko-KR",
+ "Indonesian":"id-ID",
+ "Malay":"ms-MY",
+ "Thai":"th-TH",
+ "Vietnamese":"vi-VN",
+ "Turkish":"tr-TR",
+ "Swahili":"sw-KE",
+ "Dutch":"nl-NL",
+ "Polish":"pl-PL",
+ "Ukrainian":"uk-UA",
+ "Greek":"el-GR",
+ "Hebrew":"he-IL"
+};
+
+let selectedLanguage=localStorage.getItem("zaqtivo_language")||"Auto Detect";
 
 let selectedImages=[];
 let chatImages=[];
@@ -557,6 +658,90 @@ let sessions=[];
 let favorites=[];
 
 /* =========================================
+   LANGUAGE SETTINGS
+========================================= */
+
+function populateLanguageSelect(select){
+ if(!select)return;
+
+ select.innerHTML="";
+
+ LANGUAGE_OPTIONS.forEach(language=>{
+  const option=document.createElement("option");
+  option.value=language;
+  option.textContent=language;
+  select.appendChild(option);
+ });
+
+ select.value=LANGUAGE_OPTIONS.includes(selectedLanguage)
+  ?selectedLanguage
+  :"Auto Detect";
+}
+
+function getLanguageInstruction(){
+ if(selectedLanguage==="Auto Detect"){
+  return [
+   "LANGUAGE INSTRUCTION:",
+   "Detect the language used by the user in their latest question.",
+   "Reply in the same language as the user's question.",
+   "If the user mixes languages, respond naturally in the same language style.",
+   "Do not translate the question unless the user asks for translation.",
+   "Keep the answer clear and natural."
+  ].join(" ");
+ }
+
+ return [
+  "LANGUAGE INSTRUCTION:",
+  "Reply in "+selectedLanguage+".",
+  "Use "+selectedLanguage+" for the entire answer.",
+  "Keep technical terms, code, names and formulas accurate.",
+  "Do not switch to another language unless the user asks."
+ ].join(" ");
+}
+
+function saveLanguage(language){
+ if(!LANGUAGE_OPTIONS.includes(language)){
+  language="Auto Detect";
+ }
+
+ selectedLanguage=language;
+
+ try{
+  localStorage.setItem("zaqtivo_language",selectedLanguage);
+ }catch(error){
+  console.error("Could not save language preference:",error);
+ }
+
+ const settingsSelect=document.getElementById("languageSelect");
+ if(settingsSelect)settingsSelect.value=selectedLanguage;
+
+ const firstSelect=document.getElementById("firstLanguageSelect");
+ if(firstSelect)firstSelect.value=selectedLanguage;
+}
+
+function saveFirstLanguage(){
+ const select=document.getElementById("firstLanguageSelect");
+ saveLanguage(select.value);
+
+ document.getElementById("languageModal").style.display="none";
+
+ try{
+  localStorage.setItem("zaqtivo_language_setup_done","yes");
+ }catch(error){}
+
+ goHome();
+}
+
+function showFirstLanguageSetup(){
+ const completed=localStorage.getItem("zaqtivo_language_setup_done");
+
+ if(!completed){
+  populateLanguageSelect(document.getElementById("firstLanguageSelect"));
+  document.getElementById("languageModal").style.display="flex";
+ }
+}
+
+/* =========================================
    DATA AND STORAGE
 ========================================= */
 
@@ -575,13 +760,16 @@ function safeParse(value,fallback){
 
 function loadData(){
  favorites=safeParse(localStorage.getItem("zaqtivo_favorites"),[]);
+ if(!Array.isArray(favorites))favorites=[];
+
  const storedSessions=safeParse(localStorage.getItem("zaqtivo_sessions"),null);
 
  if(Array.isArray(storedSessions)){
   sessions=storedSessions;
  }else{
   const oldHistory=safeParse(localStorage.getItem("zaqtivo_history"),[]);
-  sessions=oldHistory.map(item=>({
+
+  sessions=Array.isArray(oldHistory)?oldHistory.map(item=>({
    id:makeId(),
    title:String(item.question||"Old Chat").slice(0,80),
    createdAt:item.date||new Date().toISOString(),
@@ -591,7 +779,7 @@ function loadData(){
     {role:"user",text:String(item.question||"")},
     {role:"ai",text:String(item.answer||"")}
    ]
-  }));
+  })):[];
   saveData();
  }
 }
@@ -603,9 +791,11 @@ function saveData(){
 
   const oldHistory=sessions.flatMap(session=>{
    const result=[];
+
    for(let i=0;i<session.messages.length;i++){
     if(session.messages[i].role==="user"){
      const next=session.messages[i+1];
+
      if(next&&next.role==="ai"){
       result.push({
        question:session.messages[i].text,
@@ -615,12 +805,15 @@ function saveData(){
      }
     }
    }
+
    return result;
   });
 
   localStorage.setItem("zaqtivo_history",JSON.stringify(oldHistory.slice(0,100)));
+
  }catch(error){
   console.error("Could not save data:",error);
+
   const status=document.getElementById("chatStatus");
   if(status)status.textContent="Storage is full. Some changes may not be saved.";
  }
@@ -628,13 +821,20 @@ function saveData(){
 
 function createSession(){
  const now=new Date().toISOString();
+
  const session={
-  id:makeId(),title:"New Chat",createdAt:now,
-  updatedAt:now,pinned:false,messages:[]
+  id:makeId(),
+  title:"New Chat",
+  createdAt:now,
+  updatedAt:now,
+  pinned:false,
+  messages:[]
  };
+
  sessions.unshift(session);
  activeSessionId=session.id;
  saveData();
+
  return session;
 }
 
@@ -644,7 +844,9 @@ function getActiveSession(){
 
 function updateSessionTime(session){
  session.updatedAt=new Date().toISOString();
+
  const index=sessions.indexOf(session);
+
  if(index>0){
   sessions.splice(index,1);
   sessions.unshift(session);
@@ -659,6 +861,7 @@ function hideScreens(){
  ["homeScreen","chatScreen","otherScreen"].forEach(id=>{
   document.getElementById(id).style.display="none";
  });
+
  document.getElementById("menu").style.display="none";
 }
 
@@ -672,6 +875,7 @@ function openChat(){
  hideScreens();
  document.body.classList.add("chat-open");
  document.getElementById("chatScreen").style.display="block";
+
  document.getElementById("chatHeading").textContent=
   getActiveSession()?.title||"ZAQTIVO AI";
 }
@@ -679,9 +883,11 @@ function openChat(){
 function clearChatAttachments(){
  chatImages=[];
  chatDocuments=[];
+
  document.getElementById("chatPhoto").value="";
  document.getElementById("chatCamera").value="";
  document.getElementById("chatDocument").value="";
+
  renderImagePreviews("chat");
  renderDocumentPreviews("chat");
 }
@@ -696,12 +902,14 @@ function newChat(){
  editingMessageElement=null;
  editingRequiresImage=false;
  editingRequiresDocument=false;
+
  clearChatAttachments();
 
  document.getElementById("messages").innerHTML="";
  document.getElementById("chatQuestion").value="";
  document.getElementById("chatStatus").textContent="";
  document.getElementById("chatVoiceStatus").textContent="";
+
  openChat();
 }
 
@@ -715,9 +923,11 @@ function openSession(sessionId){
  }
 
  activeSessionId=sessionId;
+
  editingMessageElement=null;
  editingRequiresImage=false;
  editingRequiresDocument=false;
+
  clearChatAttachments();
 
  document.getElementById("messages").innerHTML="";
@@ -804,6 +1014,7 @@ function addImages(target,files){
   const status=target==="home"
    ?document.getElementById("photoName")
    :document.getElementById("chatStatus");
+
   status.textContent=added+" photo(s) added.";
  }
 }
@@ -819,6 +1030,7 @@ function chatPhotoSelected(event){
 function removeImage(target,index){
  if(target==="home")selectedImages.splice(index,1);
  else chatImages.splice(index,1);
+
  renderImagePreviews(target);
 }
 
@@ -829,6 +1041,7 @@ function renderImagePreviews(target){
  const container=document.getElementById(
   isHome?"homePhotoPreviews":"chatPhotoPreviews"
  );
+
  const count=document.getElementById(
   isHome?"homePhotoCount":"chatPhotoCount"
  );
@@ -841,8 +1054,10 @@ function renderImagePreviews(target){
 
   const image=document.createElement("img");
   const url=URL.createObjectURL(file);
+
   image.src=url;
   image.alt="Selected photo "+(index+1);
+
   image.onload=()=>URL.revokeObjectURL(url);
   image.onerror=()=>URL.revokeObjectURL(url);
 
@@ -924,6 +1139,7 @@ function addDocuments(target,files){
   const status=target==="home"
    ?document.getElementById("photoName")
    :document.getElementById("chatStatus");
+
   status.textContent=added+" document(s) added.";
  }
 }
@@ -939,6 +1155,7 @@ function chatDocumentsSelected(event){
 function removeDocument(target,index){
  if(target==="home")selectedDocuments.splice(index,1);
  else chatDocuments.splice(index,1);
+
  renderDocumentPreviews(target);
 }
 
@@ -969,6 +1186,7 @@ function renderDocumentPreviews(target){
  const container=document.getElementById(
   isHome?"homeDocumentPreviews":"chatDocumentPreviews"
  );
+
  const count=document.getElementById(
   isHome?"homeDocumentCount":"chatDocumentCount"
  );
@@ -1031,7 +1249,11 @@ function startVoice(target="question",statusId="homeVoiceStatus"){
  }
 
  const recognition=new SpeechRecognition();
- recognition.lang=navigator.language||"en-US";
+
+ recognition.lang=selectedLanguage==="Auto Detect"
+  ?(navigator.language||"en-US")
+  :(SPEECH_LOCALES[selectedLanguage]||navigator.language||"en-US");
+
  recognition.interimResults=true;
  recognition.continuous=false;
 
@@ -1074,11 +1296,13 @@ function startVoice(target="question",statusId="homeVoiceStatus"){
   if(finalTranscript.trim()&&!hadError){
    const existing=input.value.trim();
    const spoken=finalTranscript.trim();
+
    input.value=existing?existing+" "+spoken:spoken;
    input.focus();
   }
 
   status.textContent="";
+
   if(activeRecognition===recognition)activeRecognition=null;
  };
 
@@ -1097,22 +1321,37 @@ function startVoice(target="question",statusId="homeVoiceStatus"){
 
 function escapeHTML(value){
  return String(value).replace(/[&<>"']/g,char=>({
-  "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+  "&":"&amp;",
+  "<":"&lt;",
+  ">":"&gt;",
+  '"':"&quot;",
+  "'":"&#39;"
  })[char]);
 }
 
 function formatInline(value){
  let s=escapeHTML(value);
+
  s=s.replace(/`([^`]+)`/g,"<code>$1</code>");
  s=s.replace(/\*\*(.+?)\*\*/g,"<strong>$1</strong>");
  s=s.replace(/\*(.+?)\*/g,"<em>$1</em>");
  s=s.replace(/__(.+?)__/g,"<strong>$1</strong>");
+
  return s;
+}
+
+function isMarkdownTableLine(line){
+ return /^\s*\|?.+\|.+\|?\s*$/.test(line);
 }
 
 function renderMarkdown(raw){
  const lines=String(raw).replace(/\r/g,"").split("\n");
- let html="",paragraph=[],listType=null,inCode=false,code=[];
+
+ let html="";
+ let paragraph=[];
+ let listType=null;
+ let inCode=false;
+ let code=[];
 
  function flushParagraph(){
   if(paragraph.length){
@@ -1122,12 +1361,30 @@ function renderMarkdown(raw){
  }
 
  function closeList(){
-  if(listType){html+="</"+listType+">";listType=null;}
+  if(listType){
+   html+="</"+listType+">";
+   listType=null;
+  }
  }
 
  function closeParagraphAndList(){
   flushParagraph();
   closeList();
+ }
+
+ function parseTableRow(row){
+  return row.trim()
+   .replace(/^\|/,"")
+   .replace(/\|$/,"")
+   .split("|");
+ }
+
+ function isTableSeparator(row){
+  const cells=parseTableRow(row);
+
+  return cells.length>1&&cells.every(cell=>
+   /^:?-{3,}:?$/.test(cell.trim())
+  );
  }
 
  for(let i=0;i<lines.length;i++){
@@ -1145,63 +1402,88 @@ function renderMarkdown(raw){
    continue;
   }
 
-  if(inCode){code.push(line);continue;}
+  if(inCode){
+   code.push(line);
+   continue;
+  }
 
   if(!line.trim()){
    closeParagraphAndList();
    continue;
   }
 
-  if(/^\s*\|.*\|\s*$/.test(line)){
+  /* Markdown table */
+  if(
+   isMarkdownTableLine(line)&&
+   i+1<lines.length&&
+   isTableSeparator(lines[i+1])
+  ){
    closeParagraphAndList();
-   const tableLines=[line];
 
-   while(i+1<lines.length&&/^\s*\|.*\|\s*$/.test(lines[i+1])){
-    tableLines.push(lines[++i]);
+   const headerCells=parseTableRow(line);
+   i++;
+
+   const bodyRows=[];
+
+   while(i+1<lines.length&&isMarkdownTableLine(lines[i+1])){
+    bodyRows.push(parseTableRow(lines[++i]));
    }
 
-   const rows=tableLines.filter(row=>!/^\s*\|[\s:|-]+\|\s*$/.test(row));
+   html+="<table><thead><tr>";
 
-   if(rows.length){
-    html+="<table>";
-    rows.forEach((row,index)=>{
-     const cells=row.trim().replace(/^\|/,"").replace(/\|$/,"").split("|");
-     html+="<tr>"+cells.map(cell=>{
-      const tag=index===0?"th":"td";
-      return "<"+tag+">"+formatInline(cell.trim())+"</"+tag+">";
-     }).join("")+"</tr>";
+   headerCells.forEach(cell=>{
+    html+="<th>"+formatInline(cell.trim())+"</th>";
+   });
+
+   html+="</tr></thead><tbody>";
+
+   bodyRows.forEach(row=>{
+    html+="<tr>";
+
+    headerCells.forEach((cell,index)=>{
+     html+="<td>"+formatInline(row[index]||"")+"</td>";
     });
-    html+="</table>";
-   }
+
+    html+="</tr>";
+   });
+
+   html+="</tbody></table>";
    continue;
   }
 
   const heading=line.match(/^(#{1,3})\s+(.+)$/);
+
   if(heading){
    closeParagraphAndList();
+
    const level=heading[1].length;
+
    html+="<h"+level+">"+formatInline(heading[2])+"</h"+level+">";
    continue;
   }
 
   if(/^\s*[-*]\s+/.test(line)){
    flushParagraph();
+
    if(listType!=="ul"){
     closeList();
     html+="<ul>";
     listType="ul";
    }
+
    html+="<li>"+formatInline(line.replace(/^\s*[-*]\s+/,""))+"</li>";
    continue;
   }
 
   if(/^\s*\d+[.)]\s+/.test(line)){
    flushParagraph();
+
    if(listType!=="ol"){
     closeList();
     html+="<ol>";
     listType="ol";
    }
+
    html+="<li>"+formatInline(line.replace(/^\s*\d+[.)]\s+/,""))+"</li>";
    continue;
   }
@@ -1216,8 +1498,12 @@ function renderMarkdown(raw){
   paragraph.push(line);
  }
 
- if(inCode)html+="<pre><code>"+escapeHTML(code.join("\n"))+"</code></pre>";
+ if(inCode){
+  html+="<pre><code>"+escapeHTML(code.join("\n"))+"</code></pre>";
+ }
+
  closeParagraphAndList();
+
  return html;
 }
 
@@ -1231,8 +1517,11 @@ function addMessage(text,type,relatedQuestion="",persist=false,existingIndex=nul
 
  const content=document.createElement("div");
 
- if(type==="ai")content.innerHTML=renderMarkdown(text);
- else content.textContent=text;
+ if(type==="ai"){
+  content.innerHTML=renderMarkdown(text);
+ }else{
+  content.textContent=text;
+ }
 
  wrap.appendChild(content);
 
@@ -1240,11 +1529,16 @@ function addMessage(text,type,relatedQuestion="",persist=false,existingIndex=nul
 
  if(persist&&session){
   session.messages.push({
-   role:type,text:String(text),date:new Date().toISOString()
+   role:type,
+   text:String(text),
+   date:new Date().toISOString()
   });
+
   wrap.dataset.messageIndex=String(session.messages.length-1);
+
   updateSessionTime(session);
   saveData();
+
  }else if(existingIndex!==null){
   wrap.dataset.messageIndex=String(existingIndex);
  }
@@ -1253,21 +1547,28 @@ function addMessage(text,type,relatedQuestion="",persist=false,existingIndex=nul
   let pressTimer=null;
 
   function clearPressTimer(){
-   if(pressTimer){clearTimeout(pressTimer);pressTimer=null;}
+   if(pressTimer){
+    clearTimeout(pressTimer);
+    pressTimer=null;
+   }
   }
 
   wrap.addEventListener("pointerdown",event=>{
    if(event.target.closest("button"))return;
+
    clearPressTimer();
 
    pressTimer=setTimeout(()=>{
     if(wrap.querySelector(".edit-message-btn"))return;
 
     const edit=document.createElement("button");
+
     edit.className="edit-message-btn";
     edit.textContent="✎ Edit";
+
     edit.addEventListener("pointerdown",event=>event.stopPropagation());
     edit.addEventListener("click",()=>editUserMessage(wrap));
+
     wrap.appendChild(edit);
    },2000);
   });
@@ -1300,6 +1601,7 @@ function addMessage(text,type,relatedQuestion="",persist=false,existingIndex=nul
  }
 
  document.getElementById("messages").appendChild(wrap);
+
  const messages=document.getElementById("messages");
  messages.scrollTop=messages.scrollHeight;
 }
@@ -1315,6 +1617,7 @@ function editUserMessage(messageElement){
  }
 
  editingMessageElement=messageElement;
+
  const input=document.getElementById("chatQuestion");
  const text=messageElement.querySelector("div").textContent;
 
@@ -1325,12 +1628,14 @@ function editUserMessage(messageElement){
  editingRequiresDocument=Boolean(documentMarker);
 
  let cleanText=text;
+
  cleanText=cleanText.replace(/\n\[\d+ image\(s\) attached\]$/,"");
  cleanText=cleanText.replace(/\n\[\d+ document\(s\) attached\]$/,"");
 
  input.value=cleanText;
 
  const reminders=[];
+
  if(editingRequiresImage)reminders.push("reattach the original photo(s)");
  if(editingRequiresDocument)reminders.push("reattach the original document(s)");
 
@@ -1350,7 +1655,9 @@ function removeMessagesFromEditedMessage(){
  const allMessages=Array.from(messages.children);
  const startIndex=allMessages.indexOf(editingMessageElement);
 
- if(startIndex!==-1)allMessages.slice(startIndex).forEach(message=>message.remove());
+ if(startIndex!==-1){
+  allMessages.slice(startIndex).forEach(message=>message.remove());
+ }
 
  const session=getActiveSession();
 
@@ -1385,6 +1692,7 @@ function copyText(text){
 
 function fallbackCopy(text){
  const el=document.createElement("textarea");
+
  el.value=text;
  document.body.appendChild(el);
  el.select();
@@ -1407,6 +1715,7 @@ function saveFavorite(answer){
 
  favorites.unshift(answer);
  saveData();
+
  alert("Saved to Favorites!");
 }
 
@@ -1416,6 +1725,7 @@ function saveFavorite(answer){
 
 async function askBackend(question,imageFiles=[],documentFiles=[]){
  const formData=new FormData();
+
  formData.append("question",question);
 
  imageFiles.forEach(file=>{
@@ -1429,7 +1739,9 @@ async function askBackend(question,imageFiles=[],documentFiles=[]){
  const controller=new AbortController();
  activeController=controller;
 
- const timeout=setTimeout(()=>controller.abort(),90000);
+ const timeout=setTimeout(()=>{
+  controller.abort();
+ },REQUEST_TIMEOUT);
 
  try{
   const response=await fetch("/api/solve",{
@@ -1438,20 +1750,39 @@ async function askBackend(question,imageFiles=[],documentFiles=[]){
    signal:controller.signal
   });
 
-  const data=await response.json().catch(()=>({}));
+  const responseText=await response.text();
+
+  let data={};
+
+  try{
+   data=JSON.parse(responseText);
+  }catch(error){
+   data={};
+  }
 
   if(!response.ok){
-   throw new Error(data.error||data.message||"Server error "+response.status);
+   throw new Error(
+    data.error||
+    data.message||
+    "Server error "+response.status+
+    (responseText&&!data.error?" - "+responseText.slice(0,180):"")
+   );
   }
 
   const answer=data.answer||data.text||data.response||data.result;
 
-  if(!answer)throw new Error("AI returned an empty answer.");
+  if(!answer){
+   throw new Error("AI returned an empty answer.");
+  }
 
-  return answer;
+  return String(answer);
+
  }finally{
   clearTimeout(timeout);
-  if(activeController===controller)activeController=null;
+
+  if(activeController===controller){
+   activeController=null;
+  }
  }
 }
 
@@ -1460,6 +1791,7 @@ function stopGeneration(){
 
  stopRequested=true;
  activeController.abort();
+
  document.getElementById("chatStatus").textContent="Generation stopped.";
 }
 
@@ -1478,14 +1810,18 @@ function regenerateAnswer(aiMessage){
 
  let userIndex=aiIndex-1;
 
- while(userIndex>=0&&!all[userIndex].classList.contains("user"))userIndex--;
+ while(userIndex>=0&&!all[userIndex].classList.contains("user")){
+  userIndex--;
+ }
 
  if(userIndex<0)return;
 
  const question=all[userIndex].querySelector("div").textContent;
 
- if(/\[\d+ image\(s\) attached\]/.test(question)||
-    /\[\d+ document\(s\) attached\]/.test(question)){
+ if(
+  /\[\d+ image\(s\) attached\]/.test(question)||
+  /\[\d+ document\(s\) attached\]/.test(question)
+ ){
   alert("This message originally contained attachments. Please send the question again with the original photo(s) and document(s) attached.");
   return;
  }
@@ -1503,6 +1839,7 @@ function regenerateAnswer(aiMessage){
  }
 
  all.slice(userIndex).forEach(message=>message.remove());
+
  sendToAI(question,[],[]);
 }
 
@@ -1582,7 +1919,9 @@ async function sendChatQuestion(){
  renderImagePreviews("chat");
  renderDocumentPreviews("chat");
 
- if(editingMessageElement)removeMessagesFromEditedMessage();
+ if(editingMessageElement){
+  removeMessagesFromEditedMessage();
+ }
 
  document.getElementById("chatStatus").textContent="";
 
@@ -1601,6 +1940,7 @@ async function sendToAI(question,images=[],documents=[]){
  if(isGenerating)return;
 
  let session=getActiveSession();
+
  if(!session)session=createSession();
 
  isGenerating=true;
@@ -1623,6 +1963,7 @@ async function sendToAI(question,images=[],documents=[]){
  if(session.title==="New Chat"||!session.title){
   session.title=question.slice(0,55)||
    (documentList.length?"Document Question":"Image Question");
+
   updateSessionTime(session);
   saveData();
  }
@@ -1630,6 +1971,7 @@ async function sendToAI(question,images=[],documents=[]){
  document.getElementById("chatHeading").textContent=session.title;
 
  const status=document.getElementById("chatStatus");
+
  status.textContent="ZAQTIVO AI is thinking...";
 
  stopRequested=false;
@@ -1638,24 +1980,46 @@ async function sendToAI(question,images=[],documents=[]){
  document.getElementById("chatSendBtn").disabled=true;
 
  try{
-  const answer=await askBackend(question,imageList,documentList);
+  const languageInstruction=getLanguageInstruction();
+
+  const promptForBackend=
+   languageInstruction+
+   "\n\nUSER QUESTION:\n"+
+   question;
+
+  const answer=await askBackend(
+   promptForBackend,
+   imageList,
+   documentList
+  );
+
   addMessage(answer,"ai",question,true);
   status.textContent="";
+
  }catch(error){
   if(error.name==="AbortError"&&stopRequested){
    status.textContent="Generation stopped.";
   }else{
    const message=error.name==="AbortError"
-    ?"Request timed out. Please try again."
+    ?"Request timed out after 120 seconds. Please try again."
     :(error.message||"Please try again.");
 
-   addMessage("Sorry, I couldn't get an answer.\n"+message,"ai",question,true);
+   addMessage(
+    "Sorry, I couldn't get an answer.\n"+message,
+    "ai",
+    question,
+    true
+   );
+
    status.textContent="Request failed.";
   }
+
  }finally{
   isGenerating=false;
+
   document.getElementById("chatSendBtn").disabled=false;
   document.getElementById("stopBtn").classList.add("hidden");
+
   stopRequested=false;
   saveData();
  }
@@ -1683,7 +2047,11 @@ function showHistory(){
   <div id="historyList"></div>
  `;
 
- document.getElementById("historySearch").addEventListener("input",renderHistoryList);
+ document.getElementById("historySearch").addEventListener(
+  "input",
+  renderHistoryList
+ );
+
  renderHistoryList();
 }
 
@@ -1697,12 +2065,17 @@ function renderHistoryList(){
  const query=search.value.trim().toLowerCase();
 
  const filtered=sessions.filter(session=>{
-  const content=[session.title,...session.messages.map(m=>m.text)].join(" ").toLowerCase();
+  const content=[
+   session.title,
+   ...session.messages.map(m=>m.text)
+  ].join(" ").toLowerCase();
+
   return content.includes(query);
  });
 
  filtered.sort((a,b)=>{
   if(a.pinned!==b.pinned)return a.pinned?-1:1;
+
   return new Date(b.updatedAt)-new Date(a.updatedAt);
  });
 
@@ -1716,6 +2089,7 @@ function renderHistoryList(){
 
  filtered.forEach(session=>{
   const card=document.createElement("div");
+
   card.className="history-card glass"+(session.pinned?" pinned":"");
 
   const title=document.createElement("div");
@@ -1758,6 +2132,7 @@ function renderHistoryList(){
 
   actions.append(open,rename,pin,share,remove);
   card.append(title,preview,date,actions);
+
   list.appendChild(card);
  });
 }
@@ -1771,10 +2146,13 @@ function openRenameModal(sessionId){
  if(!session)return;
 
  renameSessionId=sessionId;
+
  document.getElementById("renameInput").value=session.title;
  document.getElementById("renameModal").style.display="flex";
 
- setTimeout(()=>document.getElementById("renameInput").focus(),100);
+ setTimeout(()=>{
+  document.getElementById("renameInput").focus();
+ },100);
 }
 
 function closeRenameModal(){
@@ -1784,9 +2162,13 @@ function closeRenameModal(){
 
 function confirmRename(){
  const session=sessions.find(s=>s.id===renameSessionId);
+
  const newTitle=document.getElementById("renameInput").value.trim();
 
- if(!session){closeRenameModal();return;}
+ if(!session){
+  closeRenameModal();
+  return;
+ }
 
  if(!newTitle){
   alert("Please enter a chat name.");
@@ -1794,6 +2176,7 @@ function confirmRename(){
  }
 
  session.title=newTitle.slice(0,80);
+
  updateSessionTime(session);
 
  if(activeSessionId===session.id){
@@ -1803,7 +2186,9 @@ function confirmRename(){
  saveData();
  closeRenameModal();
 
- if(document.getElementById("historyList"))renderHistoryList();
+ if(document.getElementById("historyList")){
+  renderHistoryList();
+ }
 }
 
 /* =========================================
@@ -1815,6 +2200,7 @@ function togglePin(sessionId){
  if(!session)return;
 
  session.pinned=!session.pinned;
+
  saveData();
  renderHistoryList();
 }
@@ -1827,7 +2213,9 @@ function deleteSession(sessionId){
 
  sessions=sessions.filter(s=>s.id!==sessionId);
 
- if(activeSessionId===sessionId)activeSessionId=null;
+ if(activeSessionId===sessionId){
+  activeSessionId=null;
+ }
 
  saveData();
  renderHistoryList();
@@ -1851,9 +2239,14 @@ async function shareSession(sessionId){
 
  if(navigator.share){
   try{
-   await navigator.share({title:"ZAQTIVO AI - "+session.title,text});
+   await navigator.share({
+    title:"ZAQTIVO AI - "+session.title,
+    text
+   });
   }catch(error){
-   if(error.name!=="AbortError")copyText(text);
+   if(error.name!=="AbortError"){
+    copyText(text);
+   }
   }
  }else{
   copyText(text);
@@ -1924,22 +2317,34 @@ function showSettings(){
   <div class="settingrow">
    <span>App</span><strong>ZAQTIVO AI</strong>
   </div>
+
   <div class="settingrow">
-   <span>Language</span>
-   <select id="lang">
-    <option>Auto</option>
-    <option>English</option>
-    <option>Hindi</option>
-   </select>
+   <span>AI Response Language</span>
+   <select id="languageSelect"></select>
   </div>
+
+  <div class="status">
+   Auto Detect makes AI reply in the language used in your question.
+  </div>
+
   <div class="settingrow">
    <span>Clear chat history</span>
    <button id="clearHistory">Clear</button>
   </div>
+
   <div class="settingrow">
-   <span>Version</span><strong>1.4</strong>
+   <span>Version</span><strong>2.0</strong>
   </div>
  `;
+
+ const languageSelect=document.getElementById("languageSelect");
+
+ populateLanguageSelect(languageSelect);
+
+ languageSelect.addEventListener("change",()=>{
+  saveLanguage(languageSelect.value);
+  alert("AI response language saved: "+selectedLanguage);
+ });
 
  document.getElementById("clearHistory").onclick=()=>{
   if(confirm("Clear all chat history?")){
@@ -1977,7 +2382,9 @@ document.getElementById("renameInput").addEventListener("keydown",e=>{
 });
 
 document.getElementById("renameModal").addEventListener("click",e=>{
- if(e.target.id==="renameModal")closeRenameModal();
+ if(e.target.id==="renameModal"){
+  closeRenameModal();
+ }
 });
 
 /* =========================================
@@ -1986,6 +2393,10 @@ document.getElementById("renameModal").addEventListener("click",e=>{
 
 loadData();
 
+if(!LANGUAGE_OPTIONS.includes(selectedLanguage)){
+ selectedLanguage="Auto Detect";
+}
+
 renderImagePreviews("home");
 renderImagePreviews("chat");
 
@@ -1993,7 +2404,8 @@ renderDocumentPreviews("home");
 renderDocumentPreviews("chat");
 
 goHome();
+showFirstLanguageSetup();
 
 </script>
 </body>
-   </html>
+ </html>
