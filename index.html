@@ -8,12 +8,7 @@
 
 <style>
 *{box-sizing:border-box}
-:root{
- --purple:#9b35ff;
- --blue:#00c8ff;
- --dark:#080b48;
- --white:#fff
-}
+:root{--purple:#9b35ff;--blue:#00c8ff;--dark:#080b48;--white:#fff}
 body{
  margin:0;min-height:100vh;font-family:Arial,sans-serif;color:white;
  background:
@@ -42,24 +37,21 @@ body:before{
  background:linear-gradient(135deg,#ffffff32,#ffffff0b);
  border:1px solid #ffffff70;
  box-shadow:inset 0 1px 1px #ffffff55,0 8px 28px #02042e55;
- backdrop-filter:blur(18px);
- -webkit-backdrop-filter:blur(18px)
+ backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px)
 }
 .roundbtn{
  width:48px;height:48px;border-radius:50%;
- border:1px solid #ffffff70;color:white;
- background:#ffffff22;font-size:23px
+ border:1px solid #ffffff70;color:white;background:#ffffff22;font-size:23px
 }
 .probtn{
- border:1px solid #ffe7a0;border-radius:30px;
- padding:11px 20px;color:#fff4cf;font-weight:bold;
+ border:1px solid #ffe7a0;border-radius:30px;padding:11px 20px;
+ color:#fff4cf;font-weight:bold;
  background:linear-gradient(135deg,#fff2a5,#9b5c16,#ffe9a0);
  box-shadow:0 0 20px #ffcc5555
 }
 .avatar{
- width:48px;height:48px;border-radius:50%;
- display:grid;place-items:center;font-size:24px;
- background:linear-gradient(135deg,#00cfff,#6c31ff);
+ width:48px;height:48px;border-radius:50%;display:grid;place-items:center;
+ font-size:24px;background:linear-gradient(135deg,#00cfff,#6c31ff);
  border:2px solid #ffffffaa
 }
 main{width:min(100% - 28px,950px);margin:0 auto;padding-bottom:40px}
@@ -79,15 +71,13 @@ main{width:min(100% - 28px,950px);margin:0 auto;padding-bottom:40px}
 }
 .askicon{font-size:30px}
 .askbox textarea{
- flex:1;min-width:0;height:55px;resize:none;
- border:0;outline:0;background:transparent;
- color:white;padding:16px 5px;font-size:17px
+ flex:1;min-width:0;height:55px;resize:none;border:0;outline:0;
+ background:transparent;color:white;padding:16px 5px;font-size:17px
 }
-.askbox textarea::placeholder,
-.chatinput textarea::placeholder{color:#e0e6ff}
+.askbox textarea::placeholder,.chatinput textarea::placeholder{color:#e0e6ff}
 .sendbtn{
- width:65px;height:65px;border:1px solid #ffffff88;
- border-radius:50%;color:white;font-size:30px;
+ width:65px;height:65px;border:1px solid #ffffff88;border-radius:50%;
+ color:white;font-size:30px;
  background:linear-gradient(135deg,#bd22ff,#5224ff,#007fff);
  box-shadow:0 0 22px #9c35ff99
 }
@@ -115,9 +105,8 @@ main{width:min(100% - 28px,950px);margin:0 auto;padding-bottom:40px}
 .feature:nth-child(6){background:linear-gradient(135deg,#00cfff55,#642bff66)}
 .prompts{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
 .prompt{
- min-height:78px;border-radius:19px;padding:14px;
- display:flex;align-items:center;gap:13px;color:white;
- text-align:left;font-weight:bold;font-size:15px
+ min-height:78px;border-radius:19px;padding:14px;display:flex;
+ align-items:center;gap:13px;color:white;text-align:left;font-weight:bold;font-size:15px
 }
 .prompt .emoji{font-size:29px}
 .upgrade{
@@ -151,35 +140,32 @@ main{width:min(100% - 28px,950px);margin:0 auto;padding-bottom:40px}
 .ai{align-self:flex-start;background:#ffffff18;border:1px solid #ffffff55}
 .msg-actions{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
 .edit-message-btn{
- display:block;margin-top:9px;padding:7px 12px;
- border:1px solid #ffffff70;border-radius:10px;
- color:white;background:#ffffff22;font-size:13px
+ display:block;margin-top:9px;padding:7px 12px;border:1px solid #ffffff70;
+ border-radius:10px;color:white;background:#ffffff22;font-size:13px
 }
 .msg-actions button,.smallbtn{
- border:1px solid #ffffff66;color:white;
- background:#ffffff20;border-radius:10px;padding:8px 11px
+ border:1px solid #ffffff66;color:white;background:#ffffff20;
+ border-radius:10px;padding:8px 11px
 }
 .chatinput{display:flex;gap:8px;margin-top:16px}
 .chatinput textarea{
  flex:1;min-width:0;min-height:50px;resize:vertical;
- border:1px solid #ffffff66;border-radius:15px;
- padding:13px;color:white;background:#ffffff1c;outline:none
+ border:1px solid #ffffff66;border-radius:15px;padding:13px;
+ color:white;background:#ffffff1c;outline:none
 }
 .chatinput button{
  border:0;border-radius:14px;padding:0 18px;color:white;
  background:linear-gradient(135deg,#a72aff,#155dff)
 }
 .empty{text-align:center;padding:25px;color:#dbe4ff}
-.historyitem{
- padding:14px;margin:10px 0;border-radius:15px;overflow-wrap:anywhere
-}
+.historyitem{padding:14px;margin:10px 0;border-radius:15px;overflow-wrap:anywhere}
 .settingrow{
  display:flex;justify-content:space-between;align-items:center;
  gap:10px;padding:14px 0;border-bottom:1px solid #ffffff33
 }
 .settingrow button,.settingrow select{
- padding:9px;border:1px solid #ffffff66;
- border-radius:10px;background:#ffffff22;color:white
+ padding:9px;border:1px solid #ffffff66;border-radius:10px;
+ background:#ffffff22;color:white
 }
 .settingrow option{color:#111}
 .menu{
@@ -193,43 +179,38 @@ main{width:min(100% - 28px,950px);margin:0 auto;padding-bottom:40px}
 .menu button:hover{background:#ffffff22}
 .hidden{display:none!important}
 
-/* IMAGE ATTACHMENTS */
-.attach-toolbar{
- display:flex;gap:8px;flex-wrap:wrap;margin-top:10px
-}
-.photo-preview-list{
- display:flex;gap:10px;flex-wrap:wrap;
- padding:8px 2px;margin-top:8px
+/* IMAGE AND DOCUMENT ATTACHMENTS */
+.attach-toolbar{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.photo-preview-list,.document-preview-list{
+ display:flex;gap:10px;flex-wrap:wrap;padding:8px 2px;margin-top:8px
 }
 .photo-preview{
- width:94px;height:94px;position:relative;
- border:1px solid #ffffff66;border-radius:13px;
- overflow:hidden;background:#ffffff15
+ width:94px;height:94px;position:relative;border:1px solid #ffffff66;
+ border-radius:13px;overflow:hidden;background:#ffffff15
 }
-.photo-preview img{
- width:100%;height:100%;object-fit:cover;display:block
+.photo-preview img{width:100%;height:100%;object-fit:cover;display:block}
+.photo-preview button,.document-preview button{
+ position:absolute;top:4px;right:4px;width:25px;height:25px;
+ border:0;border-radius:50%;background:#111b;color:white;font-weight:bold
 }
-.photo-preview button{
- position:absolute;top:4px;right:4px;
- width:25px;height:25px;border:0;border-radius:50%;
- background:#111b;color:white;font-weight:bold
+.photo-count,.document-count{color:#dbe4ff;font-size:12px;margin:4px 2px}
+.document-preview{
+ min-width:150px;max-width:220px;min-height:76px;position:relative;
+ display:flex;align-items:center;gap:9px;padding:12px 34px 12px 12px;
+ border:1px solid #ffffff66;border-radius:13px;background:#ffffff15;
+ overflow-wrap:anywhere
 }
-.photo-count{
- color:#dbe4ff;font-size:12px;margin:4px 2px
-}
-.voice-status{
- color:#9ff2ff;font-size:13px;margin:7px 4px;
- min-height:16px
-}
+.document-icon{font-size:27px;flex-shrink:0}
+.document-info{min-width:0}
+.document-name{font-size:12px;font-weight:bold;overflow-wrap:anywhere}
+.document-size{font-size:11px;color:#dbe4ff;margin-top:5px}
+.voice-status{color:#9ff2ff;font-size:13px;margin:7px 4px;min-height:16px}
 
-/* HISTORY AND SESSION CONTROLS */
-.history-toolbar{
- display:flex;gap:9px;flex-wrap:wrap;margin:12px 0 18px
-}
+/* HISTORY */
+.history-toolbar{display:flex;gap:9px;flex-wrap:wrap;margin:12px 0 18px}
 .history-toolbar input{
- flex:1;min-width:180px;padding:12px 14px;
- border:1px solid #ffffff66;border-radius:13px;
- background:#ffffff18;color:white;outline:none
+ flex:1;min-width:180px;padding:12px 14px;border:1px solid #ffffff66;
+ border-radius:13px;background:#ffffff18;color:white;outline:none
 }
 .history-toolbar input::placeholder{color:#dbe4ff}
 .history-card{
@@ -237,27 +218,21 @@ main{width:min(100% - 28px,950px);margin:0 auto;padding-bottom:40px}
  border:1px solid #ffffff50;background:#ffffff12
 }
 .history-card.pinned{border-color:#ffd66b;box-shadow:0 0 14px #ffcc3333}
-.history-card-title{
- font-size:16px;font-weight:bold;overflow-wrap:anywhere;
- margin-bottom:6px
-}
+.history-card-title{font-size:16px;font-weight:bold;overflow-wrap:anywhere;margin-bottom:6px}
 .history-card-preview{font-size:14px;color:#dce4ff;margin:7px 0}
 .history-card-date{font-size:12px;color:#b9c8ef}
 .history-actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:12px}
 .history-actions button{
- padding:8px 10px;border-radius:10px;
- border:1px solid #ffffff55;background:#ffffff20;color:white;
- font-size:13px
+ padding:8px 10px;border-radius:10px;border:1px solid #ffffff55;
+ background:#ffffff20;color:white;font-size:13px
 }
 .history-actions button.danger{border-color:#ff8888;background:#ff333322}
 .search-count{font-size:13px;color:#dce4ff;margin:8px 3px}
 .modal-overlay{
- display:none;position:fixed;inset:0;z-index:100;
- background:#0009;align-items:center;justify-content:center;padding:18px
+ display:none;position:fixed;inset:0;z-index:100;background:#0009;
+ align-items:center;justify-content:center;padding:18px
 }
-.modal{
- width:min(100%,420px);padding:20px;border-radius:20px
-}
+.modal{width:min(100%,420px);padding:20px;border-radius:20px}
 .modal h3{margin-top:0}
 .modal input{
  width:100%;padding:12px;border-radius:10px;
@@ -268,18 +243,14 @@ main{width:min(100% - 28px,950px);margin:0 auto;padding-bottom:40px}
  border:1px solid #ffffff66;background:#ffffff20;
  color:white;border-radius:10px;padding:10px 14px
 }
-.modal-actions .primary{
- background:linear-gradient(135deg,#a72aff,#155dff);border:0
-}
+.modal-actions .primary{background:linear-gradient(135deg,#a72aff,#155dff);border:0}
 
 /* FULL PAGE CHAT */
 body.chat-open{overflow:hidden}
 body.chat-open .topbar,
 body.chat-open #homeScreen,
 body.chat-open #otherScreen{display:none!important}
-body.chat-open main{
- position:static;width:100%;max-width:none;margin:0;padding:0
-}
+body.chat-open main{position:static;width:100%;max-width:none;margin:0;padding:0}
 body.chat-open #chatScreen{
  display:block!important;position:fixed;inset:0;z-index:50;
  width:100%;height:100%;height:100dvh;margin:0;padding:0;
@@ -289,10 +260,9 @@ body.chat-open #chatScreen{
  linear-gradient(135deg,#08052f,#101078,#080c50)
 }
 body.chat-open #chatScreen .panel{
- width:100%;height:100%;height:100dvh;max-width:100%;
- margin:0;padding:0;border:0;border-radius:0;box-shadow:none;
- display:flex;flex-direction:column;background:transparent;
- backdrop-filter:none;-webkit-backdrop-filter:none
+ width:100%;height:100%;height:100dvh;max-width:100%;margin:0;padding:0;
+ border:0;border-radius:0;box-shadow:none;display:flex;flex-direction:column;
+ background:transparent;backdrop-filter:none;-webkit-backdrop-filter:none
 }
 body.chat-open .chathead{
  flex:0 0 auto;padding:12px 16px;margin:0;
@@ -303,35 +273,30 @@ body.chat-open .backbtn{background:#ffffff20}
 body.chat-open #messages{
  flex:1;min-height:0;overflow-y:auto;overscroll-behavior:contain;
  display:flex;flex-direction:column;gap:18px;
- padding:20px max(16px,calc((100vw - 850px)/2));
- scroll-behavior:smooth
+ padding:20px max(16px,calc((100vw - 850px)/2));scroll-behavior:smooth
 }
 body.chat-open .msg{
- max-width:min(82%,760px);padding:13px 17px;
- border-radius:20px;font-size:16px;
+ max-width:min(82%,760px);padding:13px 17px;border-radius:20px;font-size:16px;
  white-space:normal;overflow-wrap:anywhere
 }
 body.chat-open .msg.user{
- align-self:flex-end;border:1px solid #ffffff35;
- border-bottom-right-radius:5px;
- background:linear-gradient(135deg,#8c35ff,#155eea);
- box-shadow:0 5px 20px #08052f66
+ align-self:flex-end;border:1px solid #ffffff35;border-bottom-right-radius:5px;
+ background:linear-gradient(135deg,#8c35ff,#155eea);box-shadow:0 5px 20px #08052f66
 }
 body.chat-open .msg.ai{
- align-self:stretch;max-width:100%;width:100%;
- padding:8px 4px;background:transparent;border:0;
- border-radius:0;box-shadow:none;font-size:16px;line-height:1.75
+ align-self:stretch;max-width:100%;width:100%;padding:8px 4px;
+ background:transparent;border:0;border-radius:0;box-shadow:none;
+ font-size:16px;line-height:1.75
 }
 body.chat-open .msg.ai .msg-actions{margin-top:14px}
 body.chat-open .msg.ai .msg-actions button{background:#ffffff18}
 body.chat-open .chatinput{
- flex:0 0 auto;margin:0;padding:12px 16px 8px;
- background:#08052fdd;border-top:1px solid #ffffff25;
- align-items:flex-end
+ flex:0 0 auto;margin:0;padding:12px 16px 8px;background:#08052fdd;
+ border-top:1px solid #ffffff25;align-items:flex-end
 }
 body.chat-open .chatinput textarea{
- min-height:48px;max-height:140px;resize:none;
- border-radius:25px;padding:14px 17px;background:#ffffff18
+ min-height:48px;max-height:140px;resize:none;border-radius:25px;
+ padding:14px 17px;background:#ffffff18
 }
 body.chat-open .chatinput button{
  min-height:48px;min-width:52px;border-radius:50%;font-size:22px
@@ -339,40 +304,32 @@ body.chat-open .chatinput button{
 body.chat-open #chatScreen .panel>div:last-of-type{
  flex:0 0 auto;margin:0;padding:0 16px 12px;background:#08052fdd
 }
-body.chat-open #chatStatus{
- flex:0 0 auto;margin:0;padding:5px 18px;background:#08052fdd
+body.chat-open #chatStatus{flex:0 0 auto;margin:0;padding:5px 18px;background:#08052fdd}
+body.chat-open .msg.ai h1,body.chat-open .msg.ai h2,body.chat-open .msg.ai h3{
+ line-height:1.3;margin:18px 0 9px
 }
-body.chat-open .msg.ai h1,
-body.chat-open .msg.ai h2,
-body.chat-open .msg.ai h3{line-height:1.3;margin:18px 0 9px}
 body.chat-open .msg.ai h1{font-size:25px}
 body.chat-open .msg.ai h2{font-size:22px}
 body.chat-open .msg.ai h3{font-size:19px}
 body.chat-open .msg.ai p{margin:9px 0}
-body.chat-open .msg.ai ul,
-body.chat-open .msg.ai ol{padding-left:25px;margin:9px 0}
+body.chat-open .msg.ai ul,body.chat-open .msg.ai ol{padding-left:25px;margin:9px 0}
 body.chat-open .msg.ai li{margin:5px 0}
 body.chat-open .msg.ai pre{
- white-space:pre-wrap;overflow-x:auto;padding:14px;
- border-radius:12px;background:#050526;border:1px solid #ffffff30
+ white-space:pre-wrap;overflow-x:auto;padding:14px;border-radius:12px;
+ background:#050526;border:1px solid #ffffff30
 }
 body.chat-open .msg.ai code{
- font-family:monospace;background:#ffffff20;
- padding:2px 5px;border-radius:5px
+ font-family:monospace;background:#ffffff20;padding:2px 5px;border-radius:5px
 }
 body.chat-open .msg.ai pre code{background:transparent;padding:0}
 body.chat-open .msg.ai table{
- width:100%;border-collapse:collapse;display:block;
- overflow-x:auto;margin:12px 0
+ width:100%;border-collapse:collapse;display:block;overflow-x:auto;margin:12px 0
 }
-body.chat-open .msg.ai th,
-body.chat-open .msg.ai td{
- border:1px solid #ffffff55;padding:9px;
- text-align:left;min-width:90px
+body.chat-open .msg.ai th,body.chat-open .msg.ai td{
+ border:1px solid #ffffff55;padding:9px;text-align:left;min-width:90px
 }
 body.chat-open .msg.ai blockquote{
- margin:10px 0;padding:8px 14px;
- border-left:3px solid #50d9ff;background:#ffffff12
+ margin:10px 0;padding:8px 14px;border-left:3px solid #50d9ff;background:#ffffff12
 }
 
 @media(max-width:600px){
@@ -395,6 +352,7 @@ body.chat-open .msg.ai blockquote{
  body.chat-open .chathead{padding:10px}
  body.chat-open .chatinput{padding:10px}
  .photo-preview{width:78px;height:78px}
+ .document-preview{min-width:135px;max-width:48%}
 }
 </style>
 </head>
@@ -436,14 +394,18 @@ body.chat-open .msg.ai blockquote{
  <div class="attach-toolbar">
   <button class="smallbtn" onclick="document.getElementById('photoInput').click()">＋ Add Photos</button>
   <button class="smallbtn" onclick="document.getElementById('homeCamera').click()">📷 Camera</button>
+  <button class="smallbtn" onclick="document.getElementById('homeDocument').click()">📄 Add Documents</button>
  </div>
 
  <input id="photoInput" type="file" accept="image/jpeg,image/png,image/webp" multiple hidden onchange="photoSelected(event)">
  <input id="homeCamera" type="file" accept="image/jpeg,image/png,image/webp" capture="environment" hidden onchange="photoSelected(event)">
+ <input id="homeDocument" type="file" accept=".pdf,.docx,.xlsx,.pptx,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.openxmlformats-officedocument.presentationml.presentation" multiple hidden onchange="homeDocumentsSelected(event)">
 
  <div id="photoName" class="status"></div>
  <div id="homePhotoPreviews" class="photo-preview-list"></div>
  <div id="homePhotoCount" class="photo-count"></div>
+ <div id="homeDocumentPreviews" class="document-preview-list"></div>
+ <div id="homeDocumentCount" class="document-count"></div>
  <div id="homeVoiceStatus" class="voice-status"></div>
 
  <div class="features">
@@ -516,14 +478,18 @@ body.chat-open .msg.ai blockquote{
   <div class="attach-toolbar">
    <button class="smallbtn" onclick="document.getElementById('chatPhoto').click()">＋ Add Photos</button>
    <button class="smallbtn" onclick="document.getElementById('chatCamera').click()">📷 Camera</button>
+   <button class="smallbtn" onclick="document.getElementById('chatDocument').click()">📄 Add Documents</button>
    <button class="smallbtn" onclick="startVoice('chatQuestion','chatVoiceStatus')">🎙 Voice</button>
   </div>
 
   <input id="chatPhoto" type="file" accept="image/jpeg,image/png,image/webp" multiple hidden onchange="chatPhotoSelected(event)">
   <input id="chatCamera" type="file" accept="image/jpeg,image/png,image/webp" capture="environment" hidden onchange="chatPhotoSelected(event)">
+  <input id="chatDocument" type="file" accept=".pdf,.docx,.xlsx,.pptx,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.openxmlformats-officedocument.presentationml.presentation" multiple hidden onchange="chatDocumentsSelected(event)">
 
   <div id="chatPhotoPreviews" class="photo-preview-list"></div>
   <div id="chatPhotoCount" class="photo-count"></div>
+  <div id="chatDocumentPreviews" class="document-preview-list"></div>
+  <div id="chatDocumentCount" class="document-count"></div>
   <div id="chatVoiceStatus" class="voice-status"></div>
  </div>
 </section>
@@ -553,16 +519,25 @@ body.chat-open .msg.ai blockquote{
 
 <script>
 /* =========================================
-   DATA AND STORAGE
+   CONFIGURATION
 ========================================= */
 
 const MAX_IMAGES=5;
+const MAX_DOCUMENTS=5;
 const MAX_IMAGE_SIZE=10*1024*1024;
+const MAX_DOCUMENT_SIZE=10*1024*1024;
+
+const ALLOWED_DOCUMENT_EXTENSIONS=["pdf","docx","xlsx","pptx"];
 
 let selectedImages=[];
 let chatImages=[];
+let selectedDocuments=[];
+let chatDocuments=[];
+
 let editingMessageElement=null;
 let editingRequiresImage=false;
+let editingRequiresDocument=false;
+
 let activeController=null;
 let activeRecognition=null;
 let stopRequested=false;
@@ -572,6 +547,10 @@ let isGenerating=false;
 
 let sessions=[];
 let favorites=[];
+
+/* =========================================
+   DATA AND STORAGE
+========================================= */
 
 function makeId(){
  return "chat_"+Date.now()+"_"+Math.random().toString(36).slice(2,9);
@@ -642,12 +621,8 @@ function saveData(){
 function createSession(){
  const now=new Date().toISOString();
  const session={
-  id:makeId(),
-  title:"New Chat",
-  createdAt:now,
-  updatedAt:now,
-  pinned:false,
-  messages:[]
+  id:makeId(),title:"New Chat",createdAt:now,
+  updatedAt:now,pinned:false,messages:[]
  };
  sessions.unshift(session);
  activeSessionId=session.id;
@@ -695,9 +670,12 @@ function openChat(){
 
 function clearChatAttachments(){
  chatImages=[];
+ chatDocuments=[];
  document.getElementById("chatPhoto").value="";
  document.getElementById("chatCamera").value="";
+ document.getElementById("chatDocument").value="";
  renderImagePreviews("chat");
+ renderDocumentPreviews("chat");
 }
 
 function newChat(){
@@ -709,13 +687,13 @@ function newChat(){
  activeSessionId=null;
  editingMessageElement=null;
  editingRequiresImage=false;
+ editingRequiresDocument=false;
  clearChatAttachments();
 
  document.getElementById("messages").innerHTML="";
  document.getElementById("chatQuestion").value="";
  document.getElementById("chatStatus").textContent="";
  document.getElementById("chatVoiceStatus").textContent="";
-
  openChat();
 }
 
@@ -731,6 +709,7 @@ function openSession(sessionId){
  activeSessionId=sessionId;
  editingMessageElement=null;
  editingRequiresImage=false;
+ editingRequiresDocument=false;
  clearChatAttachments();
 
  document.getElementById("messages").innerHTML="";
@@ -765,17 +744,13 @@ function showAllPrompts(){
 }
 
 /* =========================================
-   MULTIPLE IMAGE HANDLING
+   IMAGE HANDLING
 ========================================= */
 
 function validateImage(file){
  if(!file)return false;
 
- const allowedTypes=[
-  "image/jpeg",
-  "image/png",
-  "image/webp"
- ];
+ const allowedTypes=["image/jpeg","image/png","image/webp"];
 
  if(!allowedTypes.includes(file.type)){
   alert("Please select a JPG, PNG or WEBP image.");
@@ -821,7 +796,6 @@ function addImages(target,files){
   const status=target==="home"
    ?document.getElementById("photoName")
    :document.getElementById("chatStatus");
-
   status.textContent=added+" photo(s) added.";
  }
 }
@@ -835,11 +809,8 @@ function chatPhotoSelected(event){
 }
 
 function removeImage(target,index){
- if(target==="home"){
-  selectedImages.splice(index,1);
- }else{
-  chatImages.splice(index,1);
- }
+ if(target==="home")selectedImages.splice(index,1);
+ else chatImages.splice(index,1);
  renderImagePreviews(target);
 }
 
@@ -850,7 +821,6 @@ function renderImagePreviews(target){
  const container=document.getElementById(
   isHome?"homePhotoPreviews":"chatPhotoPreviews"
  );
-
  const count=document.getElementById(
   isHome?"homePhotoCount":"chatPhotoCount"
  );
@@ -863,7 +833,6 @@ function renderImagePreviews(target){
 
   const image=document.createElement("img");
   const url=URL.createObjectURL(file);
-
   image.src=url;
   image.alt="Selected photo "+(index+1);
   image.onload=()=>URL.revokeObjectURL(url);
@@ -886,6 +855,152 @@ function renderImagePreviews(target){
 }
 
 /* =========================================
+   DOCUMENT HANDLING
+========================================= */
+
+function getDocumentExtension(file){
+ const name=String(file.name||"").toLowerCase();
+ const index=name.lastIndexOf(".");
+ return index>=0?name.slice(index+1):"";
+}
+
+function validateDocument(file){
+ if(!file)return false;
+
+ const extension=getDocumentExtension(file);
+
+ if(!ALLOWED_DOCUMENT_EXTENSIONS.includes(extension)){
+  alert("Please select a PDF, DOCX, XLSX or PPTX document.");
+  return false;
+ }
+
+ if(file.size>MAX_DOCUMENT_SIZE){
+  alert("Each document must be 10 MB or smaller.");
+  return false;
+ }
+
+ if(file.size===0){
+  alert("This document is empty.");
+  return false;
+ }
+
+ return true;
+}
+
+function addDocuments(target,files){
+ const current=target==="home"?selectedDocuments:chatDocuments;
+ const incoming=Array.from(files||[]);
+ let added=0;
+
+ for(const file of incoming){
+  if(!validateDocument(file))continue;
+
+  if(current.length>=MAX_DOCUMENTS){
+   alert("You can attach a maximum of 5 documents at a time.");
+   break;
+  }
+
+  current.push(file);
+  added++;
+ }
+
+ if(target==="home"){
+  document.getElementById("homeDocument").value="";
+ }else{
+  document.getElementById("chatDocument").value="";
+ }
+
+ renderDocumentPreviews(target);
+
+ if(added){
+  const status=target==="home"
+   ?document.getElementById("photoName")
+   :document.getElementById("chatStatus");
+  status.textContent=added+" document(s) added.";
+ }
+}
+
+function homeDocumentsSelected(event){
+ addDocuments("home",event.target.files);
+}
+
+function chatDocumentsSelected(event){
+ addDocuments("chat",event.target.files);
+}
+
+function removeDocument(target,index){
+ if(target==="home")selectedDocuments.splice(index,1);
+ else chatDocuments.splice(index,1);
+ renderDocumentPreviews(target);
+}
+
+function getDocumentIcon(file){
+ const ext=getDocumentExtension(file);
+ return {
+  pdf:"📕",
+  docx:"📘",
+  xlsx:"📗",
+  pptx:"📙"
+ }[ext]||"📄";
+}
+
+function formatFileSize(bytes){
+ if(bytes<1024)return bytes+" B";
+ if(bytes<1024*1024)return (bytes/1024).toFixed(1)+" KB";
+ return (bytes/(1024*1024)).toFixed(1)+" MB";
+}
+
+function renderDocumentPreviews(target){
+ const isHome=target==="home";
+ const files=isHome?selectedDocuments:chatDocuments;
+
+ const container=document.getElementById(
+  isHome?"homeDocumentPreviews":"chatDocumentPreviews"
+ );
+ const count=document.getElementById(
+  isHome?"homeDocumentCount":"chatDocumentCount"
+ );
+
+ container.innerHTML="";
+
+ files.forEach((file,index)=>{
+  const card=document.createElement("div");
+  card.className="document-preview glass";
+
+  const icon=document.createElement("span");
+  icon.className="document-icon";
+  icon.textContent=getDocumentIcon(file);
+
+  const info=document.createElement("div");
+  info.className="document-info";
+
+  const name=document.createElement("div");
+  name.className="document-name";
+  name.textContent=file.name;
+
+  const size=document.createElement("div");
+  size.className="document-size";
+  size.textContent=formatFileSize(file.size);
+
+  info.append(name,size);
+
+  const remove=document.createElement("button");
+  remove.type="button";
+  remove.textContent="×";
+  remove.title="Remove document";
+  remove.setAttribute("aria-label","Remove "+file.name);
+  remove.onclick=()=>removeDocument(target,index);
+
+  card.append(icon,info,remove);
+  container.appendChild(card);
+ });
+
+ count.textContent=files.length
+  ?files.length+" of "+MAX_DOCUMENTS+" documents selected"
+  :"";
+}
+
+/* =========================================
    VOICE INPUT
 ========================================= */
 
@@ -904,7 +1019,6 @@ function startVoice(target="question",statusId="homeVoiceStatus"){
  }
 
  const recognition=new SpeechRecognition();
-
  recognition.lang=navigator.language||"en-US";
  recognition.interimResults=true;
  recognition.continuous=false;
@@ -924,11 +1038,8 @@ function startVoice(target="question",statusId="homeVoiceStatus"){
   for(let i=event.resultIndex;i<event.results.length;i++){
    const transcript=event.results[i][0].transcript;
 
-   if(event.results[i].isFinal){
-    finalTranscript+=transcript;
-   }else{
-    interimTranscript+=transcript;
-   }
+   if(event.results[i].isFinal)finalTranscript+=transcript;
+   else interimTranscript+=transcript;
   }
 
   status.textContent=interimTranscript
@@ -951,19 +1062,12 @@ function startVoice(target="question",statusId="homeVoiceStatus"){
   if(finalTranscript.trim()&&!hadError){
    const existing=input.value.trim();
    const spoken=finalTranscript.trim();
-
-   input.value=existing
-    ?existing+" "+spoken
-    :spoken;
-
+   input.value=existing?existing+" "+spoken:spoken;
    input.focus();
   }
 
   status.textContent="";
-
-  if(activeRecognition===recognition){
-   activeRecognition=null;
-  }
+  if(activeRecognition===recognition)activeRecognition=null;
  };
 
  try{
@@ -976,16 +1080,12 @@ function startVoice(target="question",statusId="homeVoiceStatus"){
 }
 
 /* =========================================
-   SAFE MARKDOWN FORMATTING
+   SAFE MARKDOWN
 ========================================= */
 
 function escapeHTML(value){
  return String(value).replace(/[&<>"']/g,char=>({
-  "&":"&amp;",
-  "<":"&lt;",
-  ">":"&gt;",
-  '"':"&quot;",
-  "'":"&#39;"
+  "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
  })[char]);
 }
 
@@ -1010,10 +1110,7 @@ function renderMarkdown(raw){
  }
 
  function closeList(){
-  if(listType){
-   html+="</"+listType+">";
-   listType=null;
-  }
+  if(listType){html+="</"+listType+">";listType=null;}
  }
 
  function closeParagraphAndList(){
@@ -1036,10 +1133,7 @@ function renderMarkdown(raw){
    continue;
   }
 
-  if(inCode){
-   code.push(line);
-   continue;
-  }
+  if(inCode){code.push(line);continue;}
 
   if(!line.trim()){
    closeParagraphAndList();
@@ -1110,10 +1204,7 @@ function renderMarkdown(raw){
   paragraph.push(line);
  }
 
- if(inCode){
-  html+="<pre><code>"+escapeHTML(code.join("\n"))+"</code></pre>";
- }
-
+ if(inCode)html+="<pre><code>"+escapeHTML(code.join("\n"))+"</code></pre>";
  closeParagraphAndList();
  return html;
 }
@@ -1128,11 +1219,8 @@ function addMessage(text,type,relatedQuestion="",persist=false,existingIndex=nul
 
  const content=document.createElement("div");
 
- if(type==="ai"){
-  content.innerHTML=renderMarkdown(text);
- }else{
-  content.textContent=text;
- }
+ if(type==="ai")content.innerHTML=renderMarkdown(text);
+ else content.textContent=text;
 
  wrap.appendChild(content);
 
@@ -1140,11 +1228,8 @@ function addMessage(text,type,relatedQuestion="",persist=false,existingIndex=nul
 
  if(persist&&session){
   session.messages.push({
-   role:type,
-   text:String(text),
-   date:new Date().toISOString()
+   role:type,text:String(text),date:new Date().toISOString()
   });
-
   wrap.dataset.messageIndex=String(session.messages.length-1);
   updateSessionTime(session);
   saveData();
@@ -1156,15 +1241,11 @@ function addMessage(text,type,relatedQuestion="",persist=false,existingIndex=nul
   let pressTimer=null;
 
   function clearPressTimer(){
-   if(pressTimer){
-    clearTimeout(pressTimer);
-    pressTimer=null;
-   }
+   if(pressTimer){clearTimeout(pressTimer);pressTimer=null;}
   }
 
   wrap.addEventListener("pointerdown",event=>{
    if(event.target.closest("button"))return;
-
    clearPressTimer();
 
    pressTimer=setTimeout(()=>{
@@ -1173,7 +1254,6 @@ function addMessage(text,type,relatedQuestion="",persist=false,existingIndex=nul
     const edit=document.createElement("button");
     edit.className="edit-message-btn";
     edit.textContent="✎ Edit";
-
     edit.addEventListener("pointerdown",event=>event.stopPropagation());
     edit.addEventListener("click",()=>editUserMessage(wrap));
     wrap.appendChild(edit);
@@ -1208,7 +1288,6 @@ function addMessage(text,type,relatedQuestion="",persist=false,existingIndex=nul
  }
 
  document.getElementById("messages").appendChild(wrap);
-
  const messages=document.getElementById("messages");
  messages.scrollTop=messages.scrollHeight;
 }
@@ -1224,21 +1303,28 @@ function editUserMessage(messageElement){
  }
 
  editingMessageElement=messageElement;
-
  const input=document.getElementById("chatQuestion");
  const text=messageElement.querySelector("div").textContent;
 
  const imageMarker=text.match(/\n\[\d+ image\(s\) attached\]$/);
+ const documentMarker=text.match(/\n\[\d+ document\(s\) attached\]$/);
 
  editingRequiresImage=Boolean(imageMarker);
+ editingRequiresDocument=Boolean(documentMarker);
 
- input.value=imageMarker
-  ?text.replace(/\n\[\d+ image\(s\) attached\]$/,"")
-  :text;
+ let cleanText=text;
+ cleanText=cleanText.replace(/\n\[\d+ image\(s\) attached\]$/,"");
+ cleanText=cleanText.replace(/\n\[\d+ document\(s\) attached\]$/,"");
+
+ input.value=cleanText;
+
+ const reminders=[];
+ if(editingRequiresImage)reminders.push("reattach the original photo(s)");
+ if(editingRequiresDocument)reminders.push("reattach the original document(s)");
 
  document.getElementById("chatStatus").textContent=
-  editingRequiresImage
-   ?"This message had an image. Please attach the image again before sending."
+  reminders.length
+   ?"This message had attachments. Please "+reminders.join(" and ")+" before sending."
    :"Editing message — send to update the conversation";
 
  input.focus();
@@ -1252,9 +1338,7 @@ function removeMessagesFromEditedMessage(){
  const allMessages=Array.from(messages.children);
  const startIndex=allMessages.indexOf(editingMessageElement);
 
- if(startIndex!==-1){
-  allMessages.slice(startIndex).forEach(message=>message.remove());
- }
+ if(startIndex!==-1)allMessages.slice(startIndex).forEach(message=>message.remove());
 
  const session=getActiveSession();
 
@@ -1270,6 +1354,7 @@ function removeMessagesFromEditedMessage(){
 
  editingMessageElement=null;
  editingRequiresImage=false;
+ editingRequiresDocument=false;
 }
 
 /* =========================================
@@ -1314,15 +1399,19 @@ function saveFavorite(answer){
 }
 
 /* =========================================
-   AI BACKEND - MULTIPLE IMAGES
+   BACKEND REQUEST - IMAGES + DOCUMENTS
 ========================================= */
 
-async function askBackend(question,imageFiles=[]){
+async function askBackend(question,imageFiles=[],documentFiles=[]){
  const formData=new FormData();
  formData.append("question",question);
 
  imageFiles.forEach(file=>{
   formData.append("images",file,file.name);
+ });
+
+ documentFiles.forEach(file=>{
+  formData.append("documents",file,file.name);
  });
 
  const controller=new AbortController();
@@ -1345,9 +1434,7 @@ async function askBackend(question,imageFiles=[]){
 
   const answer=data.answer||data.text||data.response||data.result;
 
-  if(!answer){
-   throw new Error("AI returned an empty answer.");
-  }
+  if(!answer)throw new Error("AI returned an empty answer.");
 
   return answer;
  }finally{
@@ -1361,7 +1448,6 @@ function stopGeneration(){
 
  stopRequested=true;
  activeController.abort();
-
  document.getElementById("chatStatus").textContent="Generation stopped.";
 }
 
@@ -1380,16 +1466,15 @@ function regenerateAnswer(aiMessage){
 
  let userIndex=aiIndex-1;
 
- while(userIndex>=0&&!all[userIndex].classList.contains("user")){
-  userIndex--;
- }
+ while(userIndex>=0&&!all[userIndex].classList.contains("user"))userIndex--;
 
  if(userIndex<0)return;
 
  const question=all[userIndex].querySelector("div").textContent;
 
- if(/\[\d+ image\(s\) attached\]/.test(question)){
-  alert("This message originally contained an image. Please send the question again with the image attached.");
+ if(/\[\d+ image\(s\) attached\]/.test(question)||
+    /\[\d+ document\(s\) attached\]/.test(question)){
+  alert("This message originally contained attachments. Please send the question again with the original photo(s) and document(s) attached.");
   return;
  }
 
@@ -1406,12 +1491,11 @@ function regenerateAnswer(aiMessage){
  }
 
  all.slice(userIndex).forEach(message=>message.remove());
-
- sendToAI(question,null);
+ sendToAI(question,[],[]);
 }
 
 /* =========================================
-   SEND QUESTIONS
+   SEND FROM HOME
 ========================================= */
 
 async function sendQuestion(){
@@ -1419,76 +1503,114 @@ async function sendQuestion(){
 
  const question=document.getElementById("question").value.trim();
 
- if(!question&&!selectedImages.length){
-  alert("Please type a question or upload a photo.");
+ if(!question&&!selectedImages.length&&!selectedDocuments.length){
+  alert("Please type a question or upload a photo or document.");
   return;
  }
 
  const images=[...selectedImages];
+ const documents=[...selectedDocuments];
+
  selectedImages=[];
+ selectedDocuments=[];
 
  document.getElementById("photoInput").value="";
  document.getElementById("homeCamera").value="";
+ document.getElementById("homeDocument").value="";
  document.getElementById("photoName").textContent="";
  document.getElementById("question").value="";
+
  renderImagePreviews("home");
+ renderDocumentPreviews("home");
 
  newChat();
 
- await sendToAI(question||"Please explain the uploaded image(s).",images);
+ await sendToAI(
+  question||"Please examine the uploaded file(s) and explain their contents.",
+  images,
+  documents
+ );
 }
+
+/* =========================================
+   SEND FROM CHAT
+========================================= */
 
 async function sendChatQuestion(){
  if(isGenerating)return;
 
  const question=document.getElementById("chatQuestion").value.trim();
 
- if(!question&&!chatImages.length){
-  alert("Please type a question or upload a photo.");
+ if(!question&&!chatImages.length&&!chatDocuments.length){
+  alert("Please type a question or upload a photo or document.");
   return;
  }
 
  if(editingRequiresImage&&!chatImages.length){
-  alert("Please attach the original image again before updating this message.");
+  alert("Please attach the original image(s) again before updating this message.");
+  return;
+ }
+
+ if(editingRequiresDocument&&!chatDocuments.length){
+  alert("Please attach the original document(s) again before updating this message.");
   return;
  }
 
  const images=[...chatImages];
+ const documents=[...chatDocuments];
+
  chatImages=[];
+ chatDocuments=[];
 
  document.getElementById("chatPhoto").value="";
  document.getElementById("chatCamera").value="";
+ document.getElementById("chatDocument").value="";
  document.getElementById("chatQuestion").value="";
- renderImagePreviews("chat");
 
- if(editingMessageElement){
-  removeMessagesFromEditedMessage();
- }
+ renderImagePreviews("chat");
+ renderDocumentPreviews("chat");
+
+ if(editingMessageElement)removeMessagesFromEditedMessage();
 
  document.getElementById("chatStatus").textContent="";
 
- await sendToAI(question||"Please explain the uploaded image(s).",images);
+ await sendToAI(
+  question||"Please examine the uploaded file(s) and explain their contents.",
+  images,
+  documents
+ );
 }
 
-async function sendToAI(question,images=[]){
+/* =========================================
+   SEND TO AI
+========================================= */
+
+async function sendToAI(question,images=[],documents=[]){
  if(isGenerating)return;
 
  let session=getActiveSession();
-
- if(!session){
-  session=createSession();
- }
+ if(!session)session=createSession();
 
  isGenerating=true;
 
  const imageList=Array.isArray(images)?images:[];
- const displayedQuestion=question+
-  (imageList.length?"\n["+imageList.length+" image(s) attached]":"");
+ const documentList=Array.isArray(documents)?documents:[];
+
+ let displayedQuestion=question;
+
+ if(imageList.length){
+  displayedQuestion+="\n["+imageList.length+" image(s) attached]";
+ }
+
+ if(documentList.length){
+  displayedQuestion+="\n["+documentList.length+" document(s) attached]";
+ }
 
  addMessage(displayedQuestion,"user","",true);
 
  if(session.title==="New Chat"||!session.title){
-  session.title=question.slice(0,55)||"Image Question";
+  session.title=question.slice(0,55)||
+   (documentList.length?"Document Question":"Image Question");
   updateSessionTime(session);
   saveData();
  }
@@ -1504,8 +1626,7 @@ async function sendToAI(question,images=[]){
  document.getElementById("chatSendBtn").disabled=true;
 
  try{
-  const answer=await askBackend(question,imageList);
-
+  const answer=await askBackend(question,imageList,documentList);
   addMessage(answer,"ai",question,true);
   status.textContent="";
  }catch(error){
@@ -1564,11 +1685,7 @@ function renderHistoryList(){
  const query=search.value.trim().toLowerCase();
 
  const filtered=sessions.filter(session=>{
-  const content=[
-   session.title,
-   ...session.messages.map(m=>m.text)
-  ].join(" ").toLowerCase();
-
+  const content=[session.title,...session.messages.map(m=>m.text)].join(" ").toLowerCase();
   return content.includes(query);
  });
 
@@ -1597,9 +1714,7 @@ function renderHistoryList(){
 
   const preview=document.createElement("div");
   preview.className="history-card-preview";
-  preview.textContent=lastMessage
-   ?lastMessage.text.slice(0,150)
-   :"Empty chat";
+  preview.textContent=lastMessage?lastMessage.text.slice(0,150):"Empty chat";
 
   const date=document.createElement("div");
   date.className="history-card-date";
@@ -1647,9 +1762,7 @@ function openRenameModal(sessionId){
  document.getElementById("renameInput").value=session.title;
  document.getElementById("renameModal").style.display="flex";
 
- setTimeout(()=>{
-  document.getElementById("renameInput").focus();
- },100);
+ setTimeout(()=>document.getElementById("renameInput").focus(),100);
 }
 
 function closeRenameModal(){
@@ -1661,10 +1774,7 @@ function confirmRename(){
  const session=sessions.find(s=>s.id===renameSessionId);
  const newTitle=document.getElementById("renameInput").value.trim();
 
- if(!session){
-  closeRenameModal();
-  return;
- }
+ if(!session){closeRenameModal();return;}
 
  if(!newTitle){
   alert("Please enter a chat name.");
@@ -1681,13 +1791,11 @@ function confirmRename(){
  saveData();
  closeRenameModal();
 
- if(document.getElementById("historyList")){
-  renderHistoryList();
- }
+ if(document.getElementById("historyList"))renderHistoryList();
 }
 
 /* =========================================
-   PIN AND DELETE CHAT
+   PIN AND DELETE
 ========================================= */
 
 function togglePin(sessionId){
@@ -1707,9 +1815,7 @@ function deleteSession(sessionId){
 
  sessions=sessions.filter(s=>s.id!==sessionId);
 
- if(activeSessionId===sessionId){
-  activeSessionId=null;
- }
+ if(activeSessionId===sessionId)activeSessionId=null;
 
  saveData();
  renderHistoryList();
@@ -1733,10 +1839,7 @@ async function shareSession(sessionId){
 
  if(navigator.share){
   try{
-   await navigator.share({
-    title:"ZAQTIVO AI - "+session.title,
-    text:text
-   });
+   await navigator.share({title:"ZAQTIVO AI - "+session.title,text});
   }catch(error){
    if(error.name!=="AbortError")copyText(text);
   }
@@ -1822,7 +1925,7 @@ function showSettings(){
    <button id="clearHistory">Clear</button>
   </div>
   <div class="settingrow">
-   <span>Version</span><strong>1.3</strong>
+   <span>Version</span><strong>1.4</strong>
   </div>
  `;
 
@@ -1862,9 +1965,7 @@ document.getElementById("renameInput").addEventListener("keydown",e=>{
 });
 
 document.getElementById("renameModal").addEventListener("click",e=>{
- if(e.target.id==="renameModal"){
-  closeRenameModal();
- }
+ if(e.target.id==="renameModal")closeRenameModal();
 });
 
 /* =========================================
@@ -1872,10 +1973,15 @@ document.getElementById("renameModal").addEventListener("click",e=>{
 ========================================= */
 
 loadData();
+
 renderImagePreviews("home");
 renderImagePreviews("chat");
+
+renderDocumentPreviews("home");
+renderDocumentPreviews("chat");
+
 goHome();
 
 </script>
 </body>
-   </html>
+ </html>
