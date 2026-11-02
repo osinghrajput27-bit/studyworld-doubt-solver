@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -6,7 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#10065c">
 <title>ZAQTIVO AI</title>
-
 <style>
 *{box-sizing:border-box}
 :root{--purple:#9b35ff;--blue:#00c8ff;--dark:#080b48;--white:#fff}
@@ -134,7 +132,7 @@ main{width:min(100% - 28px,950px);margin:0 auto;padding-bottom:40px}
 }
 .user{align-self:flex-end;background:linear-gradient(135deg,#8c35ff,#155eea)}
 .ai{align-self:flex-start;background:#ffffff18;border:1px solid #ffffff55}
-.msg-actions{display:flex;gap:8px;margin-top:10px}
+.msg-actions{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
 .edit-message-btn{
  display:block;margin-top:9px;padding:7px 12px;
  border:1px solid #ffffff70;border-radius:10px;
@@ -200,8 +198,7 @@ body.chat-open #chatScreen .panel{
 }
 body.chat-open .chathead{
  flex:0 0 auto;padding:12px 16px;margin:0;
- border-bottom:1px solid #ffffff30;
- background:#08052f88
+ border-bottom:1px solid #ffffff30;background:#08052f88
 }
 body.chat-open .chathead strong{font-size:18px}
 body.chat-open .backbtn{background:#ffffff20}
@@ -231,8 +228,7 @@ body.chat-open .msg.ai .msg-actions{margin-top:14px}
 body.chat-open .msg.ai .msg-actions button{background:#ffffff18}
 body.chat-open .chatinput{
  flex:0 0 auto;margin:0;padding:12px 16px 8px;
- background:#08052fdd;border-top:1px solid #ffffff25;
- align-items:flex-end
+ background:#08052fdd;border-top:1px solid #ffffff25;align-items:flex-end
 }
 body.chat-open .chatinput textarea{
  min-height:48px;max-height:140px;resize:none;border-radius:25px;
@@ -242,8 +238,7 @@ body.chat-open .chatinput button{
  min-height:48px;min-width:52px;border-radius:50%;font-size:22px
 }
 body.chat-open #chatScreen .panel>div:last-of-type{
- flex:0 0 auto;margin:0;padding:0 16px 12px;
- background:#08052fdd
+ flex:0 0 auto;margin:0;padding:0 16px 12px;background:#08052fdd
 }
 body.chat-open #chatStatus{
  flex:0 0 auto;margin:0;padding:5px 18px;background:#08052fdd
@@ -263,8 +258,7 @@ body.chat-open .msg.ai pre{
  border-radius:12px;background:#050526;border:1px solid #ffffff30
 }
 body.chat-open .msg.ai code{
- font-family:monospace;background:#ffffff20;
- padding:2px 5px;border-radius:5px
+ font-family:monospace;background:#ffffff20;padding:2px 5px;border-radius:5px
 }
 body.chat-open .msg.ai pre code{background:transparent;padding:0}
 body.chat-open .msg.ai table{
@@ -301,7 +295,6 @@ body.chat-open .msg.ai blockquote{
 }
 </style>
 </head>
-
 <body>
 
 <header class="topbar">
@@ -338,44 +331,23 @@ body.chat-open .msg.ai blockquote{
  <div id="photoName" class="status"></div>
 
  <div class="features">
-  <button class="feature glass" onclick="newChat()">
-   <span class="emoji">💬</span><strong>New Chat</strong>
-  </button>
-  <button class="feature glass" onclick="document.getElementById('photoInput').click()">
-   <span class="emoji">🖼️</span><strong>Upload Photo</strong>
-  </button>
-  <button class="feature glass" onclick="openCamera()">
-   <span class="emoji">📷</span><strong>Use Camera</strong>
-  </button>
-  <button class="feature glass" onclick="startVoice()">
-   <span class="emoji">🎙️</span><strong>Voice Input</strong>
-  </button>
-  <button class="feature glass" onclick="quickPrompt('Give me a short and clear answer to my question: ')">
-   <span class="emoji">⚡</span><strong>Quick Answers</strong>
-  </button>
-  <button class="feature glass" onclick="quickPrompt('Help me understand this topic step by step: ')">
-   <span class="emoji">📖</span><strong>Study Help</strong>
-  </button>
+  <button class="feature glass" onclick="newChat()"><span class="emoji">💬</span><strong>New Chat</strong></button>
+  <button class="feature glass" onclick="document.getElementById('photoInput').click()"><span class="emoji">🖼️</span><strong>Upload Photo</strong></button>
+  <button class="feature glass" onclick="openCamera()"><span class="emoji">📷</span><strong>Use Camera</strong></button>
+  <button class="feature glass" onclick="startVoice()"><span class="emoji">🎙️</span><strong>Voice Input</strong></button>
+  <button class="feature glass" onclick="quickPrompt('Give me a short and clear answer to my question: ')"><span class="emoji">⚡</span><strong>Quick Answers</strong></button>
+  <button class="feature glass" onclick="quickPrompt('Help me understand this topic step by step: ')"><span class="emoji">📖</span><strong>Study Help</strong></button>
  </div>
 
  <div class="section-title">
   <span>🔥 Popular Prompts</span>
   <button class="seeall" onclick="showAllPrompts()">See all →</button>
  </div>
-
  <div class="prompts">
-  <button class="prompt glass" onclick="quickPrompt('Explain this topic in simple words: ')">
-   <span class="emoji">💡</span>Explain this topic →
-  </button>
-  <button class="prompt glass" onclick="quickPrompt('Summarize this text: ')">
-   <span class="emoji">📄</span>Summarize this text →
-  </button>
-  <button class="prompt glass" onclick="quickPrompt('Solve this problem step by step: ')">
-   <span class="emoji">🧮</span>Solve this problem →
-  </button>
-  <button class="prompt glass" onclick="quickPrompt('Help me write code for: ')">
-   <span class="emoji">💻</span>Write code →
-  </button>
+  <button class="prompt glass" onclick="quickPrompt('Explain this topic in simple words: ')"><span class="emoji">💡</span>Explain this topic →</button>
+  <button class="prompt glass" onclick="quickPrompt('Summarize this text: ')"><span class="emoji">📄</span>Summarize this text →</button>
+  <button class="prompt glass" onclick="quickPrompt('Solve this problem step by step: ')"><span class="emoji">🧮</span>Solve this problem →</button>
+  <button class="prompt glass" onclick="quickPrompt('Help me write code for: ')"><span class="emoji">💻</span>Write code →</button>
  </div>
 
  <div class="upgrade">
@@ -389,13 +361,14 @@ body.chat-open .msg.ai blockquote{
   <div class="chathead">
    <button class="backbtn" onclick="goHome()">← Back</button>
    <strong>ZAQTIVO AI</strong>
+   <button id="stopBtn" class="backbtn hidden" onclick="stopGeneration()">■ Stop</button>
    <button class="backbtn" style="margin-left:auto" onclick="newChat()">＋ New</button>
   </div>
   <div id="messages" class="messages"></div>
   <div id="chatStatus" class="status"></div>
   <div class="chatinput">
    <textarea id="chatQuestion" placeholder="Type your message..."></textarea>
-   <button onclick="sendChatQuestion()">➤</button>
+   <button id="chatSendBtn" onclick="sendChatQuestion()">➤</button>
   </div>
   <div style="margin-top:10px">
    <button class="smallbtn" onclick="document.getElementById('chatPhoto').click()">＋ Upload Photo</button>
@@ -420,6 +393,8 @@ body.chat-open .msg.ai blockquote{
 let selectedImage=null;
 let chatImage=null;
 let editingMessageElement=null;
+let activeController=null;
+let stopRequested=false;
 let historyData=JSON.parse(localStorage.getItem("zaqtivo_history")||"[]");
 let favorites=JSON.parse(localStorage.getItem("zaqtivo_favorites")||"[]");
 
@@ -543,32 +518,22 @@ function renderMarkdown(raw){
   }
  }
  function closeList(){
-  if(listType){html+=`</${listType}>`;listType=null;}
+  if(listType){html+="</"+listType+">";listType=null;}
  }
- function closeParagraphAndList(){
-  flushParagraph();closeList();
- }
+ function closeParagraphAndList(){flushParagraph();closeList();}
  for(let i=0;i<lines.length;i++){
   const line=lines[i];
   if(line.trim().startsWith("```")){
-   if(!inCode){
-    closeParagraphAndList();inCode=true;code=[];
-   }else{
-    html+="<pre><code>"+escapeHTML(code.join("\n"))+"</code></pre>";
-    inCode=false;
-   }
+   if(!inCode){closeParagraphAndList();inCode=true;code=[];}
+   else{html+="<pre><code>"+escapeHTML(code.join("\n"))+"</code></pre>";inCode=false;}
    continue;
   }
   if(inCode){code.push(line);continue;}
-  if(!line.trim()){
-   closeParagraphAndList();continue;
-  }
+  if(!line.trim()){closeParagraphAndList();continue;}
   if(/^\s*\|.*\|\s*$/.test(line)){
    closeParagraphAndList();
    const tableLines=[line];
-   while(i+1<lines.length&&/^\s*\|.*\|\s*$/.test(lines[i+1])){
-    tableLines.push(lines[++i]);
-   }
+   while(i+1<lines.length&&/^\s*\|.*\|\s*$/.test(lines[i+1]))tableLines.push(lines[++i]);
    const rows=tableLines.filter(row=>! /^\s*\|[\s:|-]+\|\s*$/.test(row));
    if(rows.length){
     html+="<table>";
@@ -576,7 +541,7 @@ function renderMarkdown(raw){
      const cells=row.trim().replace(/^\|/,"").replace(/\|$/,"").split("|");
      html+="<tr>"+cells.map(cell=>{
       const tag=index===0?"th":"td";
-      return `<${tag}>${formatInline(cell.trim())}</${tag}>`;
+      return "<"+tag+">"+formatInline(cell.trim())+"</"+tag+">";
      }).join("")+"</tr>";
     });
     html+="</table>";
@@ -587,7 +552,7 @@ function renderMarkdown(raw){
   if(heading){
    closeParagraphAndList();
    const level=heading[1].length;
-   html+=`<h${level}>${formatInline(heading[2])}</h${level}>`;
+   html+="<h"+level+">"+formatInline(heading[2])+"</h"+level+">";
    continue;
   }
   if(/^\s*[-*]\s+/.test(line)){
@@ -607,19 +572,17 @@ function renderMarkdown(raw){
    html+="<blockquote>"+formatInline(line.replace(/^>\s?/,""))+"</blockquote>";
    continue;
   }
-  closeList();
-  paragraph.push(line);
+  closeList();paragraph.push(line);
  }
  if(inCode)html+="<pre><code>"+escapeHTML(code.join("\n"))+"</code></pre>";
  closeParagraphAndList();
  return html;
 }
 
-/* USER MESSAGE + LONG-PRESS EDIT */
-function addMessage(text,type){
+/* MESSAGE DISPLAY AND LONG-PRESS EDIT */
+function addMessage(text,type,relatedQuestion=""){
  const wrap=document.createElement("div");
  wrap.className="msg "+type;
-
  const content=document.createElement("div");
  if(type==="ai")content.innerHTML=renderMarkdown(text);
  else content.textContent=text;
@@ -627,93 +590,67 @@ function addMessage(text,type){
 
  if(type==="user"){
   let pressTimer=null;
-
   function clearPressTimer(){
-   if(pressTimer){
-    clearTimeout(pressTimer);
-    pressTimer=null;
-   }
+   if(pressTimer){clearTimeout(pressTimer);pressTimer=null;}
   }
-
   wrap.addEventListener("pointerdown",event=>{
    if(event.target.closest("button"))return;
    clearPressTimer();
-
    pressTimer=setTimeout(()=>{
     if(wrap.querySelector(".edit-message-btn"))return;
-
     const edit=document.createElement("button");
     edit.className="edit-message-btn";
     edit.textContent="✎ Edit";
-
     edit.addEventListener("pointerdown",event=>event.stopPropagation());
     edit.addEventListener("click",()=>editUserMessage(wrap,text));
-
     wrap.appendChild(edit);
    },2000);
   });
-
   ["pointerup","pointerleave","pointercancel"].forEach(eventName=>{
    wrap.addEventListener(eventName,clearPressTimer);
   });
-
   wrap.addEventListener("contextmenu",event=>event.preventDefault());
  }
 
  if(type==="ai"){
   const actions=document.createElement("div");
   actions.className="msg-actions";
-
   const copy=document.createElement("button");
   copy.textContent="Copy";
   copy.onclick=()=>copyText(text);
-
   const save=document.createElement("button");
   save.textContent="☆ Save";
   save.onclick=()=>saveFavorite(text);
-
-  actions.append(copy,save);
+  const regenerate=document.createElement("button");
+  regenerate.textContent="↻ Regenerate";
+  regenerate.onclick=()=>regenerateAnswer(relatedQuestion,wrap);
+  actions.append(copy,save,regenerate);
   wrap.appendChild(actions);
  }
-
  document.getElementById("messages").appendChild(wrap);
-
  const messages=document.getElementById("messages");
  messages.scrollTop=messages.scrollHeight;
 }
 
-/* LOAD MESSAGE INTO INPUT FOR EDITING */
 function editUserMessage(messageElement,text){
  editingMessageElement=messageElement;
-
  const input=document.getElementById("chatQuestion");
  input.value=text;
- document.getElementById("chatStatus").textContent=
-  "Editing message — send to update the conversation";
-
+ document.getElementById("chatStatus").textContent="Editing message — send to update the conversation";
  input.focus();
  input.setSelectionRange(input.value.length,input.value.length);
 }
-
-/* REMOVE THE SELECTED MESSAGE AND LATER MESSAGES */
 function removeMessagesFromEditedMessage(){
  if(!editingMessageElement)return;
-
  const messages=document.getElementById("messages");
  const allMessages=Array.from(messages.children);
  const startIndex=allMessages.indexOf(editingMessageElement);
-
- if(startIndex!==-1){
-  allMessages.slice(startIndex).forEach(message=>message.remove());
- }
-
+ if(startIndex!==-1)allMessages.slice(startIndex).forEach(message=>message.remove());
  editingMessageElement=null;
 }
-
 function copyText(text){
  if(navigator.clipboard&&navigator.clipboard.writeText){
-  navigator.clipboard.writeText(text).then(()=>alert("Copied!"))
-   .catch(()=>alert("Could not copy."));
+  navigator.clipboard.writeText(text).then(()=>alert("Copied!")).catch(()=>alert("Could not copy."));
  }else{
   const el=document.createElement("textarea");
   el.value=text;document.body.appendChild(el);el.select();
@@ -724,28 +661,50 @@ function saveFavorite(answer){
  if(favorites.includes(answer)){alert("Already saved.");return;}
  favorites.unshift(answer);saveData();alert("Saved to Favorites!");
 }
+
 async function askBackend(question,imageFile){
  const formData=new FormData();
  formData.append("question",question);
  if(imageFile)formData.append("image",imageFile);
  const controller=new AbortController();
+ activeController=controller;
  const timeout=setTimeout(()=>controller.abort(),90000);
  try{
-  const response=await fetch("/api/solve",{
-   method:"POST",body:formData,signal:controller.signal
-  });
+  const response=await fetch("/api/solve",{method:"POST",body:formData,signal:controller.signal});
   const data=await response.json().catch(()=>({}));
   if(!response.ok)throw new Error(data.error||data.message||"Server error "+response.status);
   const answer=data.answer||data.text||data.response||data.result;
   if(!answer)throw new Error("AI returned an empty answer.");
   return answer;
- }finally{clearTimeout(timeout);}
+ }finally{
+  clearTimeout(timeout);
+  if(activeController===controller)activeController=null;
+ }
 }
+
+function stopGeneration(){
+ if(!activeController)return;
+ stopRequested=true;
+ activeController.abort();
+ document.getElementById("chatStatus").textContent="Generation stopped.";
+}
+function regenerateAnswer(question,aiMessage){
+ if(!question)return;
+ const messages=document.getElementById("messages");
+ const all=Array.from(messages.children);
+ const aiIndex=all.indexOf(aiMessage);
+ if(aiIndex<0)return;
+ let userIndex=aiIndex-1;
+ while(userIndex>=0&&!all[userIndex].classList.contains("user"))userIndex--;
+ if(userIndex<0)return;
+ all.slice(userIndex).forEach(message=>message.remove());
+ document.getElementById("chatStatus").textContent="";
+ sendToAI(question,null);
+}
+
 async function sendQuestion(){
  const question=document.getElementById("question").value.trim();
- if(!question&&!selectedImage){
-  alert("Please type a question or upload a photo.");return;
- }
+ if(!question&&!selectedImage){alert("Please type a question or upload a photo.");return;}
  const image=selectedImage;
  selectedImage=null;
  document.getElementById("photoInput").value="";
@@ -756,20 +715,12 @@ async function sendQuestion(){
 }
 async function sendChatQuestion(){
  const question=document.getElementById("chatQuestion").value.trim();
- if(!question&&!chatImage){
-  alert("Please type a question or upload a photo.");return;
- }
-
+ if(!question&&!chatImage){alert("Please type a question or upload a photo.");return;}
  const image=chatImage;
  chatImage=null;
  document.getElementById("chatPhoto").value="";
  document.getElementById("chatQuestion").value="";
-
- /* If editing, remove the selected message and everything after it */
- if(editingMessageElement){
-  removeMessagesFromEditedMessage();
- }
-
+ if(editingMessageElement)removeMessagesFromEditedMessage();
  document.getElementById("chatStatus").textContent="";
  await sendToAI(question||"Please explain the uploaded image.",image);
 }
@@ -777,24 +728,31 @@ async function sendToAI(question,image){
  addMessage(question+(image?"\n[Image attached]":""),"user");
  const status=document.getElementById("chatStatus");
  status.textContent="ZAQTIVO AI is thinking...";
- document.querySelectorAll(".chatinput button").forEach(b=>b.disabled=true);
+ stopRequested=false;
+ document.getElementById("stopBtn").classList.remove("hidden");
+ document.getElementById("chatSendBtn").disabled=true;
  try{
   const answer=await askBackend(question,image);
-  addMessage(answer,"ai");
+  addMessage(answer,"ai",question);
   historyData.unshift({question,answer,date:new Date().toLocaleString()});
   historyData=historyData.slice(0,100);
   saveData();
   status.textContent="";
  }catch(error){
-  const message=error.name==="AbortError"
-   ?"Request timed out. Please try again."
-   :(error.message||"Please try again.");
-  addMessage("Sorry, I couldn't get an answer.\n"+message,"ai");
-  status.textContent="Request failed.";
+  if(error.name==="AbortError"&&stopRequested){
+   status.textContent="Generation stopped.";
+  }else{
+   const message=error.name==="AbortError"?"Request timed out. Please try again.":(error.message||"Please try again.");
+   addMessage("Sorry, I couldn't get an answer.\n"+message,"ai",question);
+   status.textContent="Request failed.";
+  }
  }finally{
-  document.querySelectorAll(".chatinput button").forEach(b=>b.disabled=false);
+  document.getElementById("chatSendBtn").disabled=false;
+  document.getElementById("stopBtn").classList.add("hidden");
+  stopRequested=false;
  }
 }
+
 function showHistory(){
  document.body.classList.remove("chat-open");
  hideScreens();
@@ -802,9 +760,7 @@ function showHistory(){
  document.getElementById("otherTitle").textContent="Chat History";
  const box=document.getElementById("otherContent");
  box.innerHTML="";
- if(!historyData.length){
-  box.innerHTML='<div class="empty">No chats yet.</div>';return;
- }
+ if(!historyData.length){box.innerHTML='<div class="empty">No chats yet.</div>';return;}
  historyData.forEach(item=>{
   const div=document.createElement("div");
   div.className="historyitem glass";
@@ -822,22 +778,17 @@ function showFavorites(){
  document.getElementById("otherTitle").textContent="Favorites";
  const box=document.getElementById("otherContent");
  box.innerHTML="";
- if(!favorites.length){
-  box.innerHTML='<div class="empty">No saved answers yet.</div>';return;
- }
+ if(!favorites.length){box.innerHTML='<div class="empty">No saved answers yet.</div>';return;}
  favorites.forEach((item,index)=>{
   const div=document.createElement("div");
   div.className="historyitem glass";
   const p=document.createElement("p");p.textContent=item;
   const copy=document.createElement("button");
-  copy.className="smallbtn";copy.textContent="Copy";
-  copy.onclick=()=>copyText(item);
+  copy.className="smallbtn";copy.textContent="Copy";copy.onclick=()=>copyText(item);
   const remove=document.createElement("button");
   remove.className="smallbtn";remove.textContent="Remove";
   remove.style.marginLeft="8px";
-  remove.onclick=()=>{
-   favorites.splice(index,1);saveData();showFavorites();
-  };
+  remove.onclick=()=>{favorites.splice(index,1);saveData();showFavorites();};
   div.append(p,copy,remove);box.appendChild(div);
  });
 }
@@ -856,9 +807,7 @@ function showSettings(){
   <div class="settingrow"><span>Version</span><strong>1.0</strong></div>
  `;
  document.getElementById("clearHistory").onclick=()=>{
-  if(confirm("Clear all chat history?")){
-   historyData=[];saveData();showHistory();
-  }
+  if(confirm("Clear all chat history?")){historyData=[];saveData();showHistory();}
  };
 }
 document.getElementById("question").addEventListener("keydown",e=>{
@@ -870,4 +819,4 @@ document.getElementById("chatQuestion").addEventListener("keydown",e=>{
 goHome();
 </script>
 </body>
-</html>
+ </html>
