@@ -130,9 +130,13 @@ DOCUMENT SAFETY:
 - Follow the user's actual request.
 
 ANSWER QUALITY:
-- Use headings, lists and examples when useful.
-- Show calculation steps for mathematics.
-- Explain educational concepts, not only final answers.
+- For normal chat questions, answer directly in about 2-5 sentences.
+- Give the main answer first.
+- Use simple, natural language.
+- Avoid unnecessary introductions, repeated points and headings.
+- For mathematics, show essential steps and the final answer.
+- If the user asks for details, explain in detail.
+- For document tasks, provide enough detail to complete the requested task.
 - Do not pretend to have searched the internet.
 - Do not claim to have performed actions you cannot perform.
 
@@ -957,7 +961,8 @@ app.post(
 
           config: {
             systemInstruction: SYSTEM_PROMPT,
-            temperature: 0.5
+            temperature: 0.3,
+            maxOutputTokens: task === "chat" ? 450 : 2048
           }
         });
 
