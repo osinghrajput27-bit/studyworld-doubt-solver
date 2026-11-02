@@ -5,9 +5,15 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#10065c">
 <title>ZAQTIVO AI</title>
+
 <style>
 *{box-sizing:border-box}
-:root{--purple:#9b35ff;--blue:#00c8ff;--dark:#080b48;--white:#fff}
+:root{
+ --purple:#9b35ff;
+ --blue:#00c8ff;
+ --dark:#080b48;
+ --white:#fff
+}
 body{
  margin:0;min-height:100vh;font-family:Arial,sans-serif;color:white;
  background:
@@ -22,7 +28,8 @@ button{cursor:pointer}
 button:disabled{opacity:.55;cursor:not-allowed}
 body:before{
  content:"";position:fixed;inset:0;pointer-events:none;
- background:radial-gradient(circle at 8% 35%,#b84aff55,transparent 20%),
+ background:
+ radial-gradient(circle at 8% 35%,#b84aff55,transparent 20%),
  radial-gradient(circle at 90% 75%,#00baff44,transparent 25%);
  z-index:-1
 }
@@ -35,21 +42,24 @@ body:before{
  background:linear-gradient(135deg,#ffffff32,#ffffff0b);
  border:1px solid #ffffff70;
  box-shadow:inset 0 1px 1px #ffffff55,0 8px 28px #02042e55;
- backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px)
+ backdrop-filter:blur(18px);
+ -webkit-backdrop-filter:blur(18px)
 }
 .roundbtn{
  width:48px;height:48px;border-radius:50%;
- border:1px solid #ffffff70;color:white;background:#ffffff22;font-size:23px
+ border:1px solid #ffffff70;color:white;
+ background:#ffffff22;font-size:23px
 }
 .probtn{
- border:1px solid #ffe7a0;border-radius:30px;padding:11px 20px;
- color:#fff4cf;font-weight:bold;
+ border:1px solid #ffe7a0;border-radius:30px;
+ padding:11px 20px;color:#fff4cf;font-weight:bold;
  background:linear-gradient(135deg,#fff2a5,#9b5c16,#ffe9a0);
  box-shadow:0 0 20px #ffcc5555
 }
 .avatar{
- width:48px;height:48px;border-radius:50%;display:grid;place-items:center;
- font-size:24px;background:linear-gradient(135deg,#00cfff,#6c31ff);
+ width:48px;height:48px;border-radius:50%;
+ display:grid;place-items:center;font-size:24px;
+ background:linear-gradient(135deg,#00cfff,#6c31ff);
  border:2px solid #ffffffaa
 }
 main{width:min(100% - 28px,950px);margin:0 auto;padding-bottom:40px}
@@ -59,8 +69,8 @@ main{width:min(100% - 28px,950px);margin:0 auto;padding-bottom:40px}
  filter:drop-shadow(0 0 14px #00cfff) drop-shadow(0 0 25px #ad36ff)
 }
 .hero h1{
- font-size:clamp(32px,7vw,56px);margin:5px 0;letter-spacing:1px;
- text-shadow:0 0 20px #36caff88
+ font-size:clamp(32px,7vw,56px);margin:5px 0;
+ letter-spacing:1px;text-shadow:0 0 20px #36caff88
 }
 .hero p{margin:8px 0 22px;font-size:clamp(15px,3vw,23px);color:#e4eaff}
 .askbox{
@@ -69,13 +79,15 @@ main{width:min(100% - 28px,950px);margin:0 auto;padding-bottom:40px}
 }
 .askicon{font-size:30px}
 .askbox textarea{
- flex:1;min-width:0;height:55px;resize:none;border:0;outline:0;
- background:transparent;color:white;padding:16px 5px;font-size:17px
+ flex:1;min-width:0;height:55px;resize:none;
+ border:0;outline:0;background:transparent;
+ color:white;padding:16px 5px;font-size:17px
 }
-.askbox textarea::placeholder,.chatinput textarea::placeholder{color:#e0e6ff}
+.askbox textarea::placeholder,
+.chatinput textarea::placeholder{color:#e0e6ff}
 .sendbtn{
- width:65px;height:65px;border:1px solid #ffffff88;border-radius:50%;
- color:white;font-size:30px;
+ width:65px;height:65px;border:1px solid #ffffff88;
+ border-radius:50%;color:white;font-size:30px;
  background:linear-gradient(135deg,#bd22ff,#5224ff,#007fff);
  box-shadow:0 0 22px #9c35ff99
 }
@@ -103,14 +115,16 @@ main{width:min(100% - 28px,950px);margin:0 auto;padding-bottom:40px}
 .feature:nth-child(6){background:linear-gradient(135deg,#00cfff55,#642bff66)}
 .prompts{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
 .prompt{
- min-height:78px;border-radius:19px;padding:14px;display:flex;
- align-items:center;gap:13px;color:white;text-align:left;font-weight:bold;font-size:15px
+ min-height:78px;border-radius:19px;padding:14px;
+ display:flex;align-items:center;gap:13px;color:white;
+ text-align:left;font-weight:bold;font-size:15px
 }
 .prompt .emoji{font-size:29px}
 .upgrade{
  margin:25px 0 20px;border-radius:25px;padding:17px 20px;
- display:flex;justify-content:space-between;align-items:center;gap:12px;
- color:#301300;background:linear-gradient(110deg,#ffe48a,#ffb82d,#ffdf78);
+ display:flex;justify-content:space-between;align-items:center;
+ gap:12px;color:#301300;
+ background:linear-gradient(110deg,#ffe48a,#ffb82d,#ffdf78);
  border:1px solid #fff2b0;box-shadow:0 0 25px #ffca5266
 }
 .upgrade strong{font-size:20px}
@@ -124,11 +138,14 @@ main{width:min(100% - 28px,950px);margin:0 auto;padding-bottom:40px}
 #chatScreen,#otherScreen{display:none}
 .panel{padding:18px;border-radius:23px;margin:15px 0}
 .chathead{display:flex;align-items:center;gap:12px;margin-bottom:15px}
-.backbtn{border:0;border-radius:12px;padding:10px 14px;color:white;background:#ffffff25}
+.backbtn{
+ border:0;border-radius:12px;padding:10px 14px;
+ color:white;background:#ffffff25
+}
 .messages{display:flex;flex-direction:column;gap:13px}
 .msg{
- max-width:92%;padding:14px;border-radius:18px;line-height:1.55;
- white-space:pre-wrap;overflow-wrap:anywhere
+ max-width:92%;padding:14px;border-radius:18px;
+ line-height:1.55;white-space:pre-wrap;overflow-wrap:anywhere
 }
 .user{align-self:flex-end;background:linear-gradient(135deg,#8c35ff,#155eea)}
 .ai{align-self:flex-start;background:#ffffff18;border:1px solid #ffffff55}
@@ -139,33 +156,35 @@ main{width:min(100% - 28px,950px);margin:0 auto;padding-bottom:40px}
  color:white;background:#ffffff22;font-size:13px
 }
 .msg-actions button,.smallbtn{
- border:1px solid #ffffff66;color:white;background:#ffffff20;
- border-radius:10px;padding:8px 11px
+ border:1px solid #ffffff66;color:white;
+ background:#ffffff20;border-radius:10px;padding:8px 11px
 }
 .chatinput{display:flex;gap:8px;margin-top:16px}
 .chatinput textarea{
  flex:1;min-width:0;min-height:50px;resize:vertical;
- border:1px solid #ffffff66;border-radius:15px;padding:13px;
- color:white;background:#ffffff1c;outline:none
+ border:1px solid #ffffff66;border-radius:15px;
+ padding:13px;color:white;background:#ffffff1c;outline:none
 }
 .chatinput button{
  border:0;border-radius:14px;padding:0 18px;color:white;
  background:linear-gradient(135deg,#a72aff,#155dff)
 }
 .empty{text-align:center;padding:25px;color:#dbe4ff}
-.historyitem{padding:14px;margin:10px 0;border-radius:15px;overflow-wrap:anywhere}
+.historyitem{
+ padding:14px;margin:10px 0;border-radius:15px;overflow-wrap:anywhere
+}
 .settingrow{
  display:flex;justify-content:space-between;align-items:center;
  gap:10px;padding:14px 0;border-bottom:1px solid #ffffff33
 }
 .settingrow button,.settingrow select{
- padding:9px;border:1px solid #ffffff66;border-radius:10px;
- background:#ffffff22;color:white
+ padding:9px;border:1px solid #ffffff66;
+ border-radius:10px;background:#ffffff22;color:white
 }
 .settingrow option{color:#111}
 .menu{
- display:none;position:absolute;top:76px;left:18px;width:200px;
- padding:10px;border-radius:18px;z-index:10
+ display:none;position:absolute;top:76px;left:18px;
+ width:210px;padding:10px;border-radius:18px;z-index:10
 }
 .menu button{
  width:100%;padding:13px;text-align:left;border:0;
@@ -174,7 +193,61 @@ main{width:min(100% - 28px,950px);margin:0 auto;padding-bottom:40px}
 .menu button:hover{background:#ffffff22}
 .hidden{display:none!important}
 
-/* FULL PAGE CHAT DESIGN */
+/* HISTORY AND SESSION CONTROLS */
+.history-toolbar{
+ display:flex;gap:9px;flex-wrap:wrap;margin:12px 0 18px
+}
+.history-toolbar input{
+ flex:1;min-width:180px;padding:12px 14px;
+ border:1px solid #ffffff66;border-radius:13px;
+ background:#ffffff18;color:white;outline:none
+}
+.history-toolbar input::placeholder{color:#dbe4ff}
+.history-card{
+ padding:15px;border-radius:17px;margin:12px 0;
+ border:1px solid #ffffff50;background:#ffffff12
+}
+.history-card.pinned{border-color:#ffd66b;box-shadow:0 0 14px #ffcc3333}
+.history-card-title{
+ font-size:16px;font-weight:bold;overflow-wrap:anywhere;
+ margin-bottom:6px
+}
+.history-card-preview{font-size:14px;color:#dce4ff;margin:7px 0}
+.history-card-date{font-size:12px;color:#b9c8ef}
+.history-actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:12px}
+.history-actions button{
+ padding:8px 10px;border-radius:10px;
+ border:1px solid #ffffff55;background:#ffffff20;color:white;
+ font-size:13px
+}
+.history-actions button.danger{border-color:#ff8888;background:#ff333322}
+.search-count{font-size:13px;color:#dce4ff;margin:8px 3px}
+.session-title-input{
+ width:100%;padding:12px;border-radius:10px;
+ border:1px solid #ffffff66;background:#ffffff15;color:white
+}
+.modal-overlay{
+ display:none;position:fixed;inset:0;z-index:100;
+ background:#0009;align-items:center;justify-content:center;padding:18px
+}
+.modal{
+ width:min(100%,420px);padding:20px;border-radius:20px
+}
+.modal h3{margin-top:0}
+.modal input{
+ width:100%;padding:12px;border-radius:10px;
+ border:1px solid #ffffff66;background:#ffffff18;color:white
+}
+.modal-actions{display:flex;justify-content:flex-end;gap:9px;margin-top:15px}
+.modal-actions button{
+ border:1px solid #ffffff66;background:#ffffff20;
+ color:white;border-radius:10px;padding:10px 14px
+}
+.modal-actions .primary{
+ background:linear-gradient(135deg,#a72aff,#155dff);border:0
+}
+
+/* FULL PAGE CHAT */
 body.chat-open{overflow:hidden}
 body.chat-open .topbar,
 body.chat-open #homeScreen,
@@ -210,8 +283,8 @@ body.chat-open #messages{
 }
 body.chat-open .msg{
  max-width:min(82%,760px);padding:13px 17px;
- border-radius:20px;font-size:16px;white-space:normal;
- overflow-wrap:anywhere
+ border-radius:20px;font-size:16px;
+ white-space:normal;overflow-wrap:anywhere
 }
 body.chat-open .msg.user{
  align-self:flex-end;border:1px solid #ffffff35;
@@ -228,11 +301,12 @@ body.chat-open .msg.ai .msg-actions{margin-top:14px}
 body.chat-open .msg.ai .msg-actions button{background:#ffffff18}
 body.chat-open .chatinput{
  flex:0 0 auto;margin:0;padding:12px 16px 8px;
- background:#08052fdd;border-top:1px solid #ffffff25;align-items:flex-end
+ background:#08052fdd;border-top:1px solid #ffffff25;
+ align-items:flex-end
 }
 body.chat-open .chatinput textarea{
- min-height:48px;max-height:140px;resize:none;border-radius:25px;
- padding:14px 17px;background:#ffffff18
+ min-height:48px;max-height:140px;resize:none;
+ border-radius:25px;padding:14px 17px;background:#ffffff18
 }
 body.chat-open .chatinput button{
  min-height:48px;min-width:52px;border-radius:50%;font-size:22px
@@ -258,7 +332,8 @@ body.chat-open .msg.ai pre{
  border-radius:12px;background:#050526;border:1px solid #ffffff30
 }
 body.chat-open .msg.ai code{
- font-family:monospace;background:#ffffff20;padding:2px 5px;border-radius:5px
+ font-family:monospace;background:#ffffff20;
+ padding:2px 5px;border-radius:5px
 }
 body.chat-open .msg.ai pre code{background:transparent;padding:0}
 body.chat-open .msg.ai table{
@@ -267,12 +342,14 @@ body.chat-open .msg.ai table{
 }
 body.chat-open .msg.ai th,
 body.chat-open .msg.ai td{
- border:1px solid #ffffff55;padding:9px;text-align:left;min-width:90px
+ border:1px solid #ffffff55;padding:9px;
+ text-align:left;min-width:90px
 }
 body.chat-open .msg.ai blockquote{
- margin:10px 0;padding:8px 14px;border-left:3px solid #50d9ff;
- background:#ffffff12
+ margin:10px 0;padding:8px 14px;
+ border-left:3px solid #50d9ff;background:#ffffff12
 }
+
 @media(max-width:600px){
  .topbar{padding:14px 7px}
  .features{gap:9px}
@@ -295,6 +372,7 @@ body.chat-open .msg.ai blockquote{
 }
 </style>
 </head>
+
 <body>
 
 <header class="topbar">
@@ -315,6 +393,7 @@ body.chat-open .msg.ai blockquote{
 </div>
 
 <main>
+
 <section id="homeScreen">
  <div class="hero">
   <div class="brain">🧠</div>
@@ -327,31 +406,56 @@ body.chat-open .msg.ai blockquote{
   <textarea id="question" placeholder="Ask me anything..."></textarea>
   <button class="sendbtn" onclick="sendQuestion()">➤</button>
  </div>
+
  <input id="photoInput" type="file" accept="image/*" hidden onchange="photoSelected(event)">
  <div id="photoName" class="status"></div>
 
  <div class="features">
-  <button class="feature glass" onclick="newChat()"><span class="emoji">💬</span><strong>New Chat</strong></button>
-  <button class="feature glass" onclick="document.getElementById('photoInput').click()"><span class="emoji">🖼️</span><strong>Upload Photo</strong></button>
-  <button class="feature glass" onclick="openCamera()"><span class="emoji">📷</span><strong>Use Camera</strong></button>
-  <button class="feature glass" onclick="startVoice()"><span class="emoji">🎙️</span><strong>Voice Input</strong></button>
-  <button class="feature glass" onclick="quickPrompt('Give me a short and clear answer to my question: ')"><span class="emoji">⚡</span><strong>Quick Answers</strong></button>
-  <button class="feature glass" onclick="quickPrompt('Help me understand this topic step by step: ')"><span class="emoji">📖</span><strong>Study Help</strong></button>
+  <button class="feature glass" onclick="newChat()">
+   <span class="emoji">💬</span><strong>New Chat</strong>
+  </button>
+  <button class="feature glass" onclick="document.getElementById('photoInput').click()">
+   <span class="emoji">🖼️</span><strong>Upload Photo</strong>
+  </button>
+  <button class="feature glass" onclick="openCamera()">
+   <span class="emoji">📷</span><strong>Use Camera</strong>
+  </button>
+  <button class="feature glass" onclick="startVoice()">
+   <span class="emoji">🎙️</span><strong>Voice Input</strong>
+  </button>
+  <button class="feature glass" onclick="quickPrompt('Give me a short and clear answer to my question: ')">
+   <span class="emoji">⚡</span><strong>Quick Answers</strong>
+  </button>
+  <button class="feature glass" onclick="quickPrompt('Help me understand this topic step by step: ')">
+   <span class="emoji">📖</span><strong>Study Help</strong>
+  </button>
  </div>
 
  <div class="section-title">
   <span>🔥 Popular Prompts</span>
   <button class="seeall" onclick="showAllPrompts()">See all →</button>
  </div>
+
  <div class="prompts">
-  <button class="prompt glass" onclick="quickPrompt('Explain this topic in simple words: ')"><span class="emoji">💡</span>Explain this topic →</button>
-  <button class="prompt glass" onclick="quickPrompt('Summarize this text: ')"><span class="emoji">📄</span>Summarize this text →</button>
-  <button class="prompt glass" onclick="quickPrompt('Solve this problem step by step: ')"><span class="emoji">🧮</span>Solve this problem →</button>
-  <button class="prompt glass" onclick="quickPrompt('Help me write code for: ')"><span class="emoji">💻</span>Write code →</button>
+  <button class="prompt glass" onclick="quickPrompt('Explain this topic in simple words: ')">
+   <span class="emoji">💡</span>Explain this topic →
+  </button>
+  <button class="prompt glass" onclick="quickPrompt('Summarize this text: ')">
+   <span class="emoji">📄</span>Summarize this text →
+  </button>
+  <button class="prompt glass" onclick="quickPrompt('Solve this problem step by step: ')">
+   <span class="emoji">🧮</span>Solve this problem →
+  </button>
+  <button class="prompt glass" onclick="quickPrompt('Help me write code for: ')">
+   <span class="emoji">💻</span>Write code →
+  </button>
  </div>
 
  <div class="upgrade">
-  <div><strong>👑 Upgrade to Pro</strong><p>Unlock more features!</p></div>
+  <div>
+   <strong>👑 Upgrade to Pro</strong>
+   <p>Unlock more features!</p>
+  </div>
   <button onclick="showUpgrade()">Explore ❯</button>
  </div>
 </section>
@@ -360,20 +464,24 @@ body.chat-open .msg.ai blockquote{
  <div class="panel glass">
   <div class="chathead">
    <button class="backbtn" onclick="goHome()">← Back</button>
-   <strong>ZAQTIVO AI</strong>
+   <strong id="chatHeading">ZAQTIVO AI</strong>
    <button id="stopBtn" class="backbtn hidden" onclick="stopGeneration()">■ Stop</button>
    <button class="backbtn" style="margin-left:auto" onclick="newChat()">＋ New</button>
   </div>
+
   <div id="messages" class="messages"></div>
   <div id="chatStatus" class="status"></div>
+
   <div class="chatinput">
    <textarea id="chatQuestion" placeholder="Type your message..."></textarea>
    <button id="chatSendBtn" onclick="sendChatQuestion()">➤</button>
   </div>
+
   <div style="margin-top:10px">
    <button class="smallbtn" onclick="document.getElementById('chatPhoto').click()">＋ Upload Photo</button>
    <button class="smallbtn" onclick="startVoice('chatQuestion')">🎙 Voice</button>
   </div>
+
   <input id="chatPhoto" type="file" accept="image/*" hidden onchange="chatPhotoSelected(event)">
  </div>
 </section>
@@ -387,119 +495,297 @@ body.chat-open .msg.ai blockquote{
   <div id="otherContent"></div>
  </div>
 </section>
+
 </main>
 
+<!-- RENAME MODAL -->
+<div class="modal-overlay" id="renameModal">
+ <div class="modal glass">
+  <h3>Rename Chat</h3>
+  <input id="renameInput" maxlength="80" placeholder="Enter chat name">
+  <div class="modal-actions">
+   <button onclick="closeRenameModal()">Cancel</button>
+   <button class="primary" onclick="confirmRename()">Save</button>
+  </div>
+ </div>
+</div>
+
 <script>
+/* =========================================
+   DATA AND STORAGE
+========================================= */
+
 let selectedImage=null;
 let chatImage=null;
 let editingMessageElement=null;
 let activeController=null;
 let stopRequested=false;
-let historyData=JSON.parse(localStorage.getItem("zaqtivo_history")||"[]");
-let favorites=JSON.parse(localStorage.getItem("zaqtivo_favorites")||"[]");
+let activeSessionId=null;
+let renameSessionId=null;
+let isGenerating=false;
+
+let sessions=[];
+let favorites=[];
+
+function makeId(){
+ return "chat_"+Date.now()+"_"+Math.random().toString(36).slice(2,9);
+}
+
+function safeParse(value,fallback){
+ try{
+  const parsed=JSON.parse(value);
+  return parsed??fallback;
+ }catch(error){
+  return fallback;
+ }
+}
+
+function loadData(){
+ favorites=safeParse(localStorage.getItem("zaqtivo_favorites"),[]);
+
+ const storedSessions=safeParse(localStorage.getItem("zaqtivo_sessions"),null);
+
+ if(Array.isArray(storedSessions)){
+  sessions=storedSessions;
+ }else{
+  // Migrate old question-answer history into individual sessions.
+  const oldHistory=safeParse(localStorage.getItem("zaqtivo_history"),[]);
+  sessions=oldHistory.map(item=>({
+   id:makeId(),
+   title:String(item.question||"Old Chat").slice(0,80),
+   createdAt:item.date||new Date().toLocaleString(),
+   updatedAt:item.date||new Date().toLocaleString(),
+   pinned:false,
+   messages:[
+    {role:"user",text:String(item.question||"")},
+    {role:"ai",text:String(item.answer||"")}
+   ]
+  }));
+  saveData();
+ }
+}
 
 function saveData(){
- localStorage.setItem("zaqtivo_history",JSON.stringify(historyData));
- localStorage.setItem("zaqtivo_favorites",JSON.stringify(favorites));
+ try{
+  localStorage.setItem("zaqtivo_sessions",JSON.stringify(sessions));
+  localStorage.setItem("zaqtivo_favorites",JSON.stringify(favorites));
+  // Keep old key updated for basic backward compatibility.
+  const oldHistory=sessions.flatMap(session=>{
+   const result=[];
+   for(let i=0;i<session.messages.length;i++){
+    if(session.messages[i].role==="user"){
+     const next=session.messages[i+1];
+     if(next&&next.role==="ai"){
+      result.push({
+       question:session.messages[i].text,
+       answer:next.text,
+       date:session.updatedAt
+      });
+     }
+    }
+   }
+   return result;
+  });
+  localStorage.setItem("zaqtivo_history",JSON.stringify(oldHistory.slice(0,100)));
+ }catch(error){
+  console.error("Could not save data:",error);
+  document.getElementById("chatStatus").textContent=
+   "Storage is full. Some changes may not be saved.";
+ }
 }
+
+function createSession(){
+ const session={
+  id:makeId(),
+  title:"New Chat",
+  createdAt:new Date().toLocaleString(),
+  updatedAt:new Date().toLocaleString(),
+  pinned:false,
+  messages:[]
+ };
+ sessions.unshift(session);
+ activeSessionId=session.id;
+ saveData();
+ return session;
+}
+
+function getActiveSession(){
+ return sessions.find(s=>s.id===activeSessionId)||null;
+}
+
+function updateSessionTime(session){
+ session.updatedAt=new Date().toLocaleString();
+ const index=sessions.indexOf(session);
+ if(index>0){
+  sessions.splice(index,1);
+  sessions.unshift(session);
+ }
+}
+
+/* =========================================
+   SCREEN NAVIGATION
+========================================= */
+
 function hideScreens(){
  ["homeScreen","chatScreen","otherScreen"].forEach(id=>{
   document.getElementById(id).style.display="none";
  });
  document.getElementById("menu").style.display="none";
 }
+
 function goHome(){
  document.body.classList.remove("chat-open");
  hideScreens();
  document.getElementById("homeScreen").style.display="block";
 }
+
 function openChat(){
  hideScreens();
  document.body.classList.add("chat-open");
  document.getElementById("chatScreen").style.display="block";
+ document.getElementById("chatHeading").textContent=
+  getActiveSession()?.title||"ZAQTIVO AI";
 }
+
 function newChat(){
+ if(isGenerating){
+  alert("Please stop the current response before starting a new chat.");
+  return;
+ }
+ activeSessionId=null;
+ editingMessageElement=null;
+ chatImage=null;
  document.getElementById("messages").innerHTML="";
  document.getElementById("chatQuestion").value="";
  document.getElementById("chatStatus").textContent="";
- editingMessageElement=null;
- chatImage=null;
+ document.getElementById("chatPhoto").value="";
  openChat();
 }
+
+function openSession(sessionId){
+ const session=sessions.find(s=>s.id===sessionId);
+ if(!session)return;
+
+ if(isGenerating){
+  alert("Please stop the current response before switching chats.");
+  return;
+ }
+
+ activeSessionId=sessionId;
+ editingMessageElement=null;
+ chatImage=null;
+
+ document.getElementById("messages").innerHTML="";
+ document.getElementById("chatQuestion").value="";
+ document.getElementById("chatPhoto").value="";
+ document.getElementById("chatStatus").textContent="";
+
+ session.messages.forEach(message=>{
+  addMessage(message.text,message.role,null,false);
+ });
+
+ openChat();
+}
+
 function quickPrompt(prompt){
  document.getElementById("question").value=prompt;
  document.getElementById("question").focus();
  window.scrollTo({top:0,behavior:"smooth"});
 }
+
 function toggleMenu(){
  const menu=document.getElementById("menu");
  menu.style.display=menu.style.display==="block"?"none":"block";
 }
+
 function showUpgrade(){
  alert("Pro features are not available yet. Existing free AI service limits still apply.");
 }
+
 function showAllPrompts(){
  document.getElementById("question").focus();
  window.scrollTo({top:0,behavior:"smooth"});
 }
-function photoSelected(event){
- const file=event.target.files[0];
- if(!file)return;
+
+/* =========================================
+   IMAGE AND VOICE
+========================================= */
+
+function validateImage(file){
+ if(!file)return false;
  if(file.size>10*1024*1024){
   alert("Image must be 10 MB or smaller.");
-  event.target.value="";
-  return;
+  return false;
  }
+ return true;
+}
+
+function photoSelected(event){
+ const file=event.target.files[0];
+ if(!validateImage(file))return;
  selectedImage=file;
  document.getElementById("photoName").textContent="Selected: "+file.name;
 }
+
 function chatPhotoSelected(event){
  const file=event.target.files[0];
- if(!file)return;
- if(file.size>10*1024*1024){
-  alert("Image must be 10 MB or smaller.");
-  event.target.value="";
-  return;
- }
+ if(!validateImage(file))return;
  chatImage=file;
  document.getElementById("chatStatus").textContent="Photo selected: "+file.name;
 }
+
 function openCamera(){
  const input=document.createElement("input");
- input.type="file";input.accept="image/*";input.capture="environment";
+ input.type="file";
+ input.accept="image/*";
+ input.capture="environment";
  input.onchange=e=>{
   const file=e.target.files[0];
-  if(!file)return;
-  if(file.size>10*1024*1024){
-   alert("Image must be 10 MB or smaller.");return;
-  }
+  if(!validateImage(file))return;
   selectedImage=file;
   document.getElementById("photoName").textContent="Camera photo: "+file.name;
  };
  input.click();
 }
+
 function startVoice(target="question"){
  const SpeechRecognition=window.SpeechRecognition||window.webkitSpeechRecognition;
+
  if(!SpeechRecognition){
-  alert("Voice input is not supported in this browser.");return;
+  alert("Voice input is not supported in this browser.");
+  return;
  }
+
  const recognition=new SpeechRecognition();
  recognition.lang=navigator.language||"en-US";
  recognition.interimResults=false;
+
  recognition.onresult=e=>{
   const el=document.getElementById(target);
   el.value+=(el.value?" ":"")+e.results[0][0].transcript;
  };
- recognition.onerror=()=>alert("Voice input failed. Check microphone permission.");
+
+ recognition.onerror=()=>{
+  alert("Voice input failed. Check microphone permission.");
+ };
+
  recognition.start();
 }
 
-/* SAFE TEXT FORMATTING FOR AI ANSWERS */
+/* =========================================
+   SAFE MARKDOWN FORMATTING
+========================================= */
+
 function escapeHTML(value){
  return String(value).replace(/[&<>"']/g,char=>({
-  "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+  "&":"&amp;",
+  "<":"&lt;",
+  ">":"&gt;",
+  '"':"&quot;",
+  "'":"&#39;"
  })[char]);
 }
+
 function formatInline(value){
  let s=escapeHTML(value);
  s=s.replace(/`([^`]+)`/g,"<code>$1</code>");
@@ -508,33 +794,65 @@ function formatInline(value){
  s=s.replace(/__(.+?)__/g,"<strong>$1</strong>");
  return s;
 }
+
 function renderMarkdown(raw){
  const lines=String(raw).replace(/\r/g,"").split("\n");
  let html="",paragraph=[],listType=null,inCode=false,code=[];
+
  function flushParagraph(){
   if(paragraph.length){
    html+="<p>"+paragraph.map(formatInline).join("<br>")+"</p>";
    paragraph=[];
   }
  }
+
  function closeList(){
-  if(listType){html+="</"+listType+">";listType=null;}
+  if(listType){
+   html+="</"+listType+">";
+   listType=null;
+  }
  }
- function closeParagraphAndList(){flushParagraph();closeList();}
+
+ function closeParagraphAndList(){
+  flushParagraph();
+  closeList();
+ }
+
  for(let i=0;i<lines.length;i++){
   const line=lines[i];
+
   if(line.trim().startsWith("```")){
-   if(!inCode){closeParagraphAndList();inCode=true;code=[];}
-   else{html+="<pre><code>"+escapeHTML(code.join("\n"))+"</code></pre>";inCode=false;}
+   if(!inCode){
+    closeParagraphAndList();
+    inCode=true;
+    code=[];
+   }else{
+    html+="<pre><code>"+escapeHTML(code.join("\n"))+"</code></pre>";
+    inCode=false;
+   }
    continue;
   }
-  if(inCode){code.push(line);continue;}
-  if(!line.trim()){closeParagraphAndList();continue;}
+
+  if(inCode){
+   code.push(line);
+   continue;
+  }
+
+  if(!line.trim()){
+   closeParagraphAndList();
+   continue;
+  }
+
   if(/^\s*\|.*\|\s*$/.test(line)){
    closeParagraphAndList();
    const tableLines=[line];
-   while(i+1<lines.length&&/^\s*\|.*\|\s*$/.test(lines[i+1]))tableLines.push(lines[++i]);
-   const rows=tableLines.filter(row=>! /^\s*\|[\s:|-]+\|\s*$/.test(row));
+
+   while(i+1<lines.length&&/^\s*\|.*\|\s*$/.test(lines[i+1])){
+    tableLines.push(lines[++i]);
+   }
+
+   const rows=tableLines.filter(row=>!/^\s*\|[\s:|-]+\|\s*$/.test(row));
+
    if(rows.length){
     html+="<table>";
     rows.forEach((row,index)=>{
@@ -548,6 +866,7 @@ function renderMarkdown(raw){
    }
    continue;
   }
+
   const heading=line.match(/^(#{1,3})\s+(.+)$/);
   if(heading){
    closeParagraphAndList();
@@ -555,126 +874,271 @@ function renderMarkdown(raw){
    html+="<h"+level+">"+formatInline(heading[2])+"</h"+level+">";
    continue;
   }
+
   if(/^\s*[-*]\s+/.test(line)){
    flushParagraph();
-   if(listType!=="ul"){closeList();html+="<ul>";listType="ul";}
+   if(listType!=="ul"){
+    closeList();
+    html+="<ul>";
+    listType="ul";
+   }
    html+="<li>"+formatInline(line.replace(/^\s*[-*]\s+/,""))+"</li>";
    continue;
   }
+
   if(/^\s*\d+[.)]\s+/.test(line)){
    flushParagraph();
-   if(listType!=="ol"){closeList();html+="<ol>";listType="ol";}
+   if(listType!=="ol"){
+    closeList();
+    html+="<ol>";
+    listType="ol";
+   }
    html+="<li>"+formatInline(line.replace(/^\s*\d+[.)]\s+/,""))+"</li>";
    continue;
   }
+
   if(line.startsWith(">")){
    closeParagraphAndList();
    html+="<blockquote>"+formatInline(line.replace(/^>\s?/,""))+"</blockquote>";
    continue;
   }
-  closeList();paragraph.push(line);
+
+  closeList();
+  paragraph.push(line);
  }
- if(inCode)html+="<pre><code>"+escapeHTML(code.join("\n"))+"</code></pre>";
+
+ if(inCode){
+  html+="<pre><code>"+escapeHTML(code.join("\n"))+"</code></pre>";
+ }
+
  closeParagraphAndList();
  return html;
 }
 
-/* MESSAGE DISPLAY AND LONG-PRESS EDIT */
-function addMessage(text,type,relatedQuestion=""){
+/* =========================================
+   MESSAGE DISPLAY
+========================================= */
+
+function addMessage(text,type,relatedQuestion="",persist=false){
  const wrap=document.createElement("div");
  wrap.className="msg "+type;
+
  const content=document.createElement("div");
- if(type==="ai")content.innerHTML=renderMarkdown(text);
- else content.textContent=text;
+
+ if(type==="ai"){
+  content.innerHTML=renderMarkdown(text);
+ }else{
+  content.textContent=text;
+ }
+
  wrap.appendChild(content);
+
+ const session=getActiveSession();
+
+ if(persist&&session){
+  session.messages.push({
+   role:type,
+   text:String(text),
+   date:new Date().toISOString()
+  });
+
+  wrap.dataset.messageIndex=String(session.messages.length-1);
+  updateSessionTime(session);
+  saveData();
+ }else if(session){
+  const index=session.messages.findIndex((m,i)=>{
+   return i===Array.from(document.getElementById("messages").children).length &&
+    m.role===type&&m.text===String(text);
+  });
+  if(index>=0)wrap.dataset.messageIndex=String(index);
+ }
 
  if(type==="user"){
   let pressTimer=null;
+
   function clearPressTimer(){
-   if(pressTimer){clearTimeout(pressTimer);pressTimer=null;}
+   if(pressTimer){
+    clearTimeout(pressTimer);
+    pressTimer=null;
+   }
   }
+
   wrap.addEventListener("pointerdown",event=>{
    if(event.target.closest("button"))return;
+
    clearPressTimer();
+
    pressTimer=setTimeout(()=>{
     if(wrap.querySelector(".edit-message-btn"))return;
+
     const edit=document.createElement("button");
     edit.className="edit-message-btn";
     edit.textContent="✎ Edit";
+
     edit.addEventListener("pointerdown",event=>event.stopPropagation());
-    edit.addEventListener("click",()=>editUserMessage(wrap,text));
+    edit.addEventListener("click",()=>editUserMessage(wrap));
     wrap.appendChild(edit);
    },2000);
   });
+
   ["pointerup","pointerleave","pointercancel"].forEach(eventName=>{
    wrap.addEventListener(eventName,clearPressTimer);
   });
+
   wrap.addEventListener("contextmenu",event=>event.preventDefault());
  }
 
  if(type==="ai"){
   const actions=document.createElement("div");
   actions.className="msg-actions";
+
   const copy=document.createElement("button");
   copy.textContent="Copy";
   copy.onclick=()=>copyText(text);
+
   const save=document.createElement("button");
   save.textContent="☆ Save";
   save.onclick=()=>saveFavorite(text);
+
   const regenerate=document.createElement("button");
   regenerate.textContent="↻ Regenerate";
-  regenerate.onclick=()=>regenerateAnswer(relatedQuestion,wrap);
+  regenerate.onclick=()=>regenerateAnswer(wrap);
+
   actions.append(copy,save,regenerate);
   wrap.appendChild(actions);
  }
+
  document.getElementById("messages").appendChild(wrap);
+
  const messages=document.getElementById("messages");
  messages.scrollTop=messages.scrollHeight;
 }
 
-function editUserMessage(messageElement,text){
+/* =========================================
+   EDIT MESSAGE
+========================================= */
+
+function editUserMessage(messageElement){
+ if(isGenerating){
+  alert("Stop the current response before editing.");
+  return;
+ }
+
  editingMessageElement=messageElement;
+
  const input=document.getElementById("chatQuestion");
+ const text=messageElement.querySelector("div").textContent;
+
  input.value=text;
- document.getElementById("chatStatus").textContent="Editing message — send to update the conversation";
+ document.getElementById("chatStatus").textContent=
+  "Editing message — send to update the conversation";
+
  input.focus();
  input.setSelectionRange(input.value.length,input.value.length);
 }
+
 function removeMessagesFromEditedMessage(){
  if(!editingMessageElement)return;
+
  const messages=document.getElementById("messages");
  const allMessages=Array.from(messages.children);
  const startIndex=allMessages.indexOf(editingMessageElement);
- if(startIndex!==-1)allMessages.slice(startIndex).forEach(message=>message.remove());
+
+ if(startIndex!==-1){
+  allMessages.slice(startIndex).forEach(message=>message.remove());
+ }
+
+ const session=getActiveSession();
+
+ if(session){
+  const messageIndex=Number(editingMessageElement.dataset.messageIndex);
+  if(Number.isInteger(messageIndex)){
+   session.messages.splice(messageIndex);
+   updateSessionTime(session);
+   saveData();
+  }
+ }
+
  editingMessageElement=null;
 }
+
+/* =========================================
+   COPY AND FAVORITES
+========================================= */
+
 function copyText(text){
  if(navigator.clipboard&&navigator.clipboard.writeText){
-  navigator.clipboard.writeText(text).then(()=>alert("Copied!")).catch(()=>alert("Could not copy."));
+  navigator.clipboard.writeText(text)
+   .then(()=>alert("Copied!"))
+   .catch(()=>fallbackCopy(text));
  }else{
-  const el=document.createElement("textarea");
-  el.value=text;document.body.appendChild(el);el.select();
-  document.execCommand("copy");el.remove();alert("Copied!");
+  fallbackCopy(text);
  }
 }
-function saveFavorite(answer){
- if(favorites.includes(answer)){alert("Already saved.");return;}
- favorites.unshift(answer);saveData();alert("Saved to Favorites!");
+
+function fallbackCopy(text){
+ const el=document.createElement("textarea");
+ el.value=text;
+ document.body.appendChild(el);
+ el.select();
+
+ try{
+  document.execCommand("copy");
+  alert("Copied!");
+ }catch(error){
+  alert("Could not copy.");
+ }
+
+ el.remove();
 }
+
+function saveFavorite(answer){
+ if(favorites.includes(answer)){
+  alert("Already saved.");
+  return;
+ }
+
+ favorites.unshift(answer);
+ saveData();
+ alert("Saved to Favorites!");
+}
+
+/* =========================================
+   AI BACKEND
+========================================= */
 
 async function askBackend(question,imageFile){
  const formData=new FormData();
  formData.append("question",question);
- if(imageFile)formData.append("image",imageFile);
+
+ if(imageFile){
+  formData.append("image",imageFile);
+ }
+
  const controller=new AbortController();
  activeController=controller;
+
  const timeout=setTimeout(()=>controller.abort(),90000);
+
  try{
-  const response=await fetch("/api/solve",{method:"POST",body:formData,signal:controller.signal});
+  const response=await fetch("/api/solve",{
+   method:"POST",
+   body:formData,
+   signal:controller.signal
+  });
+
   const data=await response.json().catch(()=>({}));
-  if(!response.ok)throw new Error(data.error||data.message||"Server error "+response.status);
+
+  if(!response.ok){
+   throw new Error(data.error||data.message||"Server error "+response.status);
+  }
+
   const answer=data.answer||data.text||data.response||data.result;
-  if(!answer)throw new Error("AI returned an empty answer.");
+
+  if(!answer){
+   throw new Error("AI returned an empty answer.");
+  }
+
   return answer;
  }finally{
   clearTimeout(timeout);
@@ -684,139 +1148,507 @@ async function askBackend(question,imageFile){
 
 function stopGeneration(){
  if(!activeController)return;
+
  stopRequested=true;
  activeController.abort();
+
  document.getElementById("chatStatus").textContent="Generation stopped.";
 }
-function regenerateAnswer(question,aiMessage){
- if(!question)return;
+
+/* =========================================
+   REGENERATE ANSWER
+========================================= */
+
+function regenerateAnswer(aiMessage){
+ if(isGenerating)return;
+
  const messages=document.getElementById("messages");
  const all=Array.from(messages.children);
  const aiIndex=all.indexOf(aiMessage);
+
  if(aiIndex<0)return;
+
  let userIndex=aiIndex-1;
- while(userIndex>=0&&!all[userIndex].classList.contains("user"))userIndex--;
+
+ while(userIndex>=0&&!all[userIndex].classList.contains("user")){
+  userIndex--;
+ }
+
  if(userIndex<0)return;
+
+ const question=all[userIndex].querySelector("div").textContent;
+ const session=getActiveSession();
+
+ if(session){
+  const messageIndex=Number(all[userIndex].dataset.messageIndex);
+  if(Number.isInteger(messageIndex)){
+   session.messages.splice(messageIndex);
+   updateSessionTime(session);
+   saveData();
+  }
+ }
+
  all.slice(userIndex).forEach(message=>message.remove());
- document.getElementById("chatStatus").textContent="";
+
  sendToAI(question,null);
 }
 
+/* =========================================
+   SEND QUESTIONS
+========================================= */
+
 async function sendQuestion(){
  const question=document.getElementById("question").value.trim();
- if(!question&&!selectedImage){alert("Please type a question or upload a photo.");return;}
+
+ if(!question&&!selectedImage){
+  alert("Please type a question or upload a photo.");
+  return;
+ }
+
  const image=selectedImage;
  selectedImage=null;
+
  document.getElementById("photoInput").value="";
  document.getElementById("photoName").textContent="";
  document.getElementById("question").value="";
+
  newChat();
  await sendToAI(question||"Please explain the uploaded image.",image);
 }
+
 async function sendChatQuestion(){
+ if(isGenerating)return;
+
  const question=document.getElementById("chatQuestion").value.trim();
- if(!question&&!chatImage){alert("Please type a question or upload a photo.");return;}
+
+ if(!question&&!chatImage){
+  alert("Please type a question or upload a photo.");
+  return;
+ }
+
  const image=chatImage;
  chatImage=null;
+
  document.getElementById("chatPhoto").value="";
  document.getElementById("chatQuestion").value="";
- if(editingMessageElement)removeMessagesFromEditedMessage();
+
+ if(editingMessageElement){
+  removeMessagesFromEditedMessage();
+ }
+
  document.getElementById("chatStatus").textContent="";
+
  await sendToAI(question||"Please explain the uploaded image.",image);
 }
+
 async function sendToAI(question,image){
- addMessage(question+(image?"\n[Image attached]":""),"user");
+ if(isGenerating)return;
+
+ let session=getActiveSession();
+
+ if(!session){
+  session=createSession();
+ }
+
+ isGenerating=true;
+
+ const displayedQuestion=question+(image?"\n[Image attached]":"");
+
+ addMessage(displayedQuestion,"user","",true);
+
+ if(session.title==="New Chat"||!session.title){
+  session.title=question.slice(0,55)||"Image Question";
+  updateSessionTime(session);
+  saveData();
+ }
+
+ document.getElementById("chatHeading").textContent=session.title;
+
  const status=document.getElementById("chatStatus");
  status.textContent="ZAQTIVO AI is thinking...";
+
  stopRequested=false;
+
  document.getElementById("stopBtn").classList.remove("hidden");
  document.getElementById("chatSendBtn").disabled=true;
+
  try{
   const answer=await askBackend(question,image);
-  addMessage(answer,"ai",question);
-  historyData.unshift({question,answer,date:new Date().toLocaleString()});
-  historyData=historyData.slice(0,100);
-  saveData();
+
+  addMessage(answer,"ai",question,true);
+
   status.textContent="";
  }catch(error){
   if(error.name==="AbortError"&&stopRequested){
    status.textContent="Generation stopped.";
   }else{
-   const message=error.name==="AbortError"?"Request timed out. Please try again.":(error.message||"Please try again.");
-   addMessage("Sorry, I couldn't get an answer.\n"+message,"ai",question);
+   const message=error.name==="AbortError"
+    ?"Request timed out. Please try again."
+    :(error.message||"Please try again.");
+
+   addMessage("Sorry, I couldn't get an answer.\n"+message,"ai",question,true);
    status.textContent="Request failed.";
   }
  }finally{
+  isGenerating=false;
   document.getElementById("chatSendBtn").disabled=false;
   document.getElementById("stopBtn").classList.add("hidden");
   stopRequested=false;
+  saveData();
  }
 }
+
+/* =========================================
+   HISTORY SEARCH
+========================================= */
 
 function showHistory(){
  document.body.classList.remove("chat-open");
  hideScreens();
+
  document.getElementById("otherScreen").style.display="block";
  document.getElementById("otherTitle").textContent="Chat History";
+
  const box=document.getElementById("otherContent");
- box.innerHTML="";
- if(!historyData.length){box.innerHTML='<div class="empty">No chats yet.</div>';return;}
- historyData.forEach(item=>{
-  const div=document.createElement("div");
-  div.className="historyitem glass";
-  const q=document.createElement("strong");q.textContent=item.question;
-  const date=document.createElement("p");
-  date.className="status";date.textContent=item.date;
-  const a=document.createElement("p");a.textContent=item.answer;
-  div.append(q,date,a);box.appendChild(div);
+ box.innerHTML=`
+  <div class="history-toolbar">
+   <input id="historySearch" type="search" placeholder="🔎 Search your chats...">
+   <button class="smallbtn" onclick="newChat()">＋ New Chat</button>
+  </div>
+  <div id="historyCount" class="search-count"></div>
+  <div id="historyList"></div>
+ `;
+
+ document.getElementById("historySearch").addEventListener("input",renderHistoryList);
+
+ renderHistoryList();
+}
+
+function renderHistoryList(){
+ const list=document.getElementById("historyList");
+ const count=document.getElementById("historyCount");
+ const search=document.getElementById("historySearch");
+
+ if(!list||!count||!search)return;
+
+ const query=search.value.trim().toLowerCase();
+
+ const filtered=sessions.filter(session=>{
+  const content=[
+   session.title,
+   ...session.messages.map(m=>m.text)
+  ].join(" ").toLowerCase();
+
+  return content.includes(query);
+ });
+
+ filtered.sort((a,b)=>{
+  if(a.pinned!==b.pinned)return a.pinned?-1:1;
+  return new Date(b.updatedAt)-new Date(a.updatedAt);
+ });
+
+ count.textContent=filtered.length+" chat(s) found";
+
+ list.innerHTML="";
+
+ if(!filtered.length){
+  list.innerHTML='<div class="empty">No chats found.</div>';
+  return;
+ }
+
+ filtered.forEach(session=>{
+  const card=document.createElement("div");
+  card.className="history-card glass"+(session.pinned?" pinned":"");
+
+  const title=document.createElement("div");
+  title.className="history-card-title";
+  title.textContent=(session.pinned?"📌 ":"")+session.title;
+
+  const lastMessage=session.messages[session.messages.length-1];
+
+  const preview=document.createElement("div");
+  preview.className="history-card-preview";
+  preview.textContent=lastMessage
+   ?lastMessage.text.slice(0,150)
+   :"Empty chat";
+
+  const date=document.createElement("div");
+  date.className="history-card-date";
+  date.textContent="Updated: "+session.updatedAt;
+
+  const actions=document.createElement("div");
+  actions.className="history-actions";
+
+  const open=document.createElement("button");
+  open.textContent="Open";
+  open.onclick=()=>openSession(session.id);
+
+  const rename=document.createElement("button");
+  rename.textContent="✎ Rename";
+  rename.onclick=()=>openRenameModal(session.id);
+
+  const pin=document.createElement("button");
+  pin.textContent=session.pinned?"Unpin":"📌 Pin";
+  pin.onclick=()=>togglePin(session.id);
+
+  const share=document.createElement("button");
+  share.textContent="↗ Share";
+  share.onclick=()=>shareSession(session.id);
+
+  const remove=document.createElement("button");
+  remove.className="danger";
+  remove.textContent="Delete";
+  remove.onclick=()=>deleteSession(session.id);
+
+  actions.append(open,rename,pin,share,remove);
+  card.append(title,preview,date,actions);
+  list.appendChild(card);
  });
 }
+
+/* =========================================
+   RENAME CHAT
+========================================= */
+
+function openRenameModal(sessionId){
+ const session=sessions.find(s=>s.id===sessionId);
+ if(!session)return;
+
+ renameSessionId=sessionId;
+
+ document.getElementById("renameInput").value=session.title;
+ document.getElementById("renameModal").style.display="flex";
+
+ setTimeout(()=>{
+  document.getElementById("renameInput").focus();
+ },100);
+}
+
+function closeRenameModal(){
+ document.getElementById("renameModal").style.display="none";
+ renameSessionId=null;
+}
+
+function confirmRename(){
+ const session=sessions.find(s=>s.id===renameSessionId);
+ const newTitle=document.getElementById("renameInput").value.trim();
+
+ if(!session){
+  closeRenameModal();
+  return;
+ }
+
+ if(!newTitle){
+  alert("Please enter a chat name.");
+  return;
+ }
+
+ session.title=newTitle.slice(0,80);
+ updateSessionTime(session);
+
+ if(activeSessionId===session.id){
+  document.getElementById("chatHeading").textContent=session.title;
+ }
+
+ saveData();
+ closeRenameModal();
+
+ if(document.getElementById("historyList")){
+  renderHistoryList();
+ }
+}
+
+/* =========================================
+   PIN AND DELETE CHAT
+========================================= */
+
+function togglePin(sessionId){
+ const session=sessions.find(s=>s.id===sessionId);
+ if(!session)return;
+
+ session.pinned=!session.pinned;
+ saveData();
+ renderHistoryList();
+}
+
+function deleteSession(sessionId){
+ const session=sessions.find(s=>s.id===sessionId);
+ if(!session)return;
+
+ if(!confirm("Delete this chat permanently?"))return;
+
+ sessions=sessions.filter(s=>s.id!==sessionId);
+
+ if(activeSessionId===sessionId){
+  activeSessionId=null;
+  document.body.classList.remove("chat-open");
+ }
+
+ saveData();
+ renderHistoryList();
+}
+
+/* =========================================
+   SHARE CHAT
+========================================= */
+
+async function shareSession(sessionId){
+ const session=sessions.find(s=>s.id===sessionId);
+ if(!session)return;
+
+ const text=[
+  "ZAQTIVO AI - "+session.title,
+  "",
+  ...session.messages.map(message=>{
+   return (message.role==="user"?"You: ":"ZAQTIVO AI: ")+message.text;
+  })
+ ].join("\n\n");
+
+ if(navigator.share){
+  try{
+   await navigator.share({
+    title:"ZAQTIVO AI - "+session.title,
+    text:text
+   });
+  }catch(error){
+   if(error.name!=="AbortError"){
+    copyText(text);
+   }
+  }
+ }else{
+  copyText(text);
+ }
+}
+
+/* =========================================
+   FAVORITES
+========================================= */
+
 function showFavorites(){
  document.body.classList.remove("chat-open");
  hideScreens();
+
  document.getElementById("otherScreen").style.display="block";
  document.getElementById("otherTitle").textContent="Favorites";
+
  const box=document.getElementById("otherContent");
  box.innerHTML="";
- if(!favorites.length){box.innerHTML='<div class="empty">No saved answers yet.</div>';return;}
+
+ if(!favorites.length){
+  box.innerHTML='<div class="empty">No saved answers yet.</div>';
+  return;
+ }
+
  favorites.forEach((item,index)=>{
   const div=document.createElement("div");
   div.className="historyitem glass";
-  const p=document.createElement("p");p.textContent=item;
+
+  const p=document.createElement("p");
+  p.textContent=item;
+
   const copy=document.createElement("button");
-  copy.className="smallbtn";copy.textContent="Copy";copy.onclick=()=>copyText(item);
+  copy.className="smallbtn";
+  copy.textContent="Copy";
+  copy.onclick=()=>copyText(item);
+
   const remove=document.createElement("button");
-  remove.className="smallbtn";remove.textContent="Remove";
+  remove.className="smallbtn";
+  remove.textContent="Remove";
   remove.style.marginLeft="8px";
-  remove.onclick=()=>{favorites.splice(index,1);saveData();showFavorites();};
-  div.append(p,copy,remove);box.appendChild(div);
+
+  remove.onclick=()=>{
+   favorites.splice(index,1);
+   saveData();
+   showFavorites();
+  };
+
+  div.append(p,copy,remove);
+  box.appendChild(div);
  });
 }
+
+/* =========================================
+   SETTINGS
+========================================= */
+
 function showSettings(){
  document.body.classList.remove("chat-open");
  hideScreens();
+
  document.getElementById("otherScreen").style.display="block";
  document.getElementById("otherTitle").textContent="Settings";
+
  const box=document.getElementById("otherContent");
+
  box.innerHTML=`
-  <div class="settingrow"><span>App</span><strong>ZAQTIVO AI</strong></div>
-  <div class="settingrow"><span>Language</span><select id="lang">
-   <option>Auto</option><option>English</option><option>Hindi</option>
-  </select></div>
-  <div class="settingrow"><span>Clear chat history</span><button id="clearHistory">Clear</button></div>
-  <div class="settingrow"><span>Version</span><strong>1.0</strong></div>
+  <div class="settingrow">
+   <span>App</span><strong>ZAQTIVO AI</strong>
+  </div>
+  <div class="settingrow">
+   <span>Language</span>
+   <select id="lang">
+    <option>Auto</option>
+    <option>English</option>
+    <option>Hindi</option>
+   </select>
+  </div>
+  <div class="settingrow">
+   <span>Clear chat history</span>
+   <button id="clearHistory">Clear</button>
+  </div>
+  <div class="settingrow">
+   <span>Version</span><strong>1.1</strong>
+  </div>
  `;
+
  document.getElementById("clearHistory").onclick=()=>{
-  if(confirm("Clear all chat history?")){historyData=[];saveData();showHistory();}
+  if(confirm("Clear all chat history?")){
+   sessions=[];
+   activeSessionId=null;
+   saveData();
+   showHistory();
+  }
  };
 }
+
+/* =========================================
+   KEYBOARD EVENTS
+========================================= */
+
 document.getElementById("question").addEventListener("keydown",e=>{
- if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();sendQuestion();}
+ if(e.key==="Enter"&&!e.shiftKey){
+  e.preventDefault();
+  sendQuestion();
+ }
 });
+
 document.getElementById("chatQuestion").addEventListener("keydown",e=>{
- if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();sendChatQuestion();}
+ if(e.key==="Enter"&&!e.shiftKey){
+  e.preventDefault();
+  sendChatQuestion();
+ }
 });
+
+document.getElementById("renameInput").addEventListener("keydown",e=>{
+ if(e.key==="Enter"){
+  e.preventDefault();
+  confirmRename();
+ }
+});
+
+document.getElementById("renameModal").addEventListener("click",e=>{
+ if(e.target.id==="renameModal"){
+  closeRenameModal();
+ }
+});
+
+/* =========================================
+   INITIALIZATION
+========================================= */
+
+loadData();
 goHome();
+
 </script>
 </body>
- </html>
+   </html>
