@@ -7,11 +7,15 @@ import path from "path";
 import os from "os";
 import fs from "fs";
 import { randomUUID } from "crypto";
+import { fileURLToPath } from "url";
 
 const app = express();
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 // ========================================
-// CONFIGURATION
+// 1. CONFIGURATION
 // ========================================
 
 const PORT = process.env.PORT || 3000;
@@ -23,7 +27,7 @@ const IMAGE_MODEL =
   process.env.GEMINI_IMAGE_MODEL || "gemini-3.1-flash-image";
 
 const VIDEO_MODEL =
-  process.env.GEMINI_VIDEO_MODEL || "veo-3.1-generate-preview";
+  process.env.GEMINI_VIDEO_MODEL || "gemini-omni-1.1-flash";
 
 const apiKey = process.env.GEMINI_API_KEY;
 
@@ -33,7 +37,6 @@ const ai = apiKey
 
 const MAX_IMAGES = 5;
 const MAX_DOCUMENTS = 5;
-
 const MAX_FILE_SIZE = 10 * 1024 * 1024;
 
 const MAX_DOCUMENT_TEXT = 50000;
@@ -44,10 +47,16 @@ const MAX_VIDEO_PROMPT = 3000;
 
 const VIDEO_JOB_TTL = 60 * 60 * 1000;
 const FAILED_JOB_TTL = 10 * 60 * 1000;
-const VIDEO_DIRECTORY_PREFIX = "zaqtivo-video-";
+
+const VIDEO_DIRECTORY = path.join(
+  os.tmpdir(),
+  "zaqtivo-generated-videos"
+);
+
+fs.mkdirSync(VIDEO_DIRECTORY, { recursive: true });
 
 // ========================================
-// SUPPORTED FILE TYPES
+// 2. SUPPORTED FILE TYPES
 // ========================================
 
 const IMAGE_TYPES = {
@@ -67,23 +76,28 @@ const DOCUMENT_EXTENSIONS = [
   ".rtf"
 ];
 
+const ALLOWED_EXTENSIONS = [
+  ...Object.keys(IMAGE_TYPES),
+  ...DOCUMENT_EXTENSIONS
+];
+
 // ========================================
-// SYSTEM PROMPT
+// 3. SYSTEM PROMPT
 // ========================================
 
 const SYSTEM_PROMPT = `
-You are ZAQTIVO AI, a helpful general-purpose AI assistant.
+You are ZAQTIVO AI, a helpful multilingual AI assistant.
 
 GENERAL RESPONSIBILITIES:
 - Answer clearly, accurately and helpfully.
-- Explain school topics in simple language when appropriate.
+- Explain educational topics in simple language.
 - Solve mathematics step by step.
 - Understand uploaded images and documents.
 - Summarize PDFs and other documents.
 - Explain tables and spreadsheet information.
 - Help with science, mathematics, coding, writing and general knowledge.
-- Translate between languages.
-- Support multilingual conversations.
+- Translate between languages when requested.
+- Support as many languages as the model can reasonably handle.
 
 LANGUAGE RULES:
 - Reply in the language the user uses or requests.
@@ -119,7 +133,7 @@ You are ZAQTIVO AI.
 `;
 
 // ========================================
-// DOCUMENT TASKS
+// 4. DOCUMENT TASKS
 // ========================================
 
 const DOCUMENT_TASKS = {
@@ -155,29 +169,71 @@ Give examples where useful.
 };
 
 // ========================================
-// VIDEO JOB STORAGE
+// 5. VIDEO JOB STORAGE
 // ========================================
 
 const videoJobs = new Map();
 
 // ========================================
-// MIDDLEWARE
+// 6. MIDDLEWARE
 // ========================================
 
 app.disable("x-powered-by");
 
-app.use(
-  express.json({
-    limit: "2mb"
-  })
-);
+app.use(express.json({
+  limit: "2mb"
+}));
 
-app.use(
-  express.urlencoded({
-    extended: true,
-    limit: "2mb"
-  })
-);
+app.use(express.urlencoded({
+  extended: true,
+  limit: "2mb"
+}));
+
+// Basic API rate limiting.
+const requestCounts = new Map();
+
+const RATE_LIMIT_WINDOW = 60 * 1000;
+const MAX_REQUESTS_PER_WINDOW = 40;
+
+app.use("/api", (req, res, next) => {
+  const ip = req.ip || req.socket.remoteAddress || "unknown";
+  const now = Date.now();
+
+  let record = requestCounts.get(ip);
+
+  if (!record || now - record.start > RATE_LIMIT_WINDOW) {
+    record = {
+      start: now,
+      count: 0
+    };
+  }
+
+  record.count++;
+  requestCounts.set(ip, record);
+
+  if (record.count > MAX_REQUESTS_PER_WINDOW) {
+    return res.status(429).json({
+      success: false,
+      error: "Too many requests. Please try again later."
+    });
+  }
+
+  next();
+});
+
+setInterval(() => {
+  const now = Date.now();
+
+  for (const [ip, record] of requestCounts.entries()) {
+    if (now - record.start > RATE_LIMIT_WINDOW * 2) {
+      requestCounts.delete(ip);
+    }
+  }
+}, 5 * 60 * 1000).unref();
+
+// ========================================
+// 7. MULTER UPLOAD CONFIGURATION
+// ========================================
 
 const storage = multer.memoryStorage();
 
@@ -194,16 +250,7 @@ const upload = multer({
       file.originalname
     ).toLowerCase();
 
-    const isImage = Object.prototype.hasOwnProperty.call(
-      IMAGE_TYPES,
-      extension
-    );
-
-    const isDocument = DOCUMENT_EXTENSIONS.includes(
-      extension
-    );
-
-    if (!isImage && !isDocument) {
+    if (!ALLOWED_EXTENSIONS.includes(extension)) {
       return callback(
         new Error(
           "Unsupported file. Upload PDF, DOCX, XLSX, PPTX, CSV, TXT, RTF, JPG, PNG or WEBP."
@@ -216,7 +263,7 @@ const upload = multer({
 });
 
 // ========================================
-// HELPER FUNCTIONS
+// 8. HELPER FUNCTIONS
 // ========================================
 
 function getFileExtension(file) {
@@ -284,7 +331,7 @@ function handleAIError(error, res) {
     error?.message || error
   );
 
-  const message = error?.message || "";
+  const message = String(error?.message || "");
   const lower = message.toLowerCase();
 
   const status = Number(
@@ -395,7 +442,7 @@ async function removeDirectory(directory) {
 }
 
 // ========================================
-// DOCUMENT EXTRACTION
+// 9. DOCUMENT EXTRACTION
 // ========================================
 
 async function extractDocumentText(file) {
@@ -425,10 +472,16 @@ async function extractDocumentText(file) {
 
     const result = await ast.to("text");
 
-    return (
-      result?.value ||
-      ""
-    ).trim();
+    const extractedText =
+      typeof result === "string"
+        ? result
+        : result?.value || "";
+
+    if (!extractedText.trim()) {
+      throw new Error("No readable text found.");
+    }
+
+    return extractedText.trim();
 
   } catch (error) {
     console.error(
@@ -444,7 +497,7 @@ async function extractDocumentText(file) {
 }
 
 // ========================================
-// PROCESS MULTIPLE DOCUMENTS
+// 10. PROCESS MULTIPLE DOCUMENTS
 // ========================================
 
 async function processDocuments(files) {
@@ -500,7 +553,7 @@ async function processDocuments(files) {
 }
 
 // ========================================
-// BUILD CHAT PROMPT
+// 11. BUILD CHAT PROMPT
 // ========================================
 
 function buildPrompt(
@@ -522,7 +575,6 @@ function buildPrompt(
         `\n\nDOCUMENT ${index + 1}: ${document.name}\n`;
 
       prompt += "--------------------------------\n";
-
       prompt += document.text;
 
       if (document.truncated) {
@@ -550,7 +602,7 @@ function buildPrompt(
 }
 
 // ========================================
-// HEALTH CHECK
+// 12. HEALTH CHECK
 // ========================================
 
 app.get("/health", (req, res) => {
@@ -598,18 +650,26 @@ app.get("/health", (req, res) => {
 });
 
 // ========================================
-// HOME
+// 13. HOME PAGE
 // ========================================
 
 app.get("/", (req, res) => {
-  res.send(
+  const indexPath = path.join(
+    __dirname,
+    "index.html"
+  );
+
+  if (fs.existsSync(indexPath)) {
+    return res.sendFile(indexPath);
+  }
+
+  return res.send(
     "ZAQTIVO AI backend is running."
   );
 });
 
 // ========================================
-// CHAT + PHOTO UNDERSTANDING
-// + DOCUMENT UNDERSTANDING
+// 14. CHAT + PHOTO + DOCUMENT API
 // ========================================
 
 app.post(
@@ -677,7 +737,7 @@ app.post(
         });
       }
 
-      // Validate uploaded images.
+      // Validate image MIME types.
 
       for (const file of images) {
         const extension =
@@ -698,7 +758,7 @@ app.post(
         }
       }
 
-      // Extract documents.
+      // Extract uploaded documents.
 
       const documents =
         await processDocuments(documentFiles);
@@ -746,7 +806,6 @@ app.post(
         parts.push({
           inlineData: {
             mimeType: file.mimetype,
-
             data: file.buffer.toString("base64")
           }
         });
@@ -817,7 +876,7 @@ app.post(
 );
 
 // ========================================
-// IMAGE GENERATION
+// 15. IMAGE GENERATION
 // ========================================
 
 app.post(
@@ -834,23 +893,20 @@ app.post(
         MAX_IMAGE_PROMPT
       );
 
-      const aspectRatio =
-        cleanString(
-          req.body.aspectRatio || "1:1",
-          10
-        );
+      const aspectRatio = cleanString(
+        req.body.aspectRatio || "1:1",
+        10
+      );
 
-      const language =
-        cleanString(
-          req.body.language || "auto",
-          100
-        );
+      const language = cleanString(
+        req.body.language || "auto",
+        100
+      );
 
-      const imageSize =
-        cleanString(
-          req.body.imageSize || "1K",
-          5
-        );
+      const imageSize = cleanString(
+        req.body.imageSize || "1K",
+        5
+      );
 
       if (!prompt) {
         return res.status(400).json({
@@ -879,6 +935,7 @@ app.post(
           : "1:1";
 
       const allowedSizes = [
+        "512",
         "1K",
         "2K",
         "4K"
@@ -891,7 +948,7 @@ app.post(
 
       const languageInstruction =
         language.toLowerCase() === "auto"
-          ? "Write any image description in the same language as the user's prompt."
+          ? "If the image contains text, use the language of the user's prompt where appropriate."
           : `If the image contains text, use ${language} where appropriate.`;
 
       const imagePrompt = `
@@ -914,9 +971,11 @@ Do not return only a written description.
               "IMAGE"
             ],
 
-            imageConfig: {
-              aspectRatio: safeRatio,
-              imageSize: safeSize
+            responseFormat: {
+              image: {
+                aspectRatio: safeRatio,
+                imageSize: safeSize
+              }
             }
           }
         });
@@ -936,8 +995,7 @@ Do not return only a written description.
         if (part.inlineData?.data) {
           generatedImages.push({
             mimeType:
-              part.inlineData.mimeType ||
-              "image/png",
+              part.inlineData.mimeType || "image/png",
 
             data:
               part.inlineData.data
@@ -978,7 +1036,7 @@ Do not return only a written description.
 );
 
 // ========================================
-// VIDEO GENERATION - START JOB
+// 16. VIDEO GENERATION - START JOB
 // ========================================
 
 app.post(
@@ -995,17 +1053,15 @@ app.post(
         MAX_VIDEO_PROMPT
       );
 
-      const aspectRatio =
-        cleanString(
-          req.body.aspectRatio || "16:9",
-          10
-        );
+      const aspectRatio = cleanString(
+        req.body.aspectRatio || "16:9",
+        10
+      );
 
-      const language =
-        cleanString(
-          req.body.language || "auto",
-          100
-        );
+      const language = cleanString(
+        req.body.language || "auto",
+        100
+      );
 
       if (!prompt) {
         return res.status(400).json({
@@ -1037,25 +1093,34 @@ ${languageInstruction}
 Create a video matching this description.
 `;
 
-      // Start asynchronous video generation.
+      // Start video generation using Interactions API.
 
-      const operation =
-        await ai.models.generateVideos({
+      const interaction =
+        await ai.interactions.create({
           model: VIDEO_MODEL,
 
-          prompt: videoPrompt,
+          input: videoPrompt,
 
-          config: {
-            numberOfVideos: 1,
+          background: true,
 
-            aspectRatio: safeRatio
+          response_format: {
+            type: "video",
+            aspect_ratio: safeRatio
           }
         });
+
+      if (!interaction.id) {
+        return res.status(502).json({
+          success: false,
+          error:
+            "The video service did not return a job ID."
+        });
+      }
 
       const jobId = randomUUID();
 
       videoJobs.set(jobId, {
-        operation,
+        interactionId: interaction.id,
 
         status: "processing",
 
@@ -1065,19 +1130,39 @@ Create a video matching this description.
 
         videoPath: null,
 
-        videoDirectory: null,
-
-        downloading: false,
-
         error: null
       });
+
+      // Save immediately if the API returned the video already.
+
+      const videoData =
+        interaction.output_video?.data;
+
+      if (videoData) {
+        const videoPath = path.join(
+          VIDEO_DIRECTORY,
+          `${jobId}.mp4`
+        );
+
+        await fs.promises.writeFile(
+          videoPath,
+          Buffer.from(videoData, "base64")
+        );
+
+        const job = videoJobs.get(jobId);
+
+        job.videoPath = videoPath;
+        job.status = "completed";
+        job.updatedAt = Date.now();
+      }
 
       return res.status(202).json({
         success: true,
 
         jobId,
 
-        status: "processing",
+        status:
+          videoJobs.get(jobId).status,
 
         model: VIDEO_MODEL,
 
@@ -1092,7 +1177,7 @@ Create a video matching this description.
 );
 
 // ========================================
-// VIDEO GENERATION - CHECK STATUS
+// 17. VIDEO GENERATION - CHECK STATUS
 // ========================================
 
 app.get(
@@ -1140,33 +1225,30 @@ app.get(
         });
       }
 
-      if (job.downloading) {
-        return res.json({
-          success: true,
+      // Fetch current interaction state.
 
-          status: "processing",
-
-          message:
-            "Video is being prepared for download."
-        });
-      }
-
-      // Refresh operation status.
-
-      const updatedOperation =
-        await ai.operations.getVideosOperation({
-          operation: job.operation
-        });
-
-      job.operation = updatedOperation;
+      const interaction =
+        await ai.interactions.get(
+          job.interactionId
+        );
 
       job.updatedAt = Date.now();
 
-      if (updatedOperation.error) {
+      const interactionStatus =
+        String(interaction.status || "").toLowerCase();
+
+      if (
+        [
+          "failed",
+          "cancelled",
+          "canceled"
+        ].includes(interactionStatus)
+      ) {
         job.status = "failed";
 
         job.error =
-          JSON.stringify(updatedOperation.error);
+          interaction.error?.message ||
+          "Video generation failed.";
 
         return res.status(500).json({
           success: false,
@@ -1178,7 +1260,15 @@ app.get(
         });
       }
 
-      if (!updatedOperation.done) {
+      const videoData =
+        interaction.output_video?.data;
+
+      const isCompleted =
+        interactionStatus === "completed" ||
+        interactionStatus === "complete" ||
+        Boolean(videoData);
+
+      if (!isCompleted) {
         return res.json({
           success: true,
 
@@ -1189,15 +1279,11 @@ app.get(
         });
       }
 
-      const generatedVideo =
-        updatedOperation.response
-          ?.generatedVideos?.[0]?.video;
-
-      if (!generatedVideo) {
+      if (!videoData) {
         job.status = "failed";
 
         job.error =
-          "No video was returned by the video model.";
+          "Video generation completed without video data.";
 
         return res.status(502).json({
           success: false,
@@ -1208,55 +1294,30 @@ app.get(
         });
       }
 
-      job.downloading = true;
+      // Save the returned Base64 video.
 
-      // Create temporary directory.
+      const videoPath = path.join(
+        VIDEO_DIRECTORY,
+        `${jobId}.mp4`
+      );
 
-      const videoDirectory =
-        await fs.promises.mkdtemp(
-          path.join(
-            os.tmpdir(),
-            VIDEO_DIRECTORY_PREFIX
-          )
-        );
+      await fs.promises.writeFile(
+        videoPath,
+        Buffer.from(videoData, "base64")
+      );
 
-      const videoPath =
-        path.join(
-          videoDirectory,
-          "generated.mp4"
-        );
-
-      job.videoDirectory =
-        videoDirectory;
-
-      // Download generated video.
-
-      await ai.files.download({
-        file: generatedVideo,
-
-        downloadPath: videoPath
-      });
-
-      const fileStats =
+      const stats =
         await fs.promises.stat(videoPath);
 
-      if (!fileStats.isFile() || fileStats.size === 0) {
+      if (!stats.isFile() || stats.size === 0) {
         throw new Error(
-          "Downloaded video file is empty."
+          "Generated video file is empty."
         );
       }
 
-      job.videoPath =
-        videoPath;
-
-      job.status =
-        "completed";
-
-      job.downloading =
-        false;
-
-      job.updatedAt =
-        Date.now();
+      job.videoPath = videoPath;
+      job.status = "completed";
+      job.updatedAt = Date.now();
 
       return res.json({
         success: true,
@@ -1276,33 +1337,13 @@ app.get(
         error?.message || error
       );
 
-      const job =
-        videoJobs.get(req.params.jobId);
-
-      if (job) {
-        job.downloading = false;
-
-        job.status = "failed";
-
-        job.error =
-          error?.message ||
-          "Video processing failed.";
-
-        await removeDirectory(
-          job.videoDirectory
-        );
-
-        job.videoDirectory = null;
-        job.videoPath = null;
-      }
-
       return handleAIError(error, res);
     }
   }
 );
 
 // ========================================
-// SERVE GENERATED VIDEO
+// 18. SERVE GENERATED VIDEO
 // ========================================
 
 app.get(
@@ -1325,6 +1366,15 @@ app.get(
       });
     }
 
+    if (!fs.existsSync(job.videoPath)) {
+      return res.status(404).json({
+        success: false,
+
+        error:
+          "Generated video file is no longer available."
+      });
+    }
+
     res.setHeader(
       "Content-Type",
       "video/mp4"
@@ -1333,6 +1383,11 @@ app.get(
     res.setHeader(
       "Cache-Control",
       "private, max-age=3600"
+    );
+
+    res.setHeader(
+      "Content-Disposition",
+      `inline; filename="zaqtivo-${req.params.jobId}.mp4"`
     );
 
     return res.sendFile(
@@ -1359,54 +1414,73 @@ app.get(
 );
 
 // ========================================
-// VIDEO JOB + FILE CLEANUP
+// 19. API INFORMATION
+// ========================================
+
+app.get("/api", (req, res) => {
+  res.json({
+    success: true,
+
+    name: "ZAQTIVO AI API",
+
+    endpoints: {
+      health: "GET /health",
+      solve: "POST /api/solve",
+      generateImage: "POST /api/generate-image",
+      generateVideo: "POST /api/generate-video",
+      videoStatus: "GET /api/video-status/:jobId",
+      generatedVideo: "GET /api/generated-video/:jobId"
+    }
+  });
+});
+
+// ========================================
+// 20. VIDEO JOB CLEANUP
 // ========================================
 
 async function cleanupVideoJobs() {
   const now = Date.now();
 
   for (const [jobId, job] of videoJobs.entries()) {
-    const age =
-      now - job.updatedAt;
+    const age = now - job.updatedAt;
 
     const ttl =
       job.status === "failed"
         ? FAILED_JOB_TTL
         : VIDEO_JOB_TTL;
 
-    if (
-      age > ttl &&
-      !job.downloading
-    ) {
-      await removeDirectory(
-        job.videoDirectory
-      );
+    if (age > ttl) {
+      if (job.videoPath) {
+        try {
+          await fs.promises.unlink(job.videoPath);
+        } catch (error) {
+          if (error.code !== "ENOENT") {
+            console.error(
+              "VIDEO FILE CLEANUP ERROR:",
+              error.message
+            );
+          }
+        }
+      }
 
       videoJobs.delete(jobId);
     }
   }
 }
 
-// Run cleanup periodically.
-
-const cleanupTimer = setInterval(
-  () => {
-    cleanupVideoJobs().catch(error => {
-      console.error(
-        "VIDEO CLEANUP ERROR:",
-        error.message
-      );
-    });
-  },
-  10 * 60 * 1000
-);
-
-// Do not keep the process alive only for this timer.
+const cleanupTimer = setInterval(() => {
+  cleanupVideoJobs().catch(error => {
+    console.error(
+      "VIDEO CLEANUP ERROR:",
+      error.message
+    );
+  });
+}, 10 * 60 * 1000);
 
 cleanupTimer.unref?.();
 
 // ========================================
-// MULTER + GENERAL ERROR HANDLING
+// 21. MULTER + GENERAL ERROR HANDLING
 // ========================================
 
 app.use((error, req, res, next) => {
@@ -1418,33 +1492,27 @@ app.use((error, req, res, next) => {
     if (error.code === "LIMIT_FILE_SIZE") {
       return res.status(400).json({
         success: false,
-
-        error:
-          "Each file must be 10 MB or smaller."
+        error: "Each file must be 10 MB or smaller."
       });
     }
 
     if (error.code === "LIMIT_FILE_COUNT") {
       return res.status(400).json({
         success: false,
-
-        error:
-          "Too many files uploaded."
+        error: "Too many files uploaded."
       });
     }
 
     if (error.code === "LIMIT_UNEXPECTED_FILE") {
       return res.status(400).json({
         success: false,
-
         error:
-          "Too many files or an unexpected upload field."
+          "Unexpected upload field or too many files."
       });
     }
 
     return res.status(400).json({
       success: false,
-
       error: error.message
     });
   }
@@ -1463,7 +1531,7 @@ app.use((error, req, res, next) => {
 });
 
 // ========================================
-// START SERVER
+// 22. START SERVER
 // ========================================
 
 app.listen(PORT, () => {
@@ -1484,17 +1552,11 @@ app.listen(PORT, () => {
   );
 
   console.log("Chat enabled");
-
   console.log("Photo understanding enabled");
-
   console.log("Document understanding enabled");
-
   console.log("Image generation enabled");
-
   console.log("Video generation enabled");
-
   console.log("Video status system enabled");
-
   console.log("Temporary file cleanup enabled");
 
   console.log("----------------------------------");
