@@ -1,4 +1,3 @@
-
 import express from "express";
 import multer from "multer";
 import { GoogleGenAI } from "@google/genai";
@@ -31,8 +30,22 @@ const VIDEO_MODEL =
 
 const apiKey = process.env.GEMINI_API_KEY;
 
+// Give each API request a bounded timeout.
+// Retry only temporary server errors, not quota errors (429).
 const ai = apiKey
-  ? new GoogleGenAI({ apiKey })
+  ? new GoogleGenAI({
+      apiKey,
+      httpOptions: {
+        timeout: 60000,
+        retryOptions: {
+          attempts: 2,
+          initialDelay: 0.5,
+          maxDelay: 1,
+          jitter: 0.2,
+          httpStatusCodes: [500, 502, 503, 504]
+        }
+      }
+    })
   : null;
 
 const MAX_IMAGES = 5;
@@ -191,8 +204,6 @@ const videoJobs = new Map();
 // ========================================
 
 app.disable("x-powered-by");
-
-// Render runs behind a proxy.
 app.set("trust proxy", 1);
 
 app.use(express.json({
@@ -366,38 +377,53 @@ function handleAIError(error, res) {
   const message = String(error?.message || "");
   const lower = message.toLowerCase();
 
+  const errorCode = String(
+    error?.code ||
+    error?.status ||
+    error?.statusCode ||
+    ""
+  ).toLowerCase();
+
   const status = Number(
     error?.status ||
     error?.statusCode ||
     error?.code
   );
 
+  // Quota and rate-limit errors.
+  // Do not automatically retry these requests.
   if (
     status === 429 ||
+    errorCode.includes("resource_exhausted") ||
+    errorCode.includes("quota") ||
     message.includes("429") ||
     lower.includes("quota") ||
-    lower.includes("rate limit")
+    lower.includes("rate limit") ||
+    lower.includes("resource_exhausted")
   ) {
     return res.status(429).json({
       success: false,
       error:
-        "AI quota is currently unavailable. Please try again later."
+        "Gemini API quota or rate limit reached. Check your Google AI Studio project usage and limits, then try again when quota is available."
     });
   }
 
+  // Temporary Gemini service overload.
   if (
     status === 503 ||
     message.includes("503") ||
     lower.includes("high demand") ||
-    lower.includes("overloaded")
+    lower.includes("overloaded") ||
+    errorCode.includes("unavailable")
   ) {
     return res.status(503).json({
       success: false,
       error:
-        "AI is currently busy. Please try again later."
+        "AI service is temporarily busy. Please try again shortly."
     });
   }
 
+  // Authentication errors.
   if (
     status === 401 ||
     status === 403 ||
@@ -407,10 +433,11 @@ function handleAIError(error, res) {
     return res.status(502).json({
       success: false,
       error:
-        "AI API authentication failed. Check your API key and model access."
+        "AI API authentication failed. Check your API key and project access."
     });
   }
 
+  // Model not found.
   if (
     status === 404 ||
     message.includes("404") ||
@@ -423,6 +450,7 @@ function handleAIError(error, res) {
     });
   }
 
+  // Invalid request.
   if (
     status === 400 ||
     message.includes("400")
@@ -431,6 +459,20 @@ function handleAIError(error, res) {
       success: false,
       error:
         "The AI request was rejected. Check the prompt, model and request settings."
+    });
+  }
+
+  // Request timeout.
+  if (
+    lower.includes("timeout") ||
+    lower.includes("timed out") ||
+    lower.includes("deadline_exceeded") ||
+    status === 504
+  ) {
+    return res.status(504).json({
+      success: false,
+      error:
+        "The AI response took too long. Please try again."
     });
   }
 
@@ -460,12 +502,10 @@ function getResponseText(response) {
 }
 
 function getVideoData(interaction) {
-  // SDK convenience property.
   if (interaction?.output_video?.data) {
     return interaction.output_video.data;
   }
 
-  // Check outputs array.
   if (Array.isArray(interaction?.outputs)) {
     for (const output of interaction.outputs) {
       if (
@@ -477,7 +517,6 @@ function getVideoData(interaction) {
     }
   }
 
-  // Check steps array.
   if (Array.isArray(interaction?.steps)) {
     for (
       let i = interaction.steps.length - 1;
@@ -485,7 +524,6 @@ function getVideoData(interaction) {
       i--
     ) {
       const step = interaction.steps[i];
-
       const content = step?.content;
 
       if (!Array.isArray(content)) {
@@ -568,7 +606,6 @@ async function extractDocumentText(file) {
   const extension = getFileExtension(file);
 
   try {
-    // Plain text and CSV.
     if (
       extension === ".txt" ||
       extension === ".csv"
@@ -675,13 +712,8 @@ async function processDocuments(files) {
     documents.push({
       name: file.originalname,
       text: limitedText,
-
-      originalCharacters:
-        extractedText.length,
-
-      processedCharacters:
-        limitedText.length,
-
+      originalCharacters: extractedText.length,
+      processedCharacters: limitedText.length,
       truncated:
         extractedText.length > limitedText.length
     });
@@ -746,7 +778,6 @@ function buildPrompt(
 app.get("/health", (req, res) => {
   res.json({
     success: true,
-
     status: "ZAQTIVO AI is running",
 
     models: {
@@ -875,8 +906,6 @@ app.post(
         });
       }
 
-      // Validate uploaded image MIME types.
-
       for (const file of images) {
         const extension =
           getFileExtension(file);
@@ -895,8 +924,6 @@ app.post(
           });
         }
       }
-
-      // Extract uploaded documents.
 
       const documents =
         await processDocuments(documentFiles);
@@ -938,8 +965,6 @@ app.post(
         }
       ];
 
-      // Attach multiple images.
-
       for (const file of images) {
         parts.push({
           inlineData: {
@@ -964,8 +989,10 @@ app.post(
             systemInstruction: SYSTEM_PROMPT,
             temperature: 0.3,
 
-            // Reduced chat output to help responses finish sooner.
-            maxOutputTokens: task === "chat" ? 300 : 2048
+            // Restored to the original value.
+            // This preserves the previous chat response allowance.
+            maxOutputTokens:
+              task === "chat" ? 450 : 2048
           }
         });
 
@@ -982,11 +1009,8 @@ app.post(
 
       return res.json({
         success: true,
-
         answer,
-
         model: MODEL,
-
         task,
 
         imagesProcessed:
@@ -1001,10 +1025,8 @@ app.post(
         documentDetails:
           documents.map(d => ({
             name: d.name,
-
             charactersProcessed:
               d.processedCharacters,
-
             truncated:
               d.truncated
           }))
@@ -1167,20 +1189,11 @@ Do not return only a written description.
 
       return res.json({
         success: true,
-
         description,
-
-        images:
-          generatedImages,
-
-        model:
-          IMAGE_MODEL,
-
-        aspectRatio:
-          safeRatio,
-
-        imageSize:
-          safeSize
+        images: generatedImages,
+        model: IMAGE_MODEL,
+        aspectRatio: safeRatio,
+        imageSize: safeSize
       });
 
     } catch (error) {
@@ -1247,14 +1260,10 @@ ${languageInstruction}
 Create a video matching this description.
 `;
 
-      // Start video generation using Interactions API.
-
       const interaction =
         await ai.interactions.create({
           model: VIDEO_MODEL,
-
           input: videoPrompt,
-
           background: true,
 
           response_format: {
@@ -1272,24 +1281,16 @@ Create a video matching this description.
       }
 
       const jobId = randomUUID();
-
       const now = Date.now();
 
       videoJobs.set(jobId, {
         interactionId: interaction.id,
-
         status: "processing",
-
         createdAt: now,
-
         updatedAt: now,
-
         videoPath: null,
-
         error: null
       });
-
-      // Check whether the API returned video immediately.
 
       const videoData =
         getVideoData(interaction);
@@ -1309,14 +1310,10 @@ Create a video matching this description.
 
       return res.status(202).json({
         success: true,
-
         jobId,
-
         status:
           videoJobs.get(jobId).status,
-
         model: VIDEO_MODEL,
-
         message:
           "Video generation started. Check the job status."
       });
@@ -1357,9 +1354,7 @@ app.get(
       if (job.status === "failed") {
         return res.status(500).json({
           success: false,
-
           status: "failed",
-
           error:
             job.error || "Video generation failed."
         });
@@ -1368,15 +1363,11 @@ app.get(
       if (job.status === "completed") {
         return res.json({
           success: true,
-
           status: "completed",
-
           videoUrl:
             `/api/generated-video/${jobId}`
         });
       }
-
-      // Fetch current interaction state.
 
       const interaction =
         await ai.interactions.get(
@@ -1403,9 +1394,7 @@ app.get(
 
         return res.status(500).json({
           success: false,
-
           status: "failed",
-
           error:
             "Video generation failed. Please try again."
         });
@@ -1423,9 +1412,7 @@ app.get(
       if (!isCompleted) {
         return res.json({
           success: true,
-
           status: "processing",
-
           message:
             "Video is still being generated."
         });
@@ -1439,14 +1426,10 @@ app.get(
 
         return res.status(502).json({
           success: false,
-
           status: "failed",
-
           error: job.error
         });
       }
-
-      // Save the returned Base64 video.
 
       const videoPath = await saveVideo(
         jobId,
@@ -1459,12 +1442,9 @@ app.get(
 
       return res.json({
         success: true,
-
         status: "completed",
-
         videoUrl:
           `/api/generated-video/${jobId}`,
-
         message:
           "Your video is ready."
       });
@@ -1498,7 +1478,6 @@ app.get(
     ) {
       return res.status(404).json({
         success: false,
-
         error:
           "Generated video is not available."
       });
@@ -1507,7 +1486,6 @@ app.get(
     if (!fs.existsSync(job.videoPath)) {
       return res.status(404).json({
         success: false,
-
         error:
           "Generated video file is no longer available."
       });
@@ -1540,7 +1518,6 @@ app.get(
           if (!res.headersSent) {
             res.status(500).json({
               success: false,
-
               error:
                 "Could not serve the generated video."
             });
@@ -1558,7 +1535,6 @@ app.get(
 app.get("/api", (req, res) => {
   res.json({
     success: true,
-
     name: "ZAQTIVO AI API",
 
     endpoints: {
@@ -1658,7 +1634,6 @@ app.use((error, req, res, next) => {
   if (error) {
     return res.status(400).json({
       success: false,
-
       error:
         error.message ||
         "File upload failed."
@@ -1678,11 +1653,8 @@ const server = app.listen(PORT, () => {
   console.log("----------------------------------");
 
   console.log(`Port: ${PORT}`);
-
   console.log(`Chat model: ${MODEL}`);
-
   console.log(`Image model: ${IMAGE_MODEL}`);
-
   console.log(`Video model: ${VIDEO_MODEL}`);
 
   console.log(
@@ -1705,7 +1677,9 @@ const server = app.listen(PORT, () => {
 // ========================================
 
 function shutdown(signal) {
-  console.log(`${signal} received. Shutting down ZAQTIVO AI...`);
+  console.log(
+    `${signal} received. Shutting down ZAQTIVO AI...`
+  );
 
   server.close(() => {
     console.log("ZAQTIVO AI server closed.");
