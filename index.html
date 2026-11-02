@@ -399,7 +399,10 @@ body.chat-open .msg.ai blockquote{
 
  <input id="photoInput" type="file" accept="image/jpeg,image/png,image/webp" multiple hidden onchange="photoSelected(event)">
  <input id="homeCamera" type="file" accept="image/jpeg,image/png,image/webp" capture="environment" hidden onchange="photoSelected(event)">
- <input id="homeDocument" type="file" accept=".pdf,.docx,.xlsx,.pptx,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.openxmlformats-officedocument.presentationml.presentation" multiple hidden onchange="homeDocumentsSelected(event)">
+
+ <input id="homeDocument" type="file"
+  accept=".pdf,.docx,.xlsx,.pptx,.csv,.txt,.rtf,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.openxmlformats-officedocument.presentationml.presentation,text/csv,text/plain,application/rtf"
+  multiple hidden onchange="homeDocumentsSelected(event)">
 
  <div id="photoName" class="status"></div>
  <div id="homePhotoPreviews" class="photo-preview-list"></div>
@@ -484,7 +487,10 @@ body.chat-open .msg.ai blockquote{
 
   <input id="chatPhoto" type="file" accept="image/jpeg,image/png,image/webp" multiple hidden onchange="chatPhotoSelected(event)">
   <input id="chatCamera" type="file" accept="image/jpeg,image/png,image/webp" capture="environment" hidden onchange="chatPhotoSelected(event)">
-  <input id="chatDocument" type="file" accept=".pdf,.docx,.xlsx,.pptx,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.openxmlformats-officedocument.presentationml.presentation" multiple hidden onchange="chatDocumentsSelected(event)">
+
+  <input id="chatDocument" type="file"
+   accept=".pdf,.docx,.xlsx,.pptx,.csv,.txt,.rtf,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.openxmlformats-officedocument.presentationml.presentation,text/csv,text/plain,application/rtf"
+   multiple hidden onchange="chatDocumentsSelected(event)">
 
   <div id="chatPhotoPreviews" class="photo-preview-list"></div>
   <div id="chatPhotoCount" class="photo-count"></div>
@@ -527,7 +533,9 @@ const MAX_DOCUMENTS=5;
 const MAX_IMAGE_SIZE=10*1024*1024;
 const MAX_DOCUMENT_SIZE=10*1024*1024;
 
-const ALLOWED_DOCUMENT_EXTENSIONS=["pdf","docx","xlsx","pptx"];
+const ALLOWED_DOCUMENT_EXTENSIONS=[
+ "pdf","docx","xlsx","pptx","csv","txt","rtf"
+];
 
 let selectedImages=[];
 let chatImages=[];
@@ -870,7 +878,7 @@ function validateDocument(file){
  const extension=getDocumentExtension(file);
 
  if(!ALLOWED_DOCUMENT_EXTENSIONS.includes(extension)){
-  alert("Please select a PDF, DOCX, XLSX or PPTX document.");
+  alert("Please select PDF, DOCX, XLSX, PPTX, CSV, TXT or RTF documents.");
   return false;
  }
 
@@ -936,11 +944,15 @@ function removeDocument(target,index){
 
 function getDocumentIcon(file){
  const ext=getDocumentExtension(file);
+
  return {
   pdf:"📕",
   docx:"📘",
   xlsx:"📗",
-  pptx:"📙"
+  pptx:"📙",
+  csv:"📊",
+  txt:"📝",
+  rtf:"📃"
  }[ext]||"📄";
 }
 
@@ -1984,4 +1996,4 @@ goHome();
 
 </script>
 </body>
- </html>
+   </html>
