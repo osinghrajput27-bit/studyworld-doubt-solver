@@ -75,7 +75,7 @@ main{width:min(100% - 28px,950px);margin:0 auto;padding-bottom:40px}
 .hero p{margin:8px 0 22px;font-size:clamp(15px,3vw,23px);color:#e4eaff}
 .askbox{
  display:flex;align-items:center;gap:12px;padding:12px 15px;
- border-radius:35px;margin:0 auto 26px;max-width:900px
+ border-radius:35px;margin:0 auto 12px;max-width:900px
 }
 .askicon{font-size:30px}
 .askbox textarea{
@@ -193,6 +193,35 @@ main{width:min(100% - 28px,950px);margin:0 auto;padding-bottom:40px}
 .menu button:hover{background:#ffffff22}
 .hidden{display:none!important}
 
+/* IMAGE ATTACHMENTS */
+.attach-toolbar{
+ display:flex;gap:8px;flex-wrap:wrap;margin-top:10px
+}
+.photo-preview-list{
+ display:flex;gap:10px;flex-wrap:wrap;
+ padding:8px 2px;margin-top:8px
+}
+.photo-preview{
+ width:94px;height:94px;position:relative;
+ border:1px solid #ffffff66;border-radius:13px;
+ overflow:hidden;background:#ffffff15
+}
+.photo-preview img{
+ width:100%;height:100%;object-fit:cover;display:block
+}
+.photo-preview button{
+ position:absolute;top:4px;right:4px;
+ width:25px;height:25px;border:0;border-radius:50%;
+ background:#111b;color:white;font-weight:bold
+}
+.photo-count{
+ color:#dbe4ff;font-size:12px;margin:4px 2px
+}
+.voice-status{
+ color:#9ff2ff;font-size:13px;margin:7px 4px;
+ min-height:16px
+}
+
 /* HISTORY AND SESSION CONTROLS */
 .history-toolbar{
  display:flex;gap:9px;flex-wrap:wrap;margin:12px 0 18px
@@ -222,10 +251,6 @@ main{width:min(100% - 28px,950px);margin:0 auto;padding-bottom:40px}
 }
 .history-actions button.danger{border-color:#ff8888;background:#ff333322}
 .search-count{font-size:13px;color:#dce4ff;margin:8px 3px}
-.session-title-input{
- width:100%;padding:12px;border-radius:10px;
- border:1px solid #ffffff66;background:#ffffff15;color:white
-}
 .modal-overlay{
  display:none;position:fixed;inset:0;z-index:100;
  background:#0009;align-items:center;justify-content:center;padding:18px
@@ -369,6 +394,7 @@ body.chat-open .msg.ai blockquote{
  body.chat-open #messages{padding:16px 14px}
  body.chat-open .chathead{padding:10px}
  body.chat-open .chatinput{padding:10px}
+ .photo-preview{width:78px;height:78px}
 }
 </style>
 </head>
@@ -407,20 +433,30 @@ body.chat-open .msg.ai blockquote{
   <button class="sendbtn" onclick="sendQuestion()">➤</button>
  </div>
 
- <input id="photoInput" type="file" accept="image/*" hidden onchange="photoSelected(event)">
+ <div class="attach-toolbar">
+  <button class="smallbtn" onclick="document.getElementById('photoInput').click()">＋ Add Photos</button>
+  <button class="smallbtn" onclick="document.getElementById('homeCamera').click()">📷 Camera</button>
+ </div>
+
+ <input id="photoInput" type="file" accept="image/*" multiple hidden onchange="photoSelected(event)">
+ <input id="homeCamera" type="file" accept="image/*" capture="environment" hidden onchange="photoSelected(event)">
+
  <div id="photoName" class="status"></div>
+ <div id="homePhotoPreviews" class="photo-preview-list"></div>
+ <div id="homePhotoCount" class="photo-count"></div>
+ <div id="homeVoiceStatus" class="voice-status"></div>
 
  <div class="features">
   <button class="feature glass" onclick="newChat()">
    <span class="emoji">💬</span><strong>New Chat</strong>
   </button>
   <button class="feature glass" onclick="document.getElementById('photoInput').click()">
-   <span class="emoji">🖼️</span><strong>Upload Photo</strong>
+   <span class="emoji">🖼️</span><strong>Upload Photos</strong>
   </button>
-  <button class="feature glass" onclick="openCamera()">
+  <button class="feature glass" onclick="document.getElementById('homeCamera').click()">
    <span class="emoji">📷</span><strong>Use Camera</strong>
   </button>
-  <button class="feature glass" onclick="startVoice()">
+  <button class="feature glass" onclick="startVoice('question','homeVoiceStatus')">
    <span class="emoji">🎙️</span><strong>Voice Input</strong>
   </button>
   <button class="feature glass" onclick="quickPrompt('Give me a short and clear answer to my question: ')">
@@ -477,12 +513,18 @@ body.chat-open .msg.ai blockquote{
    <button id="chatSendBtn" onclick="sendChatQuestion()">➤</button>
   </div>
 
-  <div style="margin-top:10px">
-   <button class="smallbtn" onclick="document.getElementById('chatPhoto').click()">＋ Upload Photo</button>
-   <button class="smallbtn" onclick="startVoice('chatQuestion')">🎙 Voice</button>
+  <div class="attach-toolbar">
+   <button class="smallbtn" onclick="document.getElementById('chatPhoto').click()">＋ Add Photos</button>
+   <button class="smallbtn" onclick="document.getElementById('chatCamera').click()">📷 Camera</button>
+   <button class="smallbtn" onclick="startVoice('chatQuestion','chatVoiceStatus')">🎙 Voice</button>
   </div>
 
-  <input id="chatPhoto" type="file" accept="image/*" hidden onchange="chatPhotoSelected(event)">
+  <input id="chatPhoto" type="file" accept="image/*" multiple hidden onchange="chatPhotoSelected(event)">
+  <input id="chatCamera" type="file" accept="image/*" capture="environment" hidden onchange="chatPhotoSelected(event)">
+
+  <div id="chatPhotoPreviews" class="photo-preview-list"></div>
+  <div id="chatPhotoCount" class="photo-count"></div>
+  <div id="chatVoiceStatus" class="voice-status"></div>
  </div>
 </section>
 
@@ -498,7 +540,6 @@ body.chat-open .msg.ai blockquote{
 
 </main>
 
-<!-- RENAME MODAL -->
 <div class="modal-overlay" id="renameModal">
  <div class="modal glass">
   <h3>Rename Chat</h3>
@@ -515,10 +556,14 @@ body.chat-open .msg.ai blockquote{
    DATA AND STORAGE
 ========================================= */
 
-let selectedImage=null;
-let chatImage=null;
+const MAX_IMAGES=5;
+const MAX_IMAGE_SIZE=10*1024*1024;
+
+let selectedImages=[];
+let chatImages=[];
 let editingMessageElement=null;
 let activeController=null;
+let activeRecognition=null;
 let stopRequested=false;
 let activeSessionId=null;
 let renameSessionId=null;
@@ -542,19 +587,17 @@ function safeParse(value,fallback){
 
 function loadData(){
  favorites=safeParse(localStorage.getItem("zaqtivo_favorites"),[]);
-
  const storedSessions=safeParse(localStorage.getItem("zaqtivo_sessions"),null);
 
  if(Array.isArray(storedSessions)){
   sessions=storedSessions;
  }else{
-  // Migrate old question-answer history into individual sessions.
   const oldHistory=safeParse(localStorage.getItem("zaqtivo_history"),[]);
   sessions=oldHistory.map(item=>({
    id:makeId(),
    title:String(item.question||"Old Chat").slice(0,80),
-   createdAt:item.date||new Date().toLocaleString(),
-   updatedAt:item.date||new Date().toLocaleString(),
+   createdAt:item.date||new Date().toISOString(),
+   updatedAt:item.date||new Date().toISOString(),
    pinned:false,
    messages:[
     {role:"user",text:String(item.question||"")},
@@ -569,7 +612,7 @@ function saveData(){
  try{
   localStorage.setItem("zaqtivo_sessions",JSON.stringify(sessions));
   localStorage.setItem("zaqtivo_favorites",JSON.stringify(favorites));
-  // Keep old key updated for basic backward compatibility.
+
   const oldHistory=sessions.flatMap(session=>{
    const result=[];
    for(let i=0;i<session.messages.length;i++){
@@ -586,20 +629,22 @@ function saveData(){
    }
    return result;
   });
+
   localStorage.setItem("zaqtivo_history",JSON.stringify(oldHistory.slice(0,100)));
  }catch(error){
   console.error("Could not save data:",error);
-  document.getElementById("chatStatus").textContent=
-   "Storage is full. Some changes may not be saved.";
+  const status=document.getElementById("chatStatus");
+  if(status)status.textContent="Storage is full. Some changes may not be saved.";
  }
 }
 
 function createSession(){
+ const now=new Date().toISOString();
  const session={
   id:makeId(),
   title:"New Chat",
-  createdAt:new Date().toLocaleString(),
-  updatedAt:new Date().toLocaleString(),
+  createdAt:now,
+  updatedAt:now,
   pinned:false,
   messages:[]
  };
@@ -614,7 +659,7 @@ function getActiveSession(){
 }
 
 function updateSessionTime(session){
- session.updatedAt=new Date().toLocaleString();
+ session.updatedAt=new Date().toISOString();
  const index=sessions.indexOf(session);
  if(index>0){
   sessions.splice(index,1);
@@ -647,18 +692,27 @@ function openChat(){
   getActiveSession()?.title||"ZAQTIVO AI";
 }
 
+function clearChatAttachments(){
+ chatImages=[];
+ document.getElementById("chatPhoto").value="";
+ renderImagePreviews("chat");
+}
+
 function newChat(){
  if(isGenerating){
   alert("Please stop the current response before starting a new chat.");
   return;
  }
+
  activeSessionId=null;
  editingMessageElement=null;
- chatImage=null;
+ clearChatAttachments();
+
  document.getElementById("messages").innerHTML="";
  document.getElementById("chatQuestion").value="";
  document.getElementById("chatStatus").textContent="";
- document.getElementById("chatPhoto").value="";
+ document.getElementById("chatVoiceStatus").textContent="";
+
  openChat();
 }
 
@@ -673,15 +727,14 @@ function openSession(sessionId){
 
  activeSessionId=sessionId;
  editingMessageElement=null;
- chatImage=null;
+ clearChatAttachments();
 
  document.getElementById("messages").innerHTML="";
  document.getElementById("chatQuestion").value="";
- document.getElementById("chatPhoto").value="";
  document.getElementById("chatStatus").textContent="";
 
- session.messages.forEach(message=>{
-  addMessage(message.text,message.role,null,false);
+ session.messages.forEach((message,index)=>{
+  addMessage(message.text,message.role,"",false,index);
  });
 
  openChat();
@@ -708,68 +761,199 @@ function showAllPrompts(){
 }
 
 /* =========================================
-   IMAGE AND VOICE
+   MULTIPLE IMAGE HANDLING
 ========================================= */
 
 function validateImage(file){
  if(!file)return false;
- if(file.size>10*1024*1024){
-  alert("Image must be 10 MB or smaller.");
+
+ if(!file.type||!file.type.startsWith("image/")){
+  alert("Please select a valid image.");
   return false;
  }
+
+ if(file.size>MAX_IMAGE_SIZE){
+  alert("Each image must be 10 MB or smaller.");
+  return false;
+ }
+
  return true;
 }
 
+function addImages(target,files){
+ const current=target==="home"?selectedImages:chatImages;
+ const incoming=Array.from(files||[]);
+ let added=0;
+
+ for(const file of incoming){
+  if(!validateImage(file))continue;
+
+  if(current.length>=MAX_IMAGES){
+   alert("You can attach a maximum of 5 photos at a time.");
+   break;
+  }
+
+  current.push(file);
+  added++;
+ }
+
+ if(target==="home"){
+  selectedImages=current;
+  document.getElementById("photoInput").value="";
+ }else{
+  chatImages=current;
+  document.getElementById("chatPhoto").value="";
+ }
+
+ renderImagePreviews(target);
+
+ if(added){
+  const status=target==="home"
+   ?document.getElementById("photoName")
+   :document.getElementById("chatStatus");
+
+  status.textContent=added+" photo(s) added.";
+ }
+}
+
 function photoSelected(event){
- const file=event.target.files[0];
- if(!validateImage(file))return;
- selectedImage=file;
- document.getElementById("photoName").textContent="Selected: "+file.name;
+ addImages("home",event.target.files);
 }
 
 function chatPhotoSelected(event){
- const file=event.target.files[0];
- if(!validateImage(file))return;
- chatImage=file;
- document.getElementById("chatStatus").textContent="Photo selected: "+file.name;
+ addImages("chat",event.target.files);
+}
+
+function removeImage(target,index){
+ if(target==="home"){
+  selectedImages.splice(index,1);
+ }else{
+  chatImages.splice(index,1);
+ }
+ renderImagePreviews(target);
+}
+
+function renderImagePreviews(target){
+ const isHome=target==="home";
+ const files=isHome?selectedImages:chatImages;
+
+ const container=document.getElementById(
+  isHome?"homePhotoPreviews":"chatPhotoPreviews"
+ );
+
+ const count=document.getElementById(
+  isHome?"homePhotoCount":"chatPhotoCount"
+ );
+
+ container.innerHTML="";
+
+ files.forEach((file,index)=>{
+  const card=document.createElement("div");
+  card.className="photo-preview";
+
+  const image=document.createElement("img");
+  const url=URL.createObjectURL(file);
+  image.src=url;
+  image.alt="Selected photo "+(index+1);
+  image.onload=()=>URL.revokeObjectURL(url);
+
+  const remove=document.createElement("button");
+  remove.type="button";
+  remove.textContent="×";
+  remove.title="Remove photo";
+  remove.onclick=()=>removeImage(target,index);
+
+  card.append(image,remove);
+  container.appendChild(card);
+ });
+
+ count.textContent=files.length
+  ?files.length+" of "+MAX_IMAGES+" photos selected"
+  :"";
 }
 
 function openCamera(){
- const input=document.createElement("input");
- input.type="file";
- input.accept="image/*";
- input.capture="environment";
- input.onchange=e=>{
-  const file=e.target.files[0];
-  if(!validateImage(file))return;
-  selectedImage=file;
-  document.getElementById("photoName").textContent="Camera photo: "+file.name;
- };
- input.click();
+ document.getElementById("homeCamera").click();
 }
 
-function startVoice(target="question"){
- const SpeechRecognition=window.SpeechRecognition||window.webkitSpeechRecognition;
+/* =========================================
+   VOICE INPUT
+========================================= */
+
+function startVoice(target="question",statusId="homeVoiceStatus"){
+ const SpeechRecognition=
+  window.SpeechRecognition||window.webkitSpeechRecognition;
 
  if(!SpeechRecognition){
-  alert("Voice input is not supported in this browser.");
+  alert("Voice input is not supported in this browser. Try a supported browser.");
   return;
+ }
+
+ if(activeRecognition){
+  try{activeRecognition.stop()}catch(error){}
+  activeRecognition=null;
  }
 
  const recognition=new SpeechRecognition();
  recognition.lang=navigator.language||"en-US";
- recognition.interimResults=false;
+ recognition.interimResults=true;
+ recognition.continuous=false;
 
- recognition.onresult=e=>{
-  const el=document.getElementById(target);
-  el.value+=(el.value?" ":"")+e.results[0][0].transcript;
+ const status=document.getElementById(statusId);
+ status.textContent="🎙 Listening... Speak now.";
+
+ let finalText="";
+ activeRecognition=recognition;
+
+ recognition.onresult=event=>{
+  let interimText="";
+
+  for(let i=event.resultIndex;i<event.results.length;i++){
+   const transcript=event.results[i][0].transcript;
+
+   if(event.results[i].isFinal){
+    finalText+=transcript;
+   }else{
+    interimText+=transcript;
+   }
+  }
+
+  const input=document.getElementById(target);
+  const existing=input.value.trim();
+
+  if(finalText){
+   input.value=existing
+    ?existing+" "+finalText.trim()
+    :finalText.trim();
+  }
+
+  status.textContent=interimText
+   ?"Listening: "+interimText
+   :"";
  };
 
- recognition.onerror=()=>{
-  alert("Voice input failed. Check microphone permission.");
+ recognition.onerror=event=>{
+  status.textContent="";
+
+  if(event.error==="not-allowed"){
+   alert("Microphone permission was denied. Allow microphone access in browser settings.");
+  }else if(event.error!=="no-speech"&&event.error!=="aborted"){
+   alert("Voice input failed. Please try again.");
+  }
  };
 
- recognition.start();
+ recognition.onend=()=>{
+  status.textContent="";
+  if(activeRecognition===recognition)activeRecognition=null;
+ };
+
+ try{
+  recognition.start();
+ }catch(error){
+  status.textContent="";
+  activeRecognition=null;
+  alert("Could not start voice input. Please try again.");
+ }
 }
 
 /* =========================================
@@ -919,7 +1103,7 @@ function renderMarkdown(raw){
    MESSAGE DISPLAY
 ========================================= */
 
-function addMessage(text,type,relatedQuestion="",persist=false){
+function addMessage(text,type,relatedQuestion="",persist=false,existingIndex=null){
  const wrap=document.createElement("div");
  wrap.className="msg "+type;
 
@@ -945,12 +1129,8 @@ function addMessage(text,type,relatedQuestion="",persist=false){
   wrap.dataset.messageIndex=String(session.messages.length-1);
   updateSessionTime(session);
   saveData();
- }else if(session){
-  const index=session.messages.findIndex((m,i)=>{
-   return i===Array.from(document.getElementById("messages").children).length &&
-    m.role===type&&m.text===String(text);
-  });
-  if(index>=0)wrap.dataset.messageIndex=String(index);
+ }else if(existingIndex!==null){
+  wrap.dataset.messageIndex=String(existingIndex);
  }
 
  if(type==="user"){
@@ -1052,7 +1232,8 @@ function removeMessagesFromEditedMessage(){
 
  if(session){
   const messageIndex=Number(editingMessageElement.dataset.messageIndex);
-  if(Number.isInteger(messageIndex)){
+
+  if(Number.isInteger(messageIndex)&&messageIndex>=0){
    session.messages.splice(messageIndex);
    updateSessionTime(session);
    saveData();
@@ -1104,16 +1285,16 @@ function saveFavorite(answer){
 }
 
 /* =========================================
-   AI BACKEND
+   AI BACKEND - MULTIPLE IMAGES
 ========================================= */
 
-async function askBackend(question,imageFile){
+async function askBackend(question,imageFiles=[]){
  const formData=new FormData();
  formData.append("question",question);
 
- if(imageFile){
-  formData.append("image",imageFile);
- }
+ imageFiles.forEach(file=>{
+  formData.append("images",file,file.name);
+ });
 
  const controller=new AbortController();
  activeController=controller;
@@ -1181,7 +1362,8 @@ function regenerateAnswer(aiMessage){
 
  if(session){
   const messageIndex=Number(all[userIndex].dataset.messageIndex);
-  if(Number.isInteger(messageIndex)){
+
+  if(Number.isInteger(messageIndex)&&messageIndex>=0){
    session.messages.splice(messageIndex);
    updateSessionTime(session);
    saveData();
@@ -1198,22 +1380,26 @@ function regenerateAnswer(aiMessage){
 ========================================= */
 
 async function sendQuestion(){
+ if(isGenerating)return;
+
  const question=document.getElementById("question").value.trim();
 
- if(!question&&!selectedImage){
+ if(!question&&!selectedImages.length){
   alert("Please type a question or upload a photo.");
   return;
  }
 
- const image=selectedImage;
- selectedImage=null;
+ const images=[...selectedImages];
+ selectedImages=[];
 
  document.getElementById("photoInput").value="";
+ document.getElementById("homeCamera").value="";
  document.getElementById("photoName").textContent="";
  document.getElementById("question").value="";
+ renderImagePreviews("home");
 
  newChat();
- await sendToAI(question||"Please explain the uploaded image.",image);
+ await sendToAI(question||"Please explain the uploaded image(s).",images);
 }
 
 async function sendChatQuestion(){
@@ -1221,16 +1407,18 @@ async function sendChatQuestion(){
 
  const question=document.getElementById("chatQuestion").value.trim();
 
- if(!question&&!chatImage){
+ if(!question&&!chatImages.length){
   alert("Please type a question or upload a photo.");
   return;
  }
 
- const image=chatImage;
- chatImage=null;
+ const images=[...chatImages];
+ chatImages=[];
 
  document.getElementById("chatPhoto").value="";
+ document.getElementById("chatCamera").value="";
  document.getElementById("chatQuestion").value="";
+ renderImagePreviews("chat");
 
  if(editingMessageElement){
   removeMessagesFromEditedMessage();
@@ -1238,10 +1426,10 @@ async function sendChatQuestion(){
 
  document.getElementById("chatStatus").textContent="";
 
- await sendToAI(question||"Please explain the uploaded image.",image);
+ await sendToAI(question||"Please explain the uploaded image(s).",images);
 }
 
-async function sendToAI(question,image){
+async function sendToAI(question,images=[]){
  if(isGenerating)return;
 
  let session=getActiveSession();
@@ -1252,7 +1440,9 @@ async function sendToAI(question,image){
 
  isGenerating=true;
 
- const displayedQuestion=question+(image?"\n[Image attached]":"");
+ const imageList=Array.isArray(images)?images:[];
+ const displayedQuestion=question+
+  (imageList.length?"\n["+imageList.length+" image(s) attached]":"");
 
  addMessage(displayedQuestion,"user","",true);
 
@@ -1273,10 +1463,9 @@ async function sendToAI(question,image){
  document.getElementById("chatSendBtn").disabled=true;
 
  try{
-  const answer=await askBackend(question,image);
+  const answer=await askBackend(question,imageList);
 
   addMessage(answer,"ai",question,true);
-
   status.textContent="";
  }catch(error){
   if(error.name==="AbortError"&&stopRequested){
@@ -1310,6 +1499,7 @@ function showHistory(){
  document.getElementById("otherTitle").textContent="Chat History";
 
  const box=document.getElementById("otherContent");
+
  box.innerHTML=`
   <div class="history-toolbar">
    <input id="historySearch" type="search" placeholder="🔎 Search your chats...">
@@ -1320,7 +1510,6 @@ function showHistory(){
  `;
 
  document.getElementById("historySearch").addEventListener("input",renderHistoryList);
-
  renderHistoryList();
 }
 
@@ -1348,7 +1537,6 @@ function renderHistoryList(){
  });
 
  count.textContent=filtered.length+" chat(s) found";
-
  list.innerHTML="";
 
  if(!filtered.length){
@@ -1374,7 +1562,7 @@ function renderHistoryList(){
 
   const date=document.createElement("div");
   date.className="history-card-date";
-  date.textContent="Updated: "+session.updatedAt;
+  date.textContent="Updated: "+new Date(session.updatedAt).toLocaleString();
 
   const actions=document.createElement("div");
   actions.className="history-actions";
@@ -1415,7 +1603,6 @@ function openRenameModal(sessionId){
  if(!session)return;
 
  renameSessionId=sessionId;
-
  document.getElementById("renameInput").value=session.title;
  document.getElementById("renameModal").style.display="flex";
 
@@ -1481,7 +1668,6 @@ function deleteSession(sessionId){
 
  if(activeSessionId===sessionId){
   activeSessionId=null;
-  document.body.classList.remove("chat-open");
  }
 
  saveData();
@@ -1511,9 +1697,7 @@ async function shareSession(sessionId){
     text:text
    });
   }catch(error){
-   if(error.name!=="AbortError"){
-    copyText(text);
-   }
+   if(error.name!=="AbortError")copyText(text);
   }
  }else{
   copyText(text);
@@ -1597,7 +1781,7 @@ function showSettings(){
    <button id="clearHistory">Clear</button>
   </div>
   <div class="settingrow">
-   <span>Version</span><strong>1.1</strong>
+   <span>Version</span><strong>1.2</strong>
   </div>
  `;
 
@@ -1647,8 +1831,10 @@ document.getElementById("renameModal").addEventListener("click",e=>{
 ========================================= */
 
 loadData();
+renderImagePreviews("home");
+renderImagePreviews("chat");
 goHome();
 
 </script>
 </body>
-   </html>
+ </html>
