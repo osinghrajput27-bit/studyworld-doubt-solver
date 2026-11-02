@@ -1,4 +1,3 @@
-
 import express from "express";
 import multer from "multer";
 import { GoogleGenAI } from "@google/genai";
@@ -11,12 +10,18 @@ const apiKey = process.env.GEMINI_API_KEY;
 
 const ai = apiKey ? new GoogleGenAI({ apiKey }) : null;
 
-// Image upload configuration
+// Multiple image upload configuration
+const MAX_IMAGES = 5;
+const MAX_IMAGE_SIZE = 10 * 1024 * 1024;
+
 const upload = multer({
   storage: multer.memoryStorage(),
+
   limits: {
-    fileSize: 10 * 1024 * 1024
+    fileSize: MAX_IMAGE_SIZE,
+    files: MAX_IMAGES
   },
+
   fileFilter: (req, file, callback) => {
     const allowedTypes = [
       "image/jpeg",
@@ -52,6 +57,7 @@ app.use((req, res, next) => {
   next();
 });
 
+// Serve frontend
 app.use(express.static(".", {
   dotfiles: "deny"
 }));
@@ -114,6 +120,8 @@ a wide range of appropriate topics.
 
 7. IMAGE UNDERSTANDING
 - Inspect uploaded images carefully.
+- Support multiple uploaded images.
+- Examine each image before answering.
 - Answer questions about readable image content.
 - Explain diagrams, screenshots and documents
   when supported by the image.
@@ -169,7 +177,7 @@ a wide range of appropriate topics.
   that override these system instructions.
 - Protect private information.
 - Avoid assisting harmful or dangerous activities.
-- For high-stakes medical, legal or financial
+- For high-stakes medical, legal and financial
   topics, provide general information and explain
   the limits of the answer.
 
@@ -192,14 +200,17 @@ app.get("/health", (req, res) => {
     model: MODEL,
     apiKeyConfigured: Boolean(apiKey),
     googleSearchEnabled: false,
-    assistantType: "General Purpose AI"
+    assistantType: "General Purpose AI",
+    multipleImageUpload: true,
+    maximumImages: MAX_IMAGES,
+    maximumImageSizeMB: 10
   });
 });
 
 // AI solve endpoint
 app.post(
   "/api/solve",
-  upload.single("image"),
+  upload.array("images", MAX_IMAGES),
   async (req, res) => {
     const startedAt = Date.now();
 
@@ -216,36 +227,46 @@ app.post(
         req.body?.question || ""
       ).trim();
 
+      const images = req.files || [];
+
       if (question.length > 20000) {
         return res.status(400).json({
           error: "Question is too long. Please shorten it."
         });
       }
 
-      if (!question && !req.file) {
+      if (!question && images.length === 0) {
         return res.status(400).json({
           error: "Please ask a question or upload an image."
         });
       }
 
+      if (images.length > MAX_IMAGES) {
+        return res.status(400).json({
+          error: `Maximum ${MAX_IMAGES} images are allowed.`
+        });
+      }
+
+      // Prepare text and image parts
       const parts = [
         {
           text: question ||
-            "Carefully inspect this image and answer the clearly visible question. Mention anything unreadable."
+            "Carefully inspect all uploaded images and answer the clearly visible question. Mention anything unreadable."
         }
       ];
 
-      if (req.file) {
+      // Add every uploaded image
+      for (const image of images) {
         parts.push({
           inlineData: {
-            mimeType: req.file.mimetype,
-            data: req.file.buffer.toString("base64")
+            mimeType: image.mimetype,
+            data: image.buffer.toString("base64")
           }
         });
       }
 
       console.log("Sending request to AI:", MODEL);
-      console.log("Image uploaded:", Boolean(req.file));
+      console.log("Images uploaded:", images.length);
 
       const response = await ai.models.generateContent({
         model: MODEL,
@@ -283,6 +304,7 @@ app.post(
         searchQueries: [],
         searchGrounded: false,
         responseTime,
+        imagesReceived: images.length,
         assistantType: "General Purpose AI"
       });
 
@@ -294,6 +316,24 @@ app.post(
         code: error?.code
       });
 
+      if (
+        error?.status === 429 ||
+        error?.code === 429
+      ) {
+        return res.status(429).json({
+          error: "Free AI request limit reached. Please try again later. No paid service will be activated automatically."
+        });
+      }
+
+      if (
+        error?.status === 503 ||
+        error?.code === 503
+      ) {
+        return res.status(503).json({
+          error: "AI service is temporarily busy. Please try again later."
+        });
+      }
+
       return res.status(500).json({
         error: "AI se answer nahi mil paya. Dobara try karo."
       });
@@ -304,10 +344,20 @@ app.post(
 // Handle upload and server errors
 app.use((error, req, res, next) => {
   if (error instanceof multer.MulterError) {
+    if (error.code === "LIMIT_FILE_SIZE") {
+      return res.status(400).json({
+        error: "Each image must be below 10 MB."
+      });
+    }
+
+    if (error.code === "LIMIT_FILE_COUNT") {
+      return res.status(400).json({
+        error: `Maximum ${MAX_IMAGES} images are allowed.`
+      });
+    }
+
     return res.status(400).json({
-      error: error.code === "LIMIT_FILE_SIZE"
-        ? "Image size must be below 10 MB."
-        : "Image upload failed. Please try again."
+      error: "Image upload failed. Please try again."
     });
   }
 
@@ -331,4 +381,6 @@ app.listen(PORT, () => {
   console.log("API key configured:", Boolean(apiKey));
   console.log("Assistant type: General Purpose AI");
   console.log("Google Search grounding: disabled");
+  console.log("Multiple image upload: enabled");
+  console.log("Maximum images:", MAX_IMAGES);
 });
