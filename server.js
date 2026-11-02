@@ -1,3 +1,4 @@
+
 import express from "express";
 import multer from "multer";
 import { GoogleGenAI } from "@google/genai";
@@ -962,7 +963,9 @@ app.post(
           config: {
             systemInstruction: SYSTEM_PROMPT,
             temperature: 0.3,
-            maxOutputTokens: task === "chat" ? 450 : 2048
+
+            // Reduced chat output to help responses finish sooner.
+            maxOutputTokens: task === "chat" ? 300 : 2048
           }
         });
 
