@@ -609,7 +609,6 @@ function getLanguageInstruction(){
  if(selectedLanguage==="Auto Detect"){
   return "Detect the language of the user's latest question and reply in that same language. If the user mixes languages, respond naturally in the same style. Do not translate unless asked.";
  }
-
  return "Reply entirely in "+selectedLanguage+". Keep technical terms, code, names and formulas accurate. Do not switch languages unless asked.";
 }
 
@@ -1250,6 +1249,152 @@ function startVoice(target="question",statusId="homeVoiceStatus"){
 
 /* SAFE MARKDOWN */
 
+/*
+ * Convert common LaTeX-style math into readable Unicode.
+ * Fenced code and inline code are protected from conversion.
+ */
+
+function convertSubSuper(value,type){
+ const sub={
+  "0":"₀","1":"₁","2":"₂","3":"₃","4":"₄",
+  "5":"₅","6":"₆","7":"₇","8":"₈","9":"₉",
+  "+":"₊","-":"₋","=":"₌","(":"₍",")":"₎",
+  "a":"ₐ","e":"ₑ","h":"ₕ","i":"ᵢ","j":"ⱼ",
+  "k":"ₖ","l":"ₗ","m":"ₘ","n":"ₙ","o":"ₒ",
+  "p":"ₚ","r":"ᵣ","s":"ₛ","t":"ₜ","u":"ᵤ",
+  "v":"ᵥ","x":"ₓ"
+ };
+
+ const sup={
+  "0":"⁰","1":"¹","2":"²","3":"³","4":"⁴",
+  "5":"⁵","6":"⁶","7":"⁷","8":"⁸","9":"⁹",
+  "+":"⁺","-":"⁻","=":"⁼","(":"⁽",")":"⁾",
+  "n":"ⁿ","i":"ⁱ"
+ };
+
+ const map=type==="sub"?sub:sup;
+
+ return Array.from(value).map(char=>map[char]||char).join("");
+}
+
+function normalizeMathText(value){
+ let text=String(value);
+
+ // Remove common math delimiters while keeping their contents.
+ text=text.replace(/\$\$([\s\S]*?)\$\$/g,"$1");
+ text=text.replace(/\\\[([\s\S]*?)\\\]/g,"$1");
+ text=text.replace(/\\\(([\s\S]*?)\\\)/g,"$1");
+
+ // Remove common LaTeX text wrappers.
+ for(let i=0;i<3;i++){
+  text=text.replace(/\\(?:text|mathrm|mathbf|mathit|operatorname)\s*\{([^{}]*)\}/g,"$1");
+ }
+
+ // Convert common LaTeX commands.
+ const replacements=[
+  [/\\longrightarrow\b/g,"→"],
+  [/\\Longrightarrow\b/g,"⇒"],
+  [/\\rightarrow\b/g,"→"],
+  [/\\to\b/g,"→"],
+  [/\\leftarrow\b/g,"←"],
+  [/\\leftrightarrow\b/g,"↔"],
+  [/\\Rightarrow\b/g,"⇒"],
+  [/\\implies\b/g,"⇒"],
+  [/\\times\b/g,"×"],
+  [/\\cdot\b/g,"·"],
+  [/\\div\b/g,"÷"],
+  [/\\pm\b/g,"±"],
+  [/\\mp\b/g,"∓"],
+  [/\\neq\b/g,"≠"],
+  [/\\ne\b/g,"≠"],
+  [/\\leq\b/g,"≤"],
+  [/\\le\b/g,"≤"],
+  [/\\geq\b/g,"≥"],
+  [/\\ge\b/g,"≥"],
+  [/\\approx\b/g,"≈"],
+  [/\\equiv\b/g,"≡"],
+  [/\\pi\b/g,"π"],
+  [/\\alpha\b/g,"α"],
+  [/\\beta\b/g,"β"],
+  [/\\gamma\b/g,"γ"],
+  [/\\theta\b/g,"θ"],
+  [/\\lambda\b/g,"λ"],
+  [/\\mu\b/g,"μ"],
+  [/\\Delta\b/g,"Δ"],
+  [/\\delta\b/g,"δ"],
+  [/\\Omega\b/g,"Ω"],
+  [/\\omega\b/g,"ω"],
+  [/\\infty\b/g,"∞"],
+  [/\\degree\b/g,"°"],
+  [/\\%/g,"%"],
+  [/\\,/g," "],
+  [/\\;/g," "],
+  [/\\!/g,""],
+  [/\\quad\b/g," "],
+  [/\\qquad\b/g,"  "],
+  [/\\ /g," "]
+ ];
+
+ replacements.forEach(([pattern,replacement])=>{
+  text=text.replace(pattern,replacement);
+ });
+
+ // Convert square roots.
+ text=text.replace(/\\sqrt\s*\{([^{}]+)\}/g,"√($1)");
+ text=text.replace(/\\sqrt\s+([A-Za-z0-9]+)/g,"√($1)");
+
+ // Convert simple fractions into readable division.
+ text=text.replace(
+  /\\frac\s*\{([^{}]+)\}\s*\{([^{}]+)\}/g,
+  "($1)/($2)"
+ );
+
+ // Convert grouped subscripts and superscripts.
+ text=text.replace(/_\{([^{}]+)\}/g,(_,value)=>convertSubSuper(value,"sub"));
+ text=text.replace(/\^\{([^{}]+)\}/g,(_,value)=>convertSubSuper(value,"sup"));
+
+ // Convert single-character subscripts and superscripts.
+ text=text.replace(/_([0-9a-z])/gi,(_,value)=>convertSubSuper(value,"sub"));
+ text=text.replace(/\^([0-9a-z])/gi,(_,value)=>convertSubSuper(value,"sup"));
+
+ // Remove remaining math formatting commands and braces.
+ text=text.replace(/\\(?:displaystyle|textstyle|scriptstyle)\b/g,"");
+ text=text.replace(/[{}]/g,"");
+ text=text.replace(/\\([#$%&_])/g,"$1");
+
+ // Remove only remaining paired dollar math markers.
+ text=text.replace(/\$([^$\n]+)\$/g,"$1");
+
+ // Clean extra spaces introduced by command removal.
+ text=text.replace(/[ \t]{2,}/g," ");
+
+ return text;
+}
+
+function normalizeAIFormatting(raw){
+ const source=String(raw??"");
+
+ // Split fenced code blocks first, so their contents remain unchanged.
+ const fencedParts=source.split(/(```[\s\S]*?```)/g);
+
+ return fencedParts.map(part=>{
+  if(part.startsWith("```")&&part.endsWith("```")){
+   return part;
+  }
+
+  // Protect inline code while normalizing ordinary answer text.
+  const inlineParts=part.split(/(`[^`\n]*`)/g);
+
+  return inlineParts.map(piece=>{
+   if(piece.startsWith("`")&&piece.endsWith("`")){
+    return piece;
+   }
+
+   return normalizeMathText(piece);
+  }).join("");
+ }).join("");
+}
+
 function escapeHTML(value){
  return String(value).replace(/[&<>"']/g,char=>({
   "&":"&amp;",
@@ -1272,7 +1417,10 @@ function formatInline(value){
 }
 
 function renderMarkdown(raw){
- const lines=String(raw).replace(/\r/g,"").split("\n");
+ // Normalize AI formatting before Markdown rendering.
+ // Code blocks and inline code are protected by the normalizer.
+ const normalized=normalizeAIFormatting(raw);
+ const lines=normalized.replace(/\r/g,"").split("\n");
 
  let html="";
  let paragraph=[];
