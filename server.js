@@ -1,3 +1,4 @@
+
 import express from "express";
 import multer from "multer";
 import { GoogleGenAI } from "@google/genai";
@@ -37,12 +38,22 @@ const VIDEO_MODEL =
 
 const apiKey = process.env.GEMINI_API_KEY;
 
-// Chat client: longer timeout, no automatic duplicate retries.
+const CHAT_TIMEOUT = Math.max(
+  15000,
+  Number(process.env.GEMINI_CHAT_TIMEOUT) || 60000
+);
+
+const MEDIA_TIMEOUT = Math.max(
+  15000,
+  Number(process.env.GEMINI_MEDIA_TIMEOUT) || 60000
+);
+
+// Chat client: no automatic duplicate retries.
 const chatAI = apiKey
   ? new GoogleGenAI({
       apiKey,
       httpOptions: {
-        timeout: 60000,
+        timeout: CHAT_TIMEOUT,
         retryOptions: {
           attempts: 1,
           initialDelay: 0,
@@ -59,7 +70,7 @@ const ai = apiKey
   ? new GoogleGenAI({
       apiKey,
       httpOptions: {
-        timeout: 60000,
+        timeout: MEDIA_TIMEOUT,
         retryOptions: {
           attempts: 2,
           initialDelay: 0.5,
@@ -148,6 +159,29 @@ LANGUAGE RULES:
 - Respect the language preference supplied by the application.
 - If language preference is Auto, detect the question language.
 - Do not translate unless requested.
+- Do not unnecessarily switch languages in the middle of an answer.
+
+OUTPUT FORMATTING - VERY IMPORTANT:
+- Never expose raw LaTeX syntax in ordinary answers.
+- Do not use raw math delimiters such as $$, \\(, \\), \\[, or \\].
+- Do not output LaTeX commands such as \\text{}, \\frac{}, \\sqrt{}, \\times, \\cdot, or \\longrightarrow.
+- Write ordinary mathematical expressions in readable plain text.
+- Use Unicode symbols and readable subscripts or superscripts when appropriate.
+- Examples: H₂O, CO₂, x², x₁, √25, 2 × 3, and →.
+- Write chemical equations in readable form.
+- Example: 6CO₂ + 6H₂O → C₆H₁₂O₆ + 6O₂.
+- Do not put normal explanations, formulas or definitions inside programming code blocks.
+- Do not output HTML, JSON, XML or formatting source unless the user specifically asks for it.
+- Use programming code blocks only when the user requests code or the task genuinely requires code.
+- Keep normal answers clean and readable on mobile screens.
+- If a formula cannot be represented accurately with Unicode, explain it clearly in plain text instead of exposing raw LaTeX.
+
+ANSWER STRUCTURE:
+- Use headings when they improve readability.
+- Use numbered steps for procedures and mathematical solutions.
+- Keep paragraphs short.
+- Put the final answer clearly.
+- Do not add unnecessary introductions or repeated conclusions.
 
 DOCUMENT ANALYSIS:
 - Read and analyze uploaded document content.
@@ -169,7 +203,6 @@ ANSWER QUALITY:
 - For normal chat questions, answer directly and clearly.
 - Give the main answer first.
 - Use simple, natural language.
-- Avoid unnecessary introductions and repeated points.
 - For mathematics, show essential steps and the final answer.
 - If the user asks for details, explain in detail.
 - For document tasks, provide enough detail to complete the requested task.
@@ -348,15 +381,18 @@ function getLanguageInstruction(language) {
     selectedLanguage.toLowerCase() === "auto detect"
   ) {
     return (
-      "Detect the language of the user's question " +
+      "Detect the language of the user's latest question " +
       "and reply in that same language. " +
+      "If the user mixes languages, respond naturally in the same style. " +
       "Do not translate unless requested."
     );
   }
 
   return (
-    `Reply in ${selectedLanguage}. ` +
-    "Keep explanations clear and natural."
+    `Reply entirely in ${selectedLanguage}. ` +
+    "Keep explanations clear and natural. " +
+    "Keep technical terms, code, names and formulas accurate. " +
+    "Do not switch languages unless the user asks."
   );
 }
 
@@ -523,16 +559,16 @@ async function generateChatWithFallback(request) {
         error?.message || error
       );
 
-      if (
-        isDailyModelQuotaError(error) ||
-        (
-          !isQuotaError(error) &&
-          isFallbackError(error)
-        )
-      ) {
+      const dailyQuota = isDailyModelQuotaError(error);
+      const fallbackError = isFallbackError(error);
+
+      // Do not retry ordinary quota errors. Try another model
+      // only when the error indicates a model-specific daily quota
+      // or a temporary model/service failure.
+      if (dailyQuota || (!isQuotaError(error) && fallbackError)) {
         failedModels.push({
           model,
-          reason: isDailyModelQuotaError(error)
+          reason: dailyQuota
             ? "daily_model_quota_exhausted"
             : "model_temporarily_unavailable"
         });
@@ -875,6 +911,16 @@ function buildPrompt(
   prompt += "\n\nLANGUAGE INSTRUCTION:\n";
   prompt += getLanguageInstruction(language);
 
+  prompt += `
+
+FORMATTING INSTRUCTION:
+- Write normal answers in readable plain text and Markdown.
+- Do not expose raw LaTeX commands or math delimiters.
+- Prefer Unicode subscripts, superscripts and symbols.
+- Do not put ordinary formulas or explanations in code blocks.
+- Only provide programming code when the user requests code.
+`;
+
   if (documents.length > 0) {
     prompt += "\n\nUPLOADED DOCUMENT CONTENT:\n";
 
@@ -944,6 +990,11 @@ app.get("/health", (req, res) => {
       maxDocuments: MAX_DOCUMENTS,
       maxFileSizeMB: 10,
       maxDocumentCharacters: MAX_TOTAL_DOCUMENT_TEXT
+    },
+
+    timeouts: {
+      chatMs: CHAT_TIMEOUT,
+      mediaMs: MEDIA_TIMEOUT
     },
 
     activeVideoJobs: videoJobs.size
@@ -1694,17 +1745,18 @@ const server = app.listen(PORT, () => {
   console.log(`API key configured: ${Boolean(apiKey)}`);
 
   console.log("Chat enabled");
-  console.log("Chat client timeout: 60000ms");
+  console.log(`Chat client timeout: ${CHAT_TIMEOUT}ms`);
   console.log("Chat SDK automatic retries disabled");
   console.log("Automatic chat fallback enabled");
   console.log("Daily model quota fallback enabled");
   console.log("Chat response timing logs enabled");
+  console.log("Readable formula formatting instructions enabled");
 
   console.log("Photo understanding enabled");
   console.log("Document understanding enabled");
   console.log("Image generation enabled");
   console.log("Video generation enabled");
-  console.log("Media client timeout: 60000ms");
+  console.log(`Media client timeout: ${MEDIA_TIMEOUT}ms`);
   console.log("Video status system enabled");
   console.log("Temporary file cleanup enabled");
 
