@@ -12,7 +12,7 @@
   "description": "ZAQTIVO AI is your smart AI assistant for answering questions, solving doubts, understanding images and documents, and generating creative content in multiple languages.",
   "lang": "en",
   "display_override": [
-    "window-controls-overlay"
+    "standalone"
   ],
   "categories": [
     "business",
@@ -21,5 +21,19 @@
     "lifestyle",
     "productivity",
     "utilities"
+  ],
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    }
   ]
 }
