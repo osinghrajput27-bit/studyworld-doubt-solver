@@ -997,6 +997,58 @@ app.get("/health", (req, res) => {
 });
 
 // ========================================
+// PWA MANIFEST AND APP ICONS
+// ========================================
+
+app.get("/manifest.json", (req, res) => {
+  const manifestPath = path.join(__dirname, "manifest.json");
+
+  if (!fs.existsSync(manifestPath)) {
+    return res.status(404).json({
+      success: false,
+      error: "PWA manifest not found."
+    });
+  }
+
+  res.type("application/manifest+json");
+  res.setHeader("Cache-Control", "no-cache");
+
+  return res.sendFile(manifestPath);
+});
+
+app.get(["/192.png", "/icon-192.png"], (req, res) => {
+  const iconPath = path.join(__dirname, "192.png");
+
+  if (!fs.existsSync(iconPath)) {
+    return res.status(404).send("192px app icon not found.");
+  }
+
+  res.type("png");
+  res.setHeader(
+    "Cache-Control",
+    "public, max-age=31536000, immutable"
+  );
+
+  return res.sendFile(iconPath);
+});
+
+app.get(["/512.png", "/icon-512.png"], (req, res) => {
+  const iconPath = path.join(__dirname, "512.png");
+
+  if (!fs.existsSync(iconPath)) {
+    return res.status(404).send("512px app icon not found.");
+  }
+
+  res.type("png");
+  res.setHeader(
+    "Cache-Control",
+    "public, max-age=31536000, immutable"
+  );
+
+  return res.sendFile(iconPath);
+});
+
+// ========================================
 // 18. HOME PAGE
 // ========================================
 
