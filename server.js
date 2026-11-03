@@ -20,8 +20,7 @@ const __dirname = path.dirname(__filename);
 
 const PORT = Number(process.env.PORT) || 3000;
 
-const MODEL =
-  process.env.GEMINI_MODEL || "gemini-3.8-flash";
+const MODEL = process.env.GEMINI_MODEL || "gemini-3.8-flash";
 
 const FALLBACK_MODELS = (
   process.env.GEMINI_FALLBACK_MODELS ||
@@ -38,6 +37,28 @@ const VIDEO_MODEL =
   process.env.GEMINI_VIDEO_MODEL || "gemini-omni-1.1-flash";
 
 const apiKey = process.env.GEMINI_API_KEY;
+
+// Separate configuration for chat.
+// Short timeout and no automatic SDK retries.
+
+const chatAI = apiKey
+  ? new GoogleGenAI({
+      apiKey,
+      httpOptions: {
+        timeout: 15000,
+        retryOptions: {
+          attempts: 1,
+          initialDelay: 0,
+          maxDelay: 0,
+          jitter: 0,
+          httpStatusCodes: []
+        }
+      }
+    })
+  : null;
+
+// Separate configuration for image and video.
+// Keeps the previous longer timeout and retry behavior.
 
 const ai = apiKey
   ? new GoogleGenAI({
@@ -352,7 +373,7 @@ function buildTaskInstruction(task) {
 }
 
 function requireAI(res) {
-  if (!ai) {
+  if (!ai || !chatAI) {
     res.status(503).json({
       success: false,
       error:
@@ -392,7 +413,7 @@ function getErrorStatus(error) {
   const message = String(error?.message || "");
 
   const match = message.match(
-    /\b(400|401|403|404|429|500|502|503|504)\b/
+    /\b(400|401|403|404|408|429|500|502|503|504)\b/
   );
 
   return match ? Number(match[1]) : 0;
@@ -416,19 +437,21 @@ function isFallbackError(error) {
   const message = String(error?.message || "").toLowerCase();
 
   return (
-    status === 503 ||
-    status === 502 ||
-    status === 500 ||
-    status === 404 ||
+    [408, 500, 502, 503, 504].includes(status) ||
     message.includes("high demand") ||
     message.includes("overloaded") ||
     message.includes("unavailable") ||
-    message.includes("not found")
+    message.includes("not found") ||
+    message.includes("timeout") ||
+    message.includes("timed out") ||
+    message.includes("deadline_exceeded") ||
+    error?.name === "AbortError" ||
+    error?.name === "TimeoutError"
   );
 }
 
 // Detect only a model-specific DAILY free-tier quota.
-// Other 429 errors are not automatically bypassed.
+
 function isDailyModelQuotaError(error) {
   const message = String(error?.message || "").toLowerCase();
 
@@ -451,7 +474,7 @@ function isDailyModelQuotaError(error) {
     getErrorStatus(error) === 429 &&
     (
       combined.includes(
-        "generaterequestsperdayperprojectpermodel"
+        "generaterequestsperdaypermodel"
       ) ||
       combined.includes(
         "generate_content_free_tier_requests"
@@ -477,62 +500,58 @@ async function generateChatWithFallback(request) {
   const failedModels = [];
 
   for (const model of models) {
+    const startedAt = Date.now();
+
     try {
       console.log("Trying chat model:", model);
 
-      const response = await ai.models.generateContent({
+      // Chat uses the separate fast-timeout client.
+      const response = await chatAI.models.generateContent({
         ...request,
         model
       });
 
-      console.log("Chat succeeded with model:", model);
+      const duration = Date.now() - startedAt;
+
+      console.log(
+        `Chat succeeded with ${model} in ${duration}ms`
+      );
 
       return {
         response,
         model,
-        failedModels
+        failedModels,
+        duration
       };
 
     } catch (error) {
       lastError = error;
 
+      const duration = Date.now() - startedAt;
+
       console.error(
-        `Chat model ${model} failed:`,
+        `Chat model ${model} failed after ${duration}ms:`,
         error?.message || error
       );
 
-      // A model-specific daily free-tier quota
-      // allows trying the next configured model.
-      if (isDailyModelQuotaError(error)) {
+      if (
+        isDailyModelQuotaError(error) ||
+        isFallbackError(error)
+      ) {
         failedModels.push({
           model,
-          reason: "daily_model_quota_exhausted"
+          reason: isDailyModelQuotaError(error)
+            ? "daily_model_quota_exhausted"
+            : "model_temporarily_unavailable"
         });
 
         console.log(
-          `Daily quota exhausted for ${model}. Trying next model.`
+          `Trying next model after ${model}`
         );
 
         continue;
       }
 
-      // Temporary model or server errors
-      // can also try the next configured model.
-      if (isFallbackError(error)) {
-        failedModels.push({
-          model,
-          reason: "model_temporarily_unavailable"
-        });
-
-        console.log(
-          `Model ${model} is temporarily unavailable. Trying next model.`
-        );
-
-        continue;
-      }
-
-      // Authentication errors, invalid requests
-      // and other non-fallback errors stop here.
       throw error;
     }
   }
@@ -611,6 +630,7 @@ function handleAIError(error, res) {
     lower.includes("timeout") ||
     lower.includes("timed out") ||
     lower.includes("deadline_exceeded") ||
+    status === 408 ||
     status === 504
   ) {
     return res.status(504).json({
@@ -1065,6 +1085,8 @@ app.post(
         });
       }
 
+      const requestStartedAt = Date.now();
+
       const result = await generateChatWithFallback({
         contents: [
           {
@@ -1091,11 +1113,20 @@ app.post(
         });
       }
 
+      const totalDuration =
+        Date.now() - requestStartedAt;
+
+      console.log(
+        `Total solve request completed in ${totalDuration}ms using ${result.model}`
+      );
+
       return res.json({
         success: true,
         answer,
         model: result.model,
         task,
+
+        responseTimeMs: totalDuration,
 
         imagesProcessed: images.length,
         documentsProcessed: documents.length,
@@ -1671,12 +1702,17 @@ const server = app.listen(PORT, () => {
   console.log(`API key configured: ${Boolean(apiKey)}`);
 
   console.log("Chat enabled");
+  console.log("Fast chat client enabled: 15000ms");
+  console.log("Chat SDK automatic retries disabled");
   console.log("Automatic chat fallback enabled");
   console.log("Daily model quota fallback enabled");
+  console.log("Chat response timing logs enabled");
+
   console.log("Photo understanding enabled");
   console.log("Document understanding enabled");
   console.log("Image generation enabled");
   console.log("Video generation enabled");
+  console.log("Media client timeout: 60000ms");
   console.log("Video status system enabled");
   console.log("Temporary file cleanup enabled");
 
