@@ -1249,11 +1249,6 @@ function startVoice(target="question",statusId="homeVoiceStatus"){
 
 /* SAFE MARKDOWN */
 
-/*
- * Convert common LaTeX-style math into readable Unicode.
- * Fenced code and inline code are protected from conversion.
- */
-
 function convertSubSuper(value,type){
  const sub={
   "0":"₀","1":"₁","2":"₂","3":"₃","4":"₄",
@@ -1280,17 +1275,14 @@ function convertSubSuper(value,type){
 function normalizeMathText(value){
  let text=String(value);
 
- // Remove common math delimiters while keeping their contents.
  text=text.replace(/\$\$([\s\S]*?)\$\$/g,"$1");
  text=text.replace(/\\\[([\s\S]*?)\\\]/g,"$1");
  text=text.replace(/\\\(([\s\S]*?)\\\)/g,"$1");
 
- // Remove common LaTeX text wrappers.
  for(let i=0;i<3;i++){
   text=text.replace(/\\(?:text|mathrm|mathbf|mathit|operatorname)\s*\{([^{}]*)\}/g,"$1");
  }
 
- // Convert common LaTeX commands.
  const replacements=[
   [/\\longrightarrow\b/g,"→"],
   [/\\Longrightarrow\b/g,"⇒"],
@@ -1339,33 +1331,25 @@ function normalizeMathText(value){
   text=text.replace(pattern,replacement);
  });
 
- // Convert square roots.
  text=text.replace(/\\sqrt\s*\{([^{}]+)\}/g,"√($1)");
  text=text.replace(/\\sqrt\s+([A-Za-z0-9]+)/g,"√($1)");
 
- // Convert simple fractions into readable division.
  text=text.replace(
   /\\frac\s*\{([^{}]+)\}\s*\{([^{}]+)\}/g,
   "($1)/($2)"
  );
 
- // Convert grouped subscripts and superscripts.
  text=text.replace(/_\{([^{}]+)\}/g,(_,value)=>convertSubSuper(value,"sub"));
  text=text.replace(/\^\{([^{}]+)\}/g,(_,value)=>convertSubSuper(value,"sup"));
 
- // Convert single-character subscripts and superscripts.
  text=text.replace(/_([0-9a-z])/gi,(_,value)=>convertSubSuper(value,"sub"));
  text=text.replace(/\^([0-9a-z])/gi,(_,value)=>convertSubSuper(value,"sup"));
 
- // Remove remaining math formatting commands and braces.
  text=text.replace(/\\(?:displaystyle|textstyle|scriptstyle)\b/g,"");
  text=text.replace(/[{}]/g,"");
  text=text.replace(/\\([#$%&_])/g,"$1");
 
- // Remove only remaining paired dollar math markers.
  text=text.replace(/\$([^$\n]+)\$/g,"$1");
-
- // Clean extra spaces introduced by command removal.
  text=text.replace(/[ \t]{2,}/g," ");
 
  return text;
@@ -1373,8 +1357,6 @@ function normalizeMathText(value){
 
 function normalizeAIFormatting(raw){
  const source=String(raw??"");
-
- // Split fenced code blocks first, so their contents remain unchanged.
  const fencedParts=source.split(/(```[\s\S]*?```)/g);
 
  return fencedParts.map(part=>{
@@ -1382,7 +1364,6 @@ function normalizeAIFormatting(raw){
    return part;
   }
 
-  // Protect inline code while normalizing ordinary answer text.
   const inlineParts=part.split(/(`[^`\n]*`)/g);
 
   return inlineParts.map(piece=>{
@@ -1417,8 +1398,6 @@ function formatInline(value){
 }
 
 function renderMarkdown(raw){
- // Normalize AI formatting before Markdown rendering.
- // Code blocks and inline code are protected by the normalizer.
  const normalized=normalizeAIFormatting(raw);
  const lines=normalized.replace(/\r/g,"").split("\n");
 
@@ -1665,29 +1644,103 @@ function addMessage(text,type,relatedQuestion="",persist=false,existingIndex=nul
  }
 
  if(type==="ai"){
-  const actions=document.createElement("div");
-  actions.className="msg-actions";
-
-  const copy=document.createElement("button");
-  copy.textContent="Copy";
-  copy.onclick=()=>copyText(text);
-
-  const save=document.createElement("button");
-  save.textContent="☆ Save";
-  save.onclick=()=>saveFavorite(text);
-
-  const regenerate=document.createElement("button");
-  regenerate.textContent="↻ Regenerate";
-  regenerate.onclick=()=>regenerateAnswer(wrap);
-
-  actions.append(copy,save,regenerate);
-  wrap.appendChild(actions);
+  addMessageActions(wrap,text);
  }
 
  document.getElementById("messages").appendChild(wrap);
 
+ scrollMessagesToBottom();
+
+ return wrap;
+}
+
+/* STREAMING MESSAGE HELPERS */
+
+function scrollMessagesToBottom(){
  const messages=document.getElementById("messages");
- messages.scrollTop=messages.scrollHeight;
+
+ if(messages){
+  messages.scrollTop=messages.scrollHeight;
+ }
+
+}
+
+function addMessageActions(wrap,text){
+ const oldActions=wrap.querySelector(".msg-actions");
+
+ if(oldActions)oldActions.remove();
+
+ const actions=document.createElement("div");
+ actions.className="msg-actions";
+
+ const copy=document.createElement("button");
+ copy.textContent="Copy";
+ copy.onclick=()=>copyText(text);
+
+ const save=document.createElement("button");
+ save.textContent="☆ Save";
+ save.onclick=()=>saveFavorite(text);
+
+ const regenerate=document.createElement("button");
+ regenerate.textContent="↻ Regenerate";
+ regenerate.onclick=()=>regenerateAnswer(wrap);
+
+ actions.append(copy,save,regenerate);
+ wrap.appendChild(actions);
+}
+
+function createStreamingMessage(){
+ const wrap=document.createElement("div");
+ wrap.className="msg ai streaming-message";
+
+ const content=document.createElement("div");
+ content.className="streaming-content";
+ content.textContent="";
+
+ wrap.appendChild(content);
+
+ document.getElementById("messages").appendChild(wrap);
+
+ scrollMessagesToBottom();
+
+ return {wrap,content};
+}
+
+function updateStreamingMessage(streamMessage,text){
+ if(!streamMessage)return;
+
+ streamMessage.content.innerHTML=renderMarkdown(text);
+ scrollMessagesToBottom();
+}
+
+function finishStreamingMessage(streamMessage,text,persist=true){
+ if(!streamMessage)return;
+
+ const wrap=streamMessage.wrap;
+
+ wrap.classList.remove("streaming-message");
+ streamMessage.content.innerHTML=renderMarkdown(text);
+
+ if(persist){
+  const session=getActiveSession();
+
+  if(session){
+   const message={
+    role:"ai",
+    text:String(text),
+    date:new Date().toISOString()
+   };
+
+   session.messages.push(message);
+   wrap.dataset.messageIndex=String(session.messages.length-1);
+
+   updateSessionTime(session);
+   saveData();
+  }
+ }
+
+ addMessageActions(wrap,text);
+ scrollMessagesToBottom();
 }
 
 /* EDIT MESSAGE */
@@ -1797,13 +1850,14 @@ function saveFavorite(answer){
  alert("Saved to Favorites!");
 }
 
-/* BACKEND CHAT REQUEST */
+/* BACKEND STREAMING CHAT REQUEST */
 
 async function askBackend(
  question,
  imageFiles=[],
  documentFiles=[],
- signal
+ signal,
+ onChunk=()=>{}
 ){
  const formData=new FormData();
 
@@ -1818,39 +1872,122 @@ async function askBackend(
   formData.append("documents",file,file.name);
  });
 
- const response=await fetch("/api/solve",{
+ const response=await fetch("/api/solve-stream",{
   method:"POST",
   body:formData,
-  signal
+  signal,
+  headers:{
+   "Accept":"application/x-ndjson"
+  }
  });
 
- const responseText=await response.text();
-
- let data={};
-
- try{
-  data=JSON.parse(responseText);
- }catch(error){}
-
  if(!response.ok){
+  const errorText=await response.text();
+  let errorData={};
+
+  try{
+   errorData=JSON.parse(errorText);
+  }catch(error){}
+
   throw new Error(
-   data.error||
-   data.message||
+   errorData.error||
+   errorData.message||
+   errorText||
    "Server error "+response.status
   );
  }
 
- const answer=
-  data.answer||
-  data.text||
-  data.response||
-  data.result;
-
- if(!answer){
-  throw new Error("AI returned an empty answer.");
+ if(!response.body){
+  throw new Error("Streaming is not supported by this connection.");
  }
 
- return String(answer);
+ const reader=response.body.getReader();
+ const decoder=new TextDecoder("utf-8");
+
+ let buffer="";
+ let fullAnswer="";
+ let completed=false;
+
+ function processStreamEvent(line){
+  const trimmed=line.trim();
+
+  if(!trimmed)return;
+
+  let event;
+
+  try{
+   event=JSON.parse(trimmed);
+  }catch(error){
+   console.warn("Invalid streaming event:",trimmed);
+   return;
+  }
+
+  if(event.type==="chunk"){
+   const chunk=String(event.text||"");
+
+   if(chunk){
+    fullAnswer+=chunk;
+    onChunk(chunk,fullAnswer);
+   }
+
+  }else if(event.type==="complete"){
+   completed=true;
+
+   if(!fullAnswer&&event.answer){
+    fullAnswer=String(event.answer);
+    onChunk(fullAnswer,fullAnswer);
+   }
+
+  }else if(event.type==="error"){
+   throw new Error(
+    event.error||
+    event.message||
+    "AI streaming failed."
+   );
+  }
+ }
+
+ try{
+  while(true){
+   const result=await reader.read();
+
+   if(result.done)break;
+
+   buffer+=decoder.decode(result.value,{stream:true});
+
+   let newlineIndex;
+
+   while((newlineIndex=buffer.indexOf("\n"))!==-1){
+    const line=buffer.slice(0,newlineIndex);
+    buffer=buffer.slice(newlineIndex+1);
+
+    processStreamEvent(line);
+   }
+  }
+
+  buffer+=decoder.decode();
+
+  if(buffer.trim()){
+   processStreamEvent(buffer);
+  }
+
+ }catch(error){
+  try{
+   await reader.cancel();
+  }catch(cancelError){}
+
+  throw error;
+ }
+
+ if(!fullAnswer.trim()){
+  throw new Error(
+   completed
+    ?"AI completed without returning any text."
+    :"The streaming connection ended before an answer was received."
+  );
+ }
+
+ return fullAnswer;
 }
 
 function stopGeneration(){
@@ -1859,7 +1996,7 @@ function stopGeneration(){
   activeController.abort();
 
   document.getElementById("chatStatus").textContent=
-   "Generation stopped.";
+   "Stopping generation...";
  }
 }
 
@@ -2008,7 +2145,7 @@ async function sendChatQuestion(){
  );
 }
 
-/* SEND TO AI */
+/* SEND TO AI - STREAMING */
 
 async function sendToAI(question,images=[],documents=[]){
  if(isGenerating)return;
@@ -2049,7 +2186,7 @@ async function sendToAI(question,images=[],documents=[]){
 
  const status=document.getElementById("chatStatus");
 
- status.textContent="ZAQTIVO AI is thinking...";
+ status.textContent="Connecting to ZAQTIVO AI...";
 
  stopRequested=false;
 
@@ -2057,41 +2194,86 @@ async function sendToAI(question,images=[],documents=[]){
  activeController=controller;
 
  const timeout=setTimeout(()=>{
-  controller.abort();
+  if(activeController===controller){
+   stopRequested=false;
+   controller.abort();
+  }
  },REQUEST_TIMEOUT);
 
- document.getElementById("stopBtn").classList.remove("hidden");
- document.getElementById("chatSendBtn").disabled=true;
+ const sendButton=document.getElementById("chatSendBtn");
+ const stopButton=document.getElementById("stopBtn");
+
+ sendButton.disabled=true;
+ stopButton.classList.remove("hidden");
+
+ let streamMessage=null;
+ let accumulatedAnswer="";
 
  try{
+  status.textContent="Waiting for the first response...";
+
   const answer=await askBackend(
    question,
    imageList,
    documentList,
-   controller.signal
+   controller.signal,
+   (chunk,fullText)=>{
+    accumulatedAnswer=fullText;
+
+    if(!streamMessage){
+     streamMessage=createStreamingMessage();
+     status.textContent="ZAQTIVO AI is replying...";
+    }
+
+    updateStreamingMessage(streamMessage,accumulatedAnswer);
+   }
   );
 
-  addMessage(answer,"ai",question,true);
+  accumulatedAnswer=answer;
+
+  if(!streamMessage){
+   streamMessage=createStreamingMessage();
+  }
+
+  finishStreamingMessage(streamMessage,answer,true);
 
   status.textContent="";
 
  }catch(error){
-  if(error.name==="AbortError"&&stopRequested){
-   status.textContent="Generation stopped.";
+  if(error.name==="AbortError"){
+   if(accumulatedAnswer.trim()&&streamMessage){
+    finishStreamingMessage(streamMessage,accumulatedAnswer,true);
+   }
+
+   if(stopRequested){
+    status.textContent="Generation stopped. Partial answer saved.";
+   }else{
+    status.textContent=
+     accumulatedAnswer.trim()
+      ?"Connection timed out. Partial answer saved."
+      :"Request timed out after 120 seconds. Please try again.";
+   }
+
   }else{
-   const message=
-    error.name==="AbortError"
-     ?"Request timed out after 120 seconds. Please try again."
-     :(error.message||"Please try again.");
+   if(accumulatedAnswer.trim()&&streamMessage){
+    finishStreamingMessage(streamMessage,accumulatedAnswer,true);
 
-   addMessage(
-    "Sorry, I couldn't get an answer.\n"+message,
-    "ai",
-    question,
-    true
-   );
+    status.textContent=
+     "Connection interrupted. Partial answer saved.";
+   }else{
+    const message=
+     error.message||
+     "Please try again.";
 
-   status.textContent="Request failed.";
+    addMessage(
+     "Sorry, I couldn't get an answer.\n"+message,
+     "ai",
+     question,
+     true
+    );
+
+    status.textContent="Request failed.";
+   }
   }
 
  }finally{
@@ -2103,8 +2285,8 @@ async function sendToAI(question,images=[],documents=[]){
 
   isGenerating=false;
 
-  document.getElementById("chatSendBtn").disabled=false;
-  document.getElementById("stopBtn").classList.add("hidden");
+  sendButton.disabled=false;
+  stopButton.classList.add("hidden");
 
   stopRequested=false;
 
