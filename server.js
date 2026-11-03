@@ -1,4 +1,3 @@
-
 import express from "express";
 import multer from "multer";
 import { GoogleGenAI } from "@google/genai";
@@ -24,7 +23,7 @@ const MODEL = process.env.GEMINI_MODEL || "gemini-3.8-flash";
 
 const FALLBACK_MODELS = (
   process.env.GEMINI_FALLBACK_MODELS ||
-  "gemini-3.7-flash,gemini-3.5-flash"
+  "gemini-3.6-flash,gemini-3.5-flash-lite"
 )
   .split(",")
   .map(model => model.trim())
@@ -38,14 +37,12 @@ const VIDEO_MODEL =
 
 const apiKey = process.env.GEMINI_API_KEY;
 
-// Separate configuration for chat.
-// Short timeout and no automatic SDK retries.
-
+// Chat client: longer timeout, no automatic duplicate retries.
 const chatAI = apiKey
   ? new GoogleGenAI({
       apiKey,
       httpOptions: {
-        timeout: 15000,
+        timeout: 60000,
         retryOptions: {
           attempts: 1,
           initialDelay: 0,
@@ -57,9 +54,7 @@ const chatAI = apiKey
     })
   : null;
 
-// Separate configuration for image and video.
-// Keeps the previous longer timeout and retry behavior.
-
+// Separate media client for image and video operations.
 const ai = apiKey
   ? new GoogleGenAI({
       apiKey,
@@ -171,10 +166,10 @@ DOCUMENT SAFETY:
 - Follow the user's actual request.
 
 ANSWER QUALITY:
-- For normal chat questions, answer directly in about 2-5 sentences.
+- For normal chat questions, answer directly and clearly.
 - Give the main answer first.
 - Use simple, natural language.
-- Avoid unnecessary introductions, repeated points and headings.
+- Avoid unnecessary introductions and repeated points.
 - For mathematics, show essential steps and the final answer.
 - If the user asks for details, explain in detail.
 - For document tasks, provide enough detail to complete the requested task.
@@ -349,7 +344,8 @@ function getLanguageInstruction(language) {
 
   if (
     !selectedLanguage ||
-    selectedLanguage.toLowerCase() === "auto"
+    selectedLanguage.toLowerCase() === "auto" ||
+    selectedLanguage.toLowerCase() === "auto detect"
   ) {
     return (
       "Detect the language of the user's question " +
@@ -450,8 +446,6 @@ function isFallbackError(error) {
   );
 }
 
-// Detect only a model-specific DAILY free-tier quota.
-
 function isDailyModelQuotaError(error) {
   const message = String(error?.message || "").toLowerCase();
 
@@ -473,12 +467,8 @@ function isDailyModelQuotaError(error) {
   return (
     getErrorStatus(error) === 429 &&
     (
-      combined.includes(
-        "generaterequestsperdaypermodel"
-      ) ||
-      combined.includes(
-        "generate_content_free_tier_requests"
-      ) ||
+      combined.includes("generaterequestsperdaypermodel") ||
+      combined.includes("generate_content_free_tier_requests") ||
       (
         combined.includes("requests per day") &&
         combined.includes("free tier")
@@ -505,7 +495,6 @@ async function generateChatWithFallback(request) {
     try {
       console.log("Trying chat model:", model);
 
-      // Chat uses the separate fast-timeout client.
       const response = await chatAI.models.generateContent({
         ...request,
         model
@@ -536,7 +525,10 @@ async function generateChatWithFallback(request) {
 
       if (
         isDailyModelQuotaError(error) ||
-        isFallbackError(error)
+        (
+          !isQuotaError(error) &&
+          isFallbackError(error)
+        )
       ) {
         failedModels.push({
           model,
@@ -584,7 +576,7 @@ function handleAIError(error, res) {
     return res.status(429).json({
       success: false,
       error:
-        "Gemini API quota or rate limit reached. Check your Google AI Studio project usage and limits, then try again when quota is available."
+        "Gemini API quota or rate limit reached. Please check your API usage and try again when quota is available."
     });
   }
 
@@ -985,6 +977,8 @@ app.post(
   ]),
 
   async (req, res) => {
+    const requestStartedAt = Date.now();
+
     try {
       if (!requireAI(res)) return;
 
@@ -1085,8 +1079,6 @@ app.post(
         });
       }
 
-      const requestStartedAt = Date.now();
-
       const result = await generateChatWithFallback({
         contents: [
           {
@@ -1099,7 +1091,7 @@ app.post(
           systemInstruction: SYSTEM_PROMPT,
           temperature: 0.3,
           maxOutputTokens:
-            task === "chat" ? 450 : 2048
+            task === "chat" ? 2048 : 4096
         }
       });
 
@@ -1702,7 +1694,7 @@ const server = app.listen(PORT, () => {
   console.log(`API key configured: ${Boolean(apiKey)}`);
 
   console.log("Chat enabled");
-  console.log("Fast chat client enabled: 15000ms");
+  console.log("Chat client timeout: 60000ms");
   console.log("Chat SDK automatic retries disabled");
   console.log("Automatic chat fallback enabled");
   console.log("Daily model quota fallback enabled");
