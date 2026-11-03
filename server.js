@@ -390,7 +390,10 @@ function getErrorStatus(error) {
   }
 
   const message = String(error?.message || "");
-  const match = message.match(/\b(400|401|403|404|429|500|502|503|504)\b/);
+
+  const match = message.match(
+    /\b(400|401|403|404|429|500|502|503|504)\b/
+  );
 
   return match ? Number(match[1]) : 0;
 }
@@ -424,6 +427,43 @@ function isFallbackError(error) {
   );
 }
 
+// Detect only a model-specific DAILY free-tier quota.
+// Other 429 errors are not automatically bypassed.
+function isDailyModelQuotaError(error) {
+  const message = String(error?.message || "").toLowerCase();
+
+  let details = "";
+
+  try {
+    details = JSON.stringify(
+      error?.details ||
+      error?.errorDetails ||
+      error?.response?.data ||
+      {}
+    ).toLowerCase();
+  } catch {
+    details = "";
+  }
+
+  const combined = `${message} ${details}`;
+
+  return (
+    getErrorStatus(error) === 429 &&
+    (
+      combined.includes(
+        "generaterequestsperdayperprojectpermodel"
+      ) ||
+      combined.includes(
+        "generate_content_free_tier_requests"
+      ) ||
+      (
+        combined.includes("requests per day") &&
+        combined.includes("free tier")
+      )
+    )
+  );
+}
+
 // ========================================
 // 11. CHAT MODEL FALLBACK
 // ========================================
@@ -434,6 +474,7 @@ async function generateChatWithFallback(request) {
   ];
 
   let lastError;
+  const failedModels = [];
 
   for (const model of models) {
     try {
@@ -448,7 +489,8 @@ async function generateChatWithFallback(request) {
 
       return {
         response,
-        model
+        model,
+        failedModels
       };
 
     } catch (error) {
@@ -459,19 +501,48 @@ async function generateChatWithFallback(request) {
         error?.message || error
       );
 
-      // A quota error must not be bypassed by switching models.
-      if (isQuotaError(error)) {
-        throw error;
+      // A model-specific daily free-tier quota
+      // allows trying the next configured model.
+      if (isDailyModelQuotaError(error)) {
+        failedModels.push({
+          model,
+          reason: "daily_model_quota_exhausted"
+        });
+
+        console.log(
+          `Daily quota exhausted for ${model}. Trying next model.`
+        );
+
+        continue;
       }
 
-      // Only temporary service/model errors try the next model.
-      if (!isFallbackError(error)) {
-        throw error;
+      // Temporary model or server errors
+      // can also try the next configured model.
+      if (isFallbackError(error)) {
+        failedModels.push({
+          model,
+          reason: "model_temporarily_unavailable"
+        });
+
+        console.log(
+          `Model ${model} is temporarily unavailable. Trying next model.`
+        );
+
+        continue;
       }
+
+      // Authentication errors, invalid requests
+      // and other non-fallback errors stop here.
+      throw error;
     }
   }
 
-  throw lastError || new Error(
+  if (lastError) {
+    lastError.failedModels = failedModels;
+    throw lastError;
+  }
+
+  throw new Error(
     "All configured chat models are unavailable."
   );
 }
@@ -1601,6 +1672,7 @@ const server = app.listen(PORT, () => {
 
   console.log("Chat enabled");
   console.log("Automatic chat fallback enabled");
+  console.log("Daily model quota fallback enabled");
   console.log("Photo understanding enabled");
   console.log("Document understanding enabled");
   console.log("Image generation enabled");
