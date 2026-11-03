@@ -1,4 +1,3 @@
-
 import express from "express";
 import multer from "multer";
 import { GoogleGenAI } from "@google/genai";
@@ -48,7 +47,6 @@ const MEDIA_TIMEOUT = Math.max(
   Number(process.env.GEMINI_MEDIA_TIMEOUT) || 60000
 );
 
-// Chat client: no automatic duplicate retries.
 const chatAI = apiKey
   ? new GoogleGenAI({
       apiKey,
@@ -65,7 +63,6 @@ const chatAI = apiKey
     })
   : null;
 
-// Separate media client for image and video operations.
 const ai = apiKey
   ? new GoogleGenAI({
       apiKey,
@@ -562,9 +559,6 @@ async function generateChatWithFallback(request) {
       const dailyQuota = isDailyModelQuotaError(error);
       const fallbackError = isFallbackError(error);
 
-      // Do not retry ordinary quota errors. Try another model
-      // only when the error indicates a model-specific daily quota
-      // or a temporary model/service failure.
       if (dailyQuota || (!isQuotaError(error) && fallbackError)) {
         failedModels.push({
           model,
@@ -978,7 +972,8 @@ app.get("/health", (req, res) => {
       imageUnderstanding: true,
       documentUnderstanding: true,
       imageGeneration: true,
-      videoGeneration: true
+      videoGeneration: true,
+      chatStreaming: true
     },
 
     supportedDocuments: DOCUMENT_EXTENSIONS,
@@ -1207,7 +1202,350 @@ app.post(
 );
 
 // ========================================
-// 20. IMAGE GENERATION
+// 20. STREAMING CHAT + PHOTO + DOCUMENT API
+// ========================================
+
+app.post(
+  "/api/solve-stream",
+
+  upload.fields([
+    { name: "images", maxCount: MAX_IMAGES },
+    { name: "documents", maxCount: MAX_DOCUMENTS }
+  ]),
+
+  async (req, res) => {
+    const requestStartedAt = Date.now();
+
+    let clientDisconnected = false;
+    let streamStarted = false;
+
+    req.on("aborted", () => {
+      clientDisconnected = true;
+    });
+
+    res.on("close", () => {
+      if (!res.writableEnded) {
+        clientDisconnected = true;
+      }
+    });
+
+    function sendEvent(event) {
+      if (
+        !clientDisconnected &&
+        !res.destroyed &&
+        res.writable
+      ) {
+        res.write(JSON.stringify(event) + "\n");
+      }
+    }
+
+    try {
+      if (!requireAI(res)) return;
+
+      const question = cleanString(
+        req.body?.question,
+        MAX_QUESTION_LENGTH
+      );
+
+      const task = cleanString(
+        req.body?.task || "chat",
+        50
+      ).toLowerCase();
+
+      const language = cleanString(
+        req.body?.language || "auto",
+        100
+      );
+
+      const images = req.files?.images || [];
+      const documentFiles = req.files?.documents || [];
+
+      if (
+        !question &&
+        images.length === 0 &&
+        documentFiles.length === 0 &&
+        !DOCUMENT_TASKS[task]
+      ) {
+        return res.status(400).json({
+          success: false,
+          error: "Please enter a question or upload a file."
+        });
+      }
+
+      if (
+        task !== "chat" &&
+        !DOCUMENT_TASKS[task]
+      ) {
+        return res.status(400).json({
+          success: false,
+          error: "Unsupported document task."
+        });
+      }
+
+      for (const file of images) {
+        const extension = getFileExtension(file);
+        const expectedMime = IMAGE_TYPES[extension];
+
+        if (
+          !expectedMime ||
+          file.mimetype !== expectedMime
+        ) {
+          return res.status(400).json({
+            success: false,
+            error: `Unsupported image: ${file.originalname}`
+          });
+        }
+      }
+
+      const documents =
+        await processDocuments(documentFiles);
+
+      let finalQuestion = question;
+
+      if (!finalQuestion && documents.length > 0) {
+        finalQuestion =
+          "Please summarize and explain the uploaded document in simple language.";
+      }
+
+      if (
+        !finalQuestion &&
+        images.length > 0 &&
+        documents.length === 0
+      ) {
+        finalQuestion =
+          "Please analyze the uploaded image and explain its contents.";
+      }
+
+      if (!finalQuestion) {
+        finalQuestion =
+          "Please complete the requested task using the uploaded content.";
+      }
+
+      const prompt = buildPrompt(
+        finalQuestion,
+        documents,
+        task,
+        language
+      );
+
+      const parts = [{ text: prompt }];
+
+      for (const file of images) {
+        parts.push({
+          inlineData: {
+            mimeType: file.mimetype,
+            data: file.buffer.toString("base64")
+          }
+        });
+      }
+
+      const request = {
+        contents: [
+          {
+            role: "user",
+            parts
+          }
+        ],
+
+        config: {
+          systemInstruction: SYSTEM_PROMPT,
+          temperature: 0.3,
+          maxOutputTokens:
+            task === "chat" ? 2048 : 4096
+        }
+      };
+
+      res.status(200);
+
+      res.setHeader(
+        "Content-Type",
+        "application/x-ndjson; charset=utf-8"
+      );
+
+      res.setHeader(
+        "Cache-Control",
+        "no-cache, no-transform"
+      );
+
+      res.setHeader(
+        "Connection",
+        "keep-alive"
+      );
+
+      res.setHeader(
+        "X-Accel-Buffering",
+        "no"
+      );
+
+      res.flushHeaders?.();
+
+      const models = [
+        ...new Set([MODEL, ...FALLBACK_MODELS])
+      ];
+
+      let lastError = null;
+      let selectedModel = null;
+
+      for (const model of models) {
+        if (clientDisconnected) return;
+
+        try {
+          console.log(
+            "Starting streaming chat with model:",
+            model
+          );
+
+          const stream =
+            await chatAI.models.generateContentStream({
+              ...request,
+              model
+            });
+
+          let modelProducedText = false;
+
+          for await (const chunk of stream) {
+            if (clientDisconnected) return;
+
+            const chunkText = getResponseText(chunk);
+
+            if (!chunkText) continue;
+
+            modelProducedText = true;
+            streamStarted = true;
+
+            sendEvent({
+              type: "chunk",
+              text: chunkText
+            });
+          }
+
+          if (!modelProducedText) {
+            throw new Error(
+              "The AI returned an empty streaming response."
+            );
+          }
+
+          selectedModel = model;
+          break;
+
+        } catch (error) {
+          lastError = error;
+
+          // Once text has reached the user, do not switch models.
+          // This prevents duplicate or contradictory answers.
+          if (streamStarted) {
+            throw error;
+          }
+
+          const dailyQuota =
+            isDailyModelQuotaError(error);
+
+          const fallbackError =
+            isFallbackError(error);
+
+          if (
+            dailyQuota ||
+            (!isQuotaError(error) && fallbackError)
+          ) {
+            console.warn(
+              "Streaming model failed before first token; trying fallback:",
+              model,
+              error?.message || error
+            );
+
+            continue;
+          }
+
+          throw error;
+        }
+      }
+
+      if (!selectedModel) {
+        throw (
+          lastError ||
+          new Error(
+            "All configured streaming chat models are unavailable."
+          )
+        );
+      }
+
+      const totalDuration =
+        Date.now() - requestStartedAt;
+
+      console.log(
+        `Streaming solve completed in ${totalDuration}ms using ${selectedModel}`
+      );
+
+      sendEvent({
+        type: "complete",
+        model: selectedModel,
+        task,
+        responseTimeMs: totalDuration,
+        imagesProcessed: images.length,
+        documentsProcessed: documents.length,
+        documentNames: documents.map(d => d.name),
+
+        documentDetails: documents.map(d => ({
+          name: d.name,
+          charactersProcessed: d.processedCharacters,
+          truncated: d.truncated
+        }))
+      });
+
+      return res.end();
+
+    } catch (error) {
+      console.error(
+        "STREAMING SOLVE ROUTE ERROR:",
+        error?.message || error
+      );
+
+      if (clientDisconnected) return;
+
+      if (res.headersSent) {
+        let message =
+          "The AI stream was interrupted. Please try again.";
+
+        if (
+          error.message?.startsWith("Could not read") ||
+          error.message?.includes("does not contain readable text")
+        ) {
+          message = error.message;
+
+        } else if (isQuotaError(error)) {
+          message =
+            "Gemini API quota or rate limit reached. Please try again when quota is available.";
+
+        } else if (isFallbackError(error)) {
+          message =
+            "AI service is temporarily busy. Please try again shortly.";
+        }
+
+        sendEvent({
+          type: "error",
+          error: message
+        });
+
+        return res.end();
+      }
+
+      if (
+        error.message?.startsWith("Could not read") ||
+        error.message?.includes("does not contain readable text")
+      ) {
+        return res.status(400).json({
+          success: false,
+          error: error.message
+        });
+      }
+
+      return handleAIError(error, res);
+    }
+  }
+);
+
+// ========================================
+// 21. IMAGE GENERATION
 // ========================================
 
 app.post(
@@ -1254,7 +1592,9 @@ app.post(
           ? aspectRatio
           : "1:1";
 
-      const allowedSizes = ["512", "1K", "2K", "4K"];
+      const allowedSizes = [
+        "512", "1K", "2K", "4K"
+      ];
 
       const safeSize =
         allowedSizes.includes(imageSize)
@@ -1332,7 +1672,7 @@ Do not return only a written description.
 );
 
 // ========================================
-// 21. VIDEO GENERATION - START JOB
+// 22. VIDEO GENERATION - START JOB
 // ========================================
 
 app.post(
@@ -1441,7 +1781,7 @@ Create a video matching this description.
 );
 
 // ========================================
-// 22. VIDEO GENERATION - CHECK STATUS
+// 23. VIDEO GENERATION - CHECK STATUS
 // ========================================
 
 app.get(
@@ -1556,7 +1896,7 @@ app.get(
 );
 
 // ========================================
-// 23. SERVE GENERATED VIDEO
+// 24. SERVE GENERATED VIDEO
 // ========================================
 
 app.get(
@@ -1617,7 +1957,7 @@ app.get(
 );
 
 // ========================================
-// 24. API INFORMATION
+// 25. API INFORMATION
 // ========================================
 
 app.get("/api", (req, res) => {
@@ -1628,6 +1968,7 @@ app.get("/api", (req, res) => {
     endpoints: {
       health: "GET /health",
       solve: "POST /api/solve",
+      solveStream: "POST /api/solve-stream",
       generateImage: "POST /api/generate-image",
       generateVideo: "POST /api/generate-video",
       videoStatus: "GET /api/video-status/:jobId",
@@ -1637,7 +1978,7 @@ app.get("/api", (req, res) => {
 });
 
 // ========================================
-// 25. VIDEO JOB CLEANUP
+// 26. VIDEO JOB CLEANUP
 // ========================================
 
 async function cleanupVideoJobs() {
@@ -1682,7 +2023,7 @@ const cleanupTimer = setInterval(() => {
 cleanupTimer.unref?.();
 
 // ========================================
-// 26. MULTER + GENERAL ERROR HANDLING
+// 27. MULTER + GENERAL ERROR HANDLING
 // ========================================
 
 app.use((error, req, res, next) => {
@@ -1729,7 +2070,7 @@ app.use((error, req, res, next) => {
 });
 
 // ========================================
-// 27. START SERVER
+// 28. START SERVER
 // ========================================
 
 const server = app.listen(PORT, () => {
@@ -1751,6 +2092,7 @@ const server = app.listen(PORT, () => {
   console.log("Daily model quota fallback enabled");
   console.log("Chat response timing logs enabled");
   console.log("Readable formula formatting instructions enabled");
+  console.log("Streaming chat endpoint enabled");
 
   console.log("Photo understanding enabled");
   console.log("Document understanding enabled");
@@ -1764,7 +2106,7 @@ const server = app.listen(PORT, () => {
 });
 
 // ========================================
-// 28. GRACEFUL SHUTDOWN
+// 29. GRACEFUL SHUTDOWN
 // ========================================
 
 function shutdown(signal) {
