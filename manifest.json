@@ -1,0 +1,25 @@
+{
+  "background_color": "#10065c",
+  "dir": "auto",
+  "display": "standalone",
+  "name": "ZAQTIVO AI",
+  "orientation": "portrait",
+  "scope": "/",
+  "short_name": "ZAQTIVO",
+  "start_url": "/",
+  "theme_color": "#10065c",
+  "id": "/",
+  "description": "ZAQTIVO AI is your smart AI assistant for answering questions, solving doubts, understanding images and documents, and generating creative content in multiple languages.",
+  "lang": "en",
+  "display_override": [
+    "window-controls-overlay"
+  ],
+  "categories": [
+    "business",
+    "education",
+    "entertainment",
+    "lifestyle",
+    "productivity",
+    "utilities"
+  ]
+}
