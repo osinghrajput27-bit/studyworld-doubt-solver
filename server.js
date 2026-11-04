@@ -828,7 +828,65 @@ async function generateChatWithFallback(request) {
     "All configured chat models are unavailable."
   );
 }
+async function generateChatWithProviders(request) {
+  if (openai) {
+    try {
+      const parts = request.contents?.[0]?.parts || [];
 
+      const content = parts.map(part => {
+        if (part.text) {
+          return {
+            type: "text",
+            text: part.text
+          };
+        }
+
+        if (part.inlineData) {
+          return {
+            type: "image_url",
+            image_url: {
+              url: `data:${part.inlineData.mimeType};base64,${part.inlineData.data}`
+            }
+          };
+        }
+
+        return null;
+      }).filter(Boolean);
+
+      const result = await openai.chat.completions.create({
+        model: "gpt-5-mini",
+        messages: [
+          {
+            role: "system",
+            content: request.config?.systemInstruction || SYSTEM_PROMPT
+          },
+          {
+            role: "user",
+            content
+          }
+        ],
+        max_completion_tokens:
+          request.config?.maxOutputTokens || 2048
+      });
+
+      const answer = result.choices?.[0]?.message?.content || "";
+
+      if (!answer.trim()) {
+        throw new Error("OpenAI returned an empty response.");
+      }
+
+      return {
+        response: { text: answer },
+        model: "OpenAI GPT-5 mini"
+      };
+
+    } catch (error) {
+      console.error("OpenAI failed; switching to Gemini:", error.message);
+    }
+  }
+
+  return generateChatWithFallback(request);
+}
 // ========================================
 // 12. ERROR RESPONSE HANDLING
 // ========================================
