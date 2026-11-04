@@ -2467,6 +2467,25 @@ function shutdown(signal) {
     process.exit(1);
   }, 10000).unref();
 }
+// ANDROID DIGITAL ASSET LINKS
+app.get("/.well-known/assetlinks.json", (req, res) => {
+  const assetLinksPath = path.join(
+    __dirname,
+    "public",
+    ".well-known",
+    "assetlinks.json"
+  );
 
+  if (!fs.existsSync(assetLinksPath)) {
+    return res.status(404).json({
+      success: false,
+      error: "assetlinks.json not found"
+    });
+  }
+
+  res.setHeader("Content-Type", "application/json");
+  res.setHeader("Cache-Control", "public, max-age=3600");
+  return res.sendFile(assetLinksPath);
+});
 process.on("SIGTERM", () => shutdown("SIGTERM"));
 process.on("SIGINT", () => shutdown("SIGINT"));
