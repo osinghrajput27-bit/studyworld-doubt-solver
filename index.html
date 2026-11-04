@@ -275,6 +275,8 @@ main{width:min(100% - 28px,950px);margin:0 auto;padding-bottom:40px}
 }
 @keyframes progress{from{width:15%}to{width:90%}}
 
+/* CHAT SCREEN BACKGROUND - UNCHANGED */
+
 body.chat-open{overflow:hidden}
 body.chat-open .topbar,body.chat-open #homeScreen,body.chat-open #otherScreen{display:none!important}
 body.chat-open main{position:static;width:100%;max-width:none;margin:0;padding:0}
@@ -285,47 +287,307 @@ body.chat-open #chatScreen{
  radial-gradient(ellipse at 90% 30%,#064e9c 0,transparent 38%),
  linear-gradient(135deg,#08052f,#101078,#080c50)
 }
+
+/* FIFTH CHAT DESIGN */
+
 body.chat-open #chatScreen .panel{
  width:100%;height:100dvh;max-width:100%;margin:0;padding:0;
- border:0;border-radius:0;display:flex;flex-direction:column;background:transparent
+ border:0;border-radius:0;display:flex;flex-direction:column;
+ background:transparent;overflow:hidden
 }
+
 body.chat-open .chathead{
- flex:0 0 auto;padding:12px 16px;margin:0;
- border-bottom:1px solid #ffffff30;background:#08052f88
+ flex:0 0 auto;
+ min-height:72px;
+ padding:10px 16px;
+ margin:0;
+ display:flex;
+ align-items:center;
+ gap:12px;
+ border-bottom:1px solid #ffffff25;
+ background:#08052f88;
 }
+
+body.chat-open .chathead .backbtn:first-child{
+ width:42px;
+ height:42px;
+ padding:0;
+ border-radius:50%;
+ font-size:23px;
+ background:#ffffff18;
+ border:1px solid #ffffff30;
+}
+
+.chat-brand{
+ display:flex;
+ align-items:center;
+ gap:10px;
+ min-width:0;
+}
+
+.chat-brand-avatar{
+ width:43px;
+ height:43px;
+ flex-shrink:0;
+ border-radius:50%;
+ display:grid;
+ place-items:center;
+ font-size:23px;
+ background:linear-gradient(135deg,#00cfff,#762cff);
+ border:2px solid #ffffff99;
+ box-shadow:0 0 16px #7c3cff66;
+}
+
+.chat-brand-info{
+ min-width:0;
+ display:flex;
+ flex-direction:column;
+ gap:3px;
+}
+
+.chat-brand-info strong{
+ font-size:16px;
+ letter-spacing:.3px;
+}
+
+.chat-brand-info span{
+ font-size:11px;
+ color:#9ff2ff;
+}
+
+body.chat-open .chathead #stopBtn{
+ margin-left:auto;
+ white-space:nowrap;
+}
+
+body.chat-open .chathead .new-chat-btn{
+ width:40px;
+ height:40px;
+ padding:0;
+ border-radius:50%;
+ font-size:22px;
+ background:#ffffff18;
+ border:1px solid #ffffff35;
+}
+
 body.chat-open #messages{
- flex:1;min-height:0;overflow-y:auto;overscroll-behavior:contain;
- display:flex;flex-direction:column;gap:18px;
- padding:20px max(16px,calc((100vw - 850px)/2));scroll-behavior:smooth
+ flex:1;
+ min-height:0;
+ overflow-y:auto;
+ overscroll-behavior:contain;
+ display:flex;
+ flex-direction:column;
+ gap:20px;
+ padding:22px max(18px,calc((100vw - 850px)/2));
+ scroll-behavior:smooth;
 }
-body.chat-open .msg{max-width:min(82%,760px);padding:13px 17px;border-radius:20px;font-size:16px}
-body.chat-open .msg.user{align-self:flex-end;border-bottom-right-radius:5px}
+
+body.chat-open .msg{
+ position:relative;
+ max-width:min(82%,700px);
+ padding:14px 17px;
+ border-radius:21px;
+ font-size:15px;
+ line-height:1.65;
+ box-shadow:0 5px 18px #02042e33;
+}
+
+body.chat-open .msg.user{
+ align-self:flex-end;
+ margin-left:auto;
+ color:white;
+ background:linear-gradient(135deg,#a52cff,#6b35ff,#175fe9);
+ border:1px solid #ffffff35;
+ border-bottom-right-radius:5px;
+}
+
 body.chat-open .msg.ai{
- align-self:stretch;max-width:100%;width:100%;padding:8px 4px;
- background:transparent;border:0;border-radius:0;font-size:16px;line-height:1.75
+ align-self:flex-start;
+ margin-left:43px;
+ max-width:min(82%,700px);
+ width:auto;
+ padding:14px 17px;
+ color:white;
+ background:linear-gradient(135deg,#ffffff22,#ffffff12);
+ border:1px solid #ffffff40;
+ border-radius:20px;
+ border-top-left-radius:5px;
+ font-size:15px;
+ line-height:1.7;
 }
+
+body.chat-open .msg.ai:before{
+ content:"✦";
+ position:absolute;
+ left:-43px;
+ top:0;
+ width:33px;
+ height:33px;
+ display:grid;
+ place-items:center;
+ border-radius:50%;
+ color:white;
+ font-size:18px;
+ background:linear-gradient(135deg,#00cfff,#792dff);
+ border:1px solid #ffffff88;
+ box-shadow:0 0 13px #8b35ff66;
+}
+
+body.chat-open .msg-actions{
+ display:flex;
+ gap:7px;
+ margin-top:12px;
+ flex-wrap:wrap;
+}
+
+body.chat-open .msg-actions button{
+ padding:7px 10px;
+ border-radius:9px;
+ font-size:12px;
+ background:#ffffff15;
+ border:1px solid #ffffff35;
+ color:#e8edff;
+}
+
+body.chat-open .edit-message-btn{
+ background:#ffffff20;
+}
+
 body.chat-open .chatinput{
- flex:0 0 auto;margin:0;padding:12px 16px 8px;background:#08052fdd;
- border-top:1px solid #ffffff25;align-items:flex-end
+ flex:0 0 auto;
+ display:flex;
+ align-items:flex-end;
+ gap:9px;
+ margin:0;
+ padding:12px 16px 7px;
+ background:#08052fdd;
+ border-top:1px solid #ffffff20;
 }
+
 body.chat-open .chatinput textarea{
- min-height:48px;max-height:140px;resize:none;border-radius:25px;padding:14px 17px
+ flex:1;
+ min-width:0;
+ min-height:49px;
+ max-height:130px;
+ resize:none;
+ border-radius:25px;
+ padding:14px 18px;
+ color:white;
+ background:#ffffff18;
+ border:1px solid #ffffff55;
+ outline:none;
+ font-size:15px;
 }
-body.chat-open .chatinput button{min-height:48px;min-width:52px;border-radius:50%;font-size:22px}
+
+body.chat-open .chatinput textarea:focus{
+ border-color:#b45cff;
+ box-shadow:0 0 12px #9b35ff33;
+}
+
+body.chat-open .chatinput button{
+ min-height:49px;
+ min-width:49px;
+ padding:0;
+ border-radius:50%;
+ font-size:22px;
+ background:linear-gradient(135deg,#b52cff,#672cff,#087dff);
+ border:1px solid #ffffff55;
+}
+
 body.chat-open #chatScreen .panel>div:last-of-type{
- flex:0 0 auto;margin:0;padding:0 16px 12px;background:#08052fdd
+ flex:0 0 auto;
+ margin:0;
+ padding:0 16px 12px;
+ background:#08052fdd;
 }
-body.chat-open #chatStatus{flex:0 0 auto;margin:0;padding:5px 18px;background:#08052fdd}
-body.chat-open .msg.ai h1,body.chat-open .msg.ai h2,body.chat-open .msg.ai h3{line-height:1.3}
+
+body.chat-open .attach-toolbar{
+ gap:8px;
+ margin:0;
+ padding:5px 0;
+}
+
+body.chat-open .attach-toolbar .smallbtn{
+ padding:8px 11px;
+ border-radius:20px;
+ font-size:12px;
+ background:#ffffff13;
+ border:1px solid #ffffff35;
+}
+
+body.chat-open #chatStatus{
+ flex:0 0 auto;
+ margin:0;
+ padding:5px 18px;
+ background:#08052fdd;
+}
+
+body.chat-open #chatPhotoPreviews,
+body.chat-open #chatDocumentPreviews{
+ padding:5px 15px;
+ margin:0;
+ background:#08052fdd;
+}
+
+body.chat-open #chatPhotoCount,
+body.chat-open #chatDocumentCount{
+ padding:0 16px;
+ background:#08052fdd;
+}
+
+body.chat-open #chatVoiceStatus{
+ margin:0;
+ padding:3px 16px;
+ background:#08052fdd;
+}
+
+body.chat-open .msg.ai h1,
+body.chat-open .msg.ai h2,
+body.chat-open .msg.ai h3{line-height:1.3}
+
 body.chat-open .msg.ai pre{
- white-space:pre-wrap;overflow-x:auto;padding:14px;border-radius:12px;
- background:#050526;border:1px solid #ffffff30
+ white-space:pre-wrap;
+ overflow-x:auto;
+ padding:14px;
+ border-radius:12px;
+ background:#050526;
+ border:1px solid #ffffff30
 }
-body.chat-open .msg.ai code{font-family:monospace;background:#ffffff20;padding:2px 5px;border-radius:5px}
-body.chat-open .msg.ai pre code{background:transparent;padding:0}
-body.chat-open .msg.ai table{width:100%;border-collapse:collapse;display:block;overflow-x:auto;margin:12px 0}
-body.chat-open .msg.ai th,body.chat-open .msg.ai td{border:1px solid #ffffff55;padding:9px;text-align:left;min-width:90px}
-body.chat-open .msg.ai blockquote{margin:10px 0;padding:8px 14px;border-left:3px solid #50d9ff;background:#ffffff12}
+
+body.chat-open .msg.ai code{
+ font-family:monospace;
+ background:#ffffff20;
+ padding:2px 5px;
+ border-radius:5px
+}
+
+body.chat-open .msg.ai pre code{
+ background:transparent;
+ padding:0
+}
+
+body.chat-open .msg.ai table{
+ width:100%;
+ border-collapse:collapse;
+ display:block;
+ overflow-x:auto;
+ margin:12px 0
+}
+
+body.chat-open .msg.ai th,
+body.chat-open .msg.ai td{
+ border:1px solid #ffffff55;
+ padding:9px;
+ text-align:left;
+ min-width:90px
+}
+
+body.chat-open .msg.ai blockquote{
+ margin:10px 0;
+ padding:8px 14px;
+ border-left:3px solid #50d9ff;
+ background:#ffffff12
+}
 
 @media(max-width:600px){
  .topbar{padding:14px 7px}
@@ -341,13 +603,29 @@ body.chat-open .msg.ai blockquote{margin:10px 0;padding:8px 14px;border-left:3px
  .upgrade p{font-size:12px}
  .upgrade button{padding:11px 13px}
  .askbox textarea{font-size:15px}
- body.chat-open .msg{max-width:90%;font-size:15px}
- body.chat-open .msg.ai{max-width:100%}
- body.chat-open #messages{padding:16px 14px}
- body.chat-open .chathead{padding:10px}
- body.chat-open .chatinput{padding:10px}
+ body.chat-open .msg{max-width:88%;font-size:14px}
+ body.chat-open .msg.ai{max-width:88%;margin-left:39px}
+ body.chat-open #messages{padding:17px 13px;gap:17px}
+ body.chat-open .chathead{padding:9px 11px;min-height:65px}
+ body.chat-open .chatinput{padding:10px 11px 6px}
+ body.chat-open .attach-toolbar{gap:6px}
+ body.chat-open .attach-toolbar .smallbtn{font-size:11px;padding:7px 9px}
+ body.chat-open .chat-brand-avatar{width:39px;height:39px}
+ body.chat-open .chat-brand-info strong{font-size:14px}
+ body.chat-open .chat-brand-info span{font-size:10px}
  .photo-preview{width:78px;height:78px}
  .document-preview{min-width:135px;max-width:48%}
+}
+
+@media(max-width:380px){
+ body.chat-open .chathead{gap:7px}
+ body.chat-open .chathead .backbtn:first-child{width:36px;height:36px}
+ body.chat-open .chat-brand{gap:7px}
+ body.chat-open .chat-brand-avatar{width:35px;height:35px;font-size:19px}
+ body.chat-open .chat-brand-info strong{font-size:12px}
+ body.chat-open .chathead .new-chat-btn{width:35px;height:35px}
+ body.chat-open .msg{max-width:90%}
+ body.chat-open .msg.ai{max-width:90%}
 }
 </style>
 </head>
@@ -466,25 +744,34 @@ body.chat-open .msg.ai blockquote{margin:10px 0;padding:8px 14px;border-left:3px
 
 <section id="chatScreen">
  <div class="panel glass">
+
   <div class="chathead">
-   <button class="backbtn" onclick="goHome()">← Back</button>
-   <strong id="chatHeading">ZAQTIVO AI</strong>
+   <button class="backbtn" onclick="goHome()" aria-label="Back">←</button>
+
+   <div class="chat-brand">
+    <div class="chat-brand-avatar">✦</div>
+    <div class="chat-brand-info">
+     <strong id="chatHeading">ZAQTIVO AI</strong>
+     <span>● AI Assistant</span>
+    </div>
+   </div>
+
    <button id="stopBtn" class="backbtn hidden" onclick="stopGeneration()">■ Stop</button>
-   <button class="backbtn" style="margin-left:auto" onclick="newChat()">＋ New</button>
+   <button class="backbtn new-chat-btn" style="margin-left:auto" onclick="newChat()" aria-label="New chat">＋</button>
   </div>
 
   <div id="messages" class="messages"></div>
   <div id="chatStatus" class="status"></div>
 
   <div class="chatinput">
-   <textarea id="chatQuestion" placeholder="Type your message..."></textarea>
-   <button id="chatSendBtn" onclick="sendChatQuestion()">➤</button>
+   <textarea id="chatQuestion" placeholder="Message ZAQTIVO AI..." rows="1"></textarea>
+   <button id="chatSendBtn" onclick="sendChatQuestion()" aria-label="Send message">➤</button>
   </div>
 
   <div class="attach-toolbar">
-   <button class="smallbtn" onclick="document.getElementById('chatPhoto').click()">＋ Add Photos</button>
+   <button class="smallbtn" onclick="document.getElementById('chatPhoto').click()">＋ Photos</button>
    <button class="smallbtn" onclick="document.getElementById('chatCamera').click()">📷 Camera</button>
-   <button class="smallbtn" onclick="document.getElementById('chatDocument').click()">📄 Add Documents</button>
+   <button class="smallbtn" onclick="document.getElementById('chatDocument').click()">📄 Documents</button>
    <button class="smallbtn" onclick="startVoice('chatQuestion','chatVoiceStatus')">🎙 Voice</button>
   </div>
 
@@ -1664,7 +1951,6 @@ function scrollMessagesToBottom(){
  if(messages){
   messages.scrollTop=messages.scrollHeight;
  }
-
 }
 
 function addMessageActions(wrap,text){
