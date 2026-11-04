@@ -452,6 +452,9 @@ const RATE_LIMIT_WINDOW = 60 * 1000;
 const MAX_REQUESTS_PER_WINDOW = 40;
 
 app.use("/api", (req, res, next) => {
+  res.setHeader("Cache-Control", "no-store");
+  res.setHeader("Pragma", "no-cache");
+
   const ip =
     req.ip ||
     req.socket.remoteAddress ||
