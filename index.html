@@ -769,6 +769,129 @@ body.chat-open #chatStatus,body.chat-open #chatPhotoPreviews,body.chat-open #cha
  body.chat-open .chatinput{padding:10px 12px 4px}
  body.chat-open #chatScreen .panel>div:last-of-type{padding-left:12px;padding-right:12px}
  }
+ /* ZAQTIVO AI SIDEBAR FIX */
+.menu-backdrop{display:none}
+
+.menu{
+ display:flex;
+ flex-direction:column;
+ position:fixed;
+ top:0;
+ left:0;
+ bottom:0;
+ width:min(310px,86vw);
+ height:100dvh;
+ padding:18px 14px;
+ border-radius:0 20px 20px 0;
+ background:#171717!important;
+ border:1px solid #353535;
+ z-index:1002;
+ transform:translateX(-110%);
+ transition:transform .24s ease;
+ box-shadow:18px 0 55px #0008;
+ gap:7px;
+ overflow-y:auto;
+}
+
+body.menu-open .menu{
+ display:flex;
+ transform:translateX(0);
+}
+
+body.menu-open .menu-backdrop{
+ display:block;
+ position:fixed;
+ inset:0;
+ background:#0009;
+ backdrop-filter:blur(2px);
+ z-index:1001;
+}
+
+.menu-brand{
+ display:flex;
+ align-items:center;
+ gap:11px;
+ padding:8px 5px 20px;
+ border-bottom:1px solid #353535;
+ margin-bottom:8px;
+}
+
+.menu-brand-icon{
+ width:38px;
+ height:38px;
+ display:grid;
+ place-items:center;
+ border-radius:12px;
+ background:linear-gradient(135deg,#8b5cf6,#5142c9);
+ font-size:21px;
+ color:white;
+}
+
+.menu-brand strong,.menu-brand span{display:block}
+.menu-brand strong{font-size:14px;color:#fff}
+.menu-brand span{font-size:11px;color:#999;margin-top:3px}
+
+.menu-close{
+ margin-left:auto;
+ width:34px;
+ height:34px;
+ border:0;
+ border-radius:9px;
+ background:#292929;
+ color:#ddd;
+ font-size:23px;
+}
+
+.menu .menu-label{
+ padding:13px 10px 5px;
+ color:#888;
+ font-size:10px;
+ font-weight:700;
+ letter-spacing:1.2px;
+}
+
+.menu>button:not(.menu-close){
+ width:100%;
+ min-height:44px;
+ display:flex;
+ align-items:center;
+ gap:12px;
+ padding:11px 13px;
+ text-align:left;
+ border:1px solid transparent;
+ border-radius:11px;
+ color:#dedede;
+ background:transparent;
+ font-size:14px;
+}
+
+.menu>button:not(.menu-close):hover{
+ background:#303030;
+ border-color:#414141;
+}
+
+.menu .menu-new-chat{
+ margin:8px 0 5px;
+ background:#343044!important;
+ border-color:#5d4c91!important;
+ color:#fff!important;
+ font-weight:600;
+}
+
+.menu-footer{
+ margin-top:auto;
+ padding:18px 9px 7px;
+ border-top:1px solid #353535;
+ color:#777;
+ font-size:11px;
+}
+
+@media(max-width:600px){
+ .menu{
+  width:min(290px,88vw);
+  padding-top:calc(14px + env(safe-area-inset-top));
+ }
+}
 </style>
 </head>
 
