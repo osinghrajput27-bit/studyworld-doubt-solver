@@ -1710,8 +1710,8 @@ app.post(
       res.flushHeaders?.();
 
       const models = [
-        ...new Set([MODEL, ...FALLBACK_MODELS])
-      ];
+  ...new Set([FAST_CHAT_MODEL, MODEL, ...FALLBACK_MODELS])
+];
 
       let lastError = null;
       let selectedModel = null;
