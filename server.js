@@ -1656,12 +1656,7 @@ app.post(
         });
       }
 
-      const thinkingLevel = getThinkingLevel(
-        finalQuestion,
-        task,
-        images.length,
-        documents.length
-      );
+      const thinkingLevel = "minimal";
 
       console.log(
         `Streaming chat thinking level: ${thinkingLevel}`
