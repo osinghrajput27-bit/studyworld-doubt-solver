@@ -644,7 +644,18 @@ function requireAI(res) {
 
   return true;
 }
+function requireChatAI(res) {
+  if (!openai && (!ai || !chatAI)) {
+    res.status(503).json({
+      success: false,
+      error: "No chat AI provider is configured."
+    });
 
+    return false;
+  }
+
+  return true;
+}
 // ========================================
 // 10. ERROR CLASSIFICATION
 // ========================================
@@ -1338,8 +1349,7 @@ app.post(
     const requestStartedAt = Date.now();
 
     try {
-      if (!requireAI(res)) return;
-
+      if (!requireChatAI(res)) return;
       const question = cleanString(
         req.body?.question,
         MAX_QUESTION_LENGTH
@@ -1567,7 +1577,7 @@ app.post(
     }
 
     try {
-      if (!requireAI(res)) return;
+      if (!requireChatAI(res)) return;
 
       const question = cleanString(
         req.body?.question,
