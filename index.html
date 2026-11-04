@@ -627,6 +627,112 @@ body.chat-open .msg.ai blockquote{
  body.chat-open .msg{max-width:90%}
  body.chat-open .msg.ai{max-width:90%}
 }
+ /* ZAQTIVO PROFESSIONAL CHAT UPDATE */
+
+button,input,textarea,select{
+  -webkit-tap-highlight-color:transparent;
+}
+
+button:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible{
+  outline:2px solid #69ddff;
+  outline-offset:3px;
+}
+
+::selection{
+  background:#8b42ff88;
+  color:#fff;
+}
+
+body.chat-open #messages{
+  scrollbar-width:thin;
+  scrollbar-color:#8e55d8 transparent;
+}
+
+body.chat-open #messages::-webkit-scrollbar{
+  width:6px;
+}
+
+body.chat-open #messages::-webkit-scrollbar-thumb{
+  background:#8e55d899;
+  border-radius:20px;
+}
+
+body.chat-open .msg.ai p{
+  margin:0 0 11px;
+  line-height:1.65;
+}
+
+body.chat-open .msg.ai p:last-child{
+  margin-bottom:0;
+}
+
+body.chat-open .msg.ai ul,
+body.chat-open .msg.ai ol{
+  padding-left:23px;
+  margin:9px 0;
+}
+
+body.chat-open .msg.ai li{
+  padding:3px 0;
+}
+
+body.chat-open .msg.ai h1,
+body.chat-open .msg.ai h2,
+body.chat-open .msg.ai h3{
+  margin:16px 0 8px;
+  font-weight:700;
+}
+
+body.chat-open .msg.ai h1{font-size:1.35em}
+body.chat-open .msg.ai h2{font-size:1.2em}
+body.chat-open .msg.ai h3{font-size:1.08em}
+
+body.chat-open .msg.ai a{
+  color:#8eeaff;
+  text-decoration:underline;
+  overflow-wrap:anywhere;
+}
+
+body.chat-open .msg.ai hr{
+  border:0;
+  border-top:1px solid #ffffff35;
+  margin:14px 0;
+}
+
+body.chat-open .chatinput textarea{
+  line-height:1.5;
+}
+
+body.chat-open .chatinput button:active{
+  transform:scale(.96);
+}
+
+body.chat-open .chathead{
+  padding-top:max(10px,env(safe-area-inset-top));
+}
+
+@media(max-width:600px){
+  body.chat-open .msg.ai{
+    line-height:1.65;
+  }
+
+  body.chat-open .chatinput textarea{
+    font-size:16px;
+  }
+}
+
+@media(prefers-reduced-motion:reduce){
+  *,
+  *::before,
+  *::after{
+    scroll-behavior:auto!important;
+    animation-duration:.01ms!important;
+    transition-duration:.01ms!important;
+  }
+ }
 </style>
 </head>
 
