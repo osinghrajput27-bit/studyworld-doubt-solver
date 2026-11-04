@@ -1516,7 +1516,7 @@ app.post(
         `Chat thinking level: ${thinkingLevel}`
       );
 
-      const result = await generateChatWithFallback({
+      const result = await generateChatWithProviders({
         contents: [
           {
             role: "user",
