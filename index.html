@@ -733,6 +733,42 @@ body.chat-open .chathead{
     transition-duration:.01ms!important;
   }
  }
+ /* CHATGPT-INSPIRED ZAQTIVO CHAT LAYOUT */
+body.chat-open #chatScreen{background:#212121!important}
+body.chat-open #chatScreen .panel{background:#212121!important;color:#ececec}
+body.chat-open .chathead{background:#212121!important;border-bottom:1px solid #383838}
+body.chat-open .chathead .backbtn:first-child,
+body.chat-open .chathead .new-chat-btn{background:#2f2f2f;border:1px solid #454545;color:#f4f4f4}
+body.chat-open .chat-brand-avatar{width:34px;height:34px;font-size:18px;background:linear-gradient(135deg,#8b5cf6,#5b4bdb);border:0;box-shadow:none}
+body.chat-open .chat-brand-info strong{color:#f5f5f5;font-size:15px}
+body.chat-open .chat-brand-info span{color:#a3a3a3}
+body.chat-open #messages{width:100%;padding:28px max(18px,calc((100vw - 820px)/2));gap:24px}
+body.chat-open .msg{box-shadow:none;font-size:15px}
+body.chat-open .msg.user{max-width:min(78%,680px);color:#f4f4f4;background:#303030;border:1px solid #414141;border-radius:22px;border-bottom-right-radius:7px}
+body.chat-open .msg.ai{width:calc(100% - 43px);max-width:760px;margin-left:43px;padding:4px 0 8px;color:#ececec;background:transparent;border:0;border-radius:0;box-shadow:none;line-height:1.75}
+body.chat-open .msg.ai:before{width:30px;height:30px;left:-43px;top:0;font-size:16px;background:#7357d9;border:0;box-shadow:none}
+body.chat-open .msg.ai pre{background:#171717;border:1px solid #414141}
+body.chat-open .msg.ai code{background:#383838}
+body.chat-open .msg.ai blockquote{background:#2b2b2b;border-left-color:#9b87f5}
+body.chat-open .msg.ai th,body.chat-open .msg.ai td{border-color:#505050}
+body.chat-open .msg-actions button,body.chat-open .edit-message-btn{color:#c9c9c9;background:transparent;border:1px solid transparent}
+body.chat-open .msg-actions button:hover,body.chat-open .edit-message-btn:hover{color:#fff;background:#303030;border-color:#454545}
+body.chat-open .chatinput{background:#212121!important;border-top:0;padding:12px max(16px,calc((100vw - 850px)/2)) 5px}
+body.chat-open .chatinput textarea{min-height:54px;max-height:160px;padding:16px 20px;color:#f5f5f5;background:#303030;border:1px solid #494949;border-radius:28px;font-size:15px}
+body.chat-open .chatinput textarea::placeholder{color:#a3a3a3}
+body.chat-open .chatinput textarea:focus{border-color:#777;box-shadow:0 0 0 2px #ffffff0d}
+body.chat-open .chatinput button{min-width:44px;min-height:44px;color:#171717;background:#f0f0f0;border:0}
+body.chat-open #chatScreen .panel>div:last-of-type{background:#212121!important;padding-left:max(16px,calc((100vw - 850px)/2));padding-right:max(16px,calc((100vw - 850px)/2))}
+body.chat-open .attach-toolbar{justify-content:center;flex-wrap:wrap;background:transparent}
+body.chat-open .attach-toolbar .smallbtn{color:#c5c5c5;background:#292929;border:1px solid #414141;border-radius:18px}
+body.chat-open #chatStatus,body.chat-open #chatPhotoPreviews,body.chat-open #chatDocumentPreviews,body.chat-open #chatPhotoCount,body.chat-open #chatDocumentCount,body.chat-open #chatVoiceStatus{background:#212121!important}
+@media(max-width:600px){
+ body.chat-open #messages{padding:20px 14px;gap:21px}
+ body.chat-open .msg.user{max-width:86%}
+ body.chat-open .msg.ai{max-width:calc(100% - 39px);margin-left:39px;font-size:15px}
+ body.chat-open .chatinput{padding:10px 12px 4px}
+ body.chat-open #chatScreen .panel>div:last-of-type{padding-left:12px;padding-right:12px}
+ }
 </style>
 </head>
 
