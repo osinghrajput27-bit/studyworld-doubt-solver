@@ -839,7 +839,7 @@ async function generateChatWithFallback(request) {
   );
 }
 async function generateChatWithProviders(request) {
-  if (openai) {
+  if (openai && process.env.OPENAI_CHAT_ENABLED === "true") {
     try {
       const parts = request.contents?.[0]?.parts || [];
 
@@ -1797,7 +1797,7 @@ app.post(
             let lastError = null;
       let selectedModel = null;
 
-      if (openai) {
+     if (openai && process.env.OPENAI_CHAT_ENABLED === "true") { 
         try {
           console.log("Starting OpenAI streaming chat");
 
