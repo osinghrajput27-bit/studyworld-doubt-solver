@@ -1009,6 +1009,30 @@ body:not(.chat-open) .menu{
  background:#171717!important;
  color:#eee!important;
  }
+ .hero-banner{
+ width:100%;
+ max-width:850px;
+ height:230px;
+ margin:20px auto;
+ overflow:hidden;
+ border-radius:22px;
+ border:1px solid #51416b;
+ box-shadow:0 8px 35px #0008;
+}
+
+.hero-banner img{
+ width:100%;
+ height:100%;
+ object-fit:cover;
+ display:block;
+}
+
+@media(max-width:600px){
+ .hero-banner{
+  height:170px;
+  border-radius:16px;
+ }
+}
 </style>
 </head>
 
@@ -1037,7 +1061,12 @@ body:not(.chat-open) .menu{
  <div class="hero">
   <div class="brain">🧠</div>
   <h1>ZAQTIVO AI</h1>
-  <p>Ask • Learn • Create • Explore</p>
+
+<div class="hero-banner">
+ <img src="https://aixnetwork.net/images/features-recruiting-new.jpg" alt="AI Neural Network">
+</div>
+
+<p>Ask • Learn • Create • Explore</p>
  </div>
 
  <div class="askbox glass">
