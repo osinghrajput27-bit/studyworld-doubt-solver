@@ -1,4 +1,3 @@
-
 import express from "express";
 import multer from "multer";
 import { GoogleGenAI } from "@google/genai";
@@ -570,6 +569,46 @@ function buildTaskInstruction(task) {
   }
 
   return DOCUMENT_TASKS[task] || "";
+}
+
+// ========================================
+// 9A. ADAPTIVE THINKING LEVEL
+// SPEED OPTIMIZATION
+// ========================================
+
+function getThinkingLevel(
+  question,
+  task = "chat",
+  imageCount = 0,
+  documentCount = 0
+) {
+  const text = String(question || "").trim();
+
+  // Uploaded files and document tasks retain balanced reasoning.
+  if (
+    task !== "chat" ||
+    imageCount > 0 ||
+    documentCount > 0
+  ) {
+    return "medium";
+  }
+
+  // Longer questions retain balanced reasoning.
+  if (text.length > 180) {
+    return "medium";
+  }
+
+  // Keep more reasoning for questions that need calculations,
+  // comparisons, detailed explanations or multi-step work.
+  const complexQuestionPattern =
+    /\b(solve|calculate|equation|prove|derive|step by step|in detail|explain why|compare|difference between|analyze|analyse|evaluate|justify|essay|long answer|detailed|mathematics|maths|physics|chemistry|biology|code|debug|programming)\b/i;
+
+  if (complexQuestionPattern.test(text)) {
+    return "medium";
+  }
+
+  // Simple messages and ordinary short questions get lower latency.
+  return "low";
 }
 
 function requireAI(res) {
@@ -1378,6 +1417,17 @@ app.post(
         });
       }
 
+      const thinkingLevel = getThinkingLevel(
+        finalQuestion,
+        task,
+        images.length,
+        documents.length
+      );
+
+      console.log(
+        `Chat thinking level: ${thinkingLevel}`
+      );
+
       const result = await generateChatWithFallback({
         contents: [
           {
@@ -1390,7 +1440,11 @@ app.post(
           systemInstruction: SYSTEM_PROMPT,
           temperature: 0.3,
           maxOutputTokens:
-            task === "chat" ? 2048 : 4096
+            task === "chat" ? 2048 : 4096,
+
+          thinkingConfig: {
+            thinkingLevel
+          }
         }
       });
 
@@ -1592,6 +1646,17 @@ app.post(
         });
       }
 
+      const thinkingLevel = getThinkingLevel(
+        finalQuestion,
+        task,
+        images.length,
+        documents.length
+      );
+
+      console.log(
+        `Streaming chat thinking level: ${thinkingLevel}`
+      );
+
       const request = {
         contents: [
           {
@@ -1604,7 +1669,11 @@ app.post(
           systemInstruction: SYSTEM_PROMPT,
           temperature: 0.3,
           maxOutputTokens:
-            task === "chat" ? 2048 : 4096
+            task === "chat" ? 2048 : 4096,
+
+          thinkingConfig: {
+            thinkingLevel
+          }
         }
       };
 
@@ -1648,13 +1717,22 @@ app.post(
             model
           );
 
+          const modelRequestStartedAt = Date.now();
+
           const stream =
             await chatAI.models.generateContentStream({
               ...request,
               model
             });
 
+          console.log(
+            `Streaming connection opened for ${model} in ${
+              Date.now() - modelRequestStartedAt
+            }ms`
+          );
+
           let modelProducedText = false;
+          let firstTokenLogged = false;
 
           for await (const chunk of stream) {
             if (clientDisconnected) return;
@@ -1662,6 +1740,16 @@ app.post(
             const chunkText = getResponseText(chunk);
 
             if (!chunkText) continue;
+
+            if (!firstTokenLogged) {
+              firstTokenLogged = true;
+
+              console.log(
+                `First answer token received from ${model} after ${
+                  Date.now() - modelRequestStartedAt
+                }ms`
+              );
+            }
 
             modelProducedText = true;
             streamStarted = true;
@@ -2342,6 +2430,8 @@ const server = app.listen(PORT, () => {
   console.log("Automatic chat fallback enabled");
   console.log("Daily model quota fallback enabled");
   console.log("Chat response timing logs enabled");
+  console.log("Adaptive thinking level speed optimization enabled");
+  console.log("First-token timing logs enabled");
   console.log("Improved structured educational answer instructions enabled");
   console.log("Multilingual answer formatting enabled");
   console.log("Readable formula formatting instructions enabled");
