@@ -1313,13 +1313,12 @@ function quickPrompt(prompt){
 }
 
 function toggleMenu(){
- const menu=document.getElementById("menu");
-
- menu.style.display=
-  menu.style.display==="block"
-   ?"none"
-   :"block";
+ document.body.classList.toggle("menu-open");
 }
+
+function closeMenu(){
+ document.body.classList.remove("menu-open");
+ }
 
 function showUpgrade(){
  alert("Pro features are not available yet. Existing service limits still apply.");
