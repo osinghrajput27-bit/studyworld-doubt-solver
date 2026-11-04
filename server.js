@@ -764,7 +764,24 @@ function isDailyModelQuotaError(error) {
 // ========================================
 // 11. CHAT MODEL FALLBACK
 // ========================================
+function getStreamingChatModels({ question, task, hasImages, hasDocuments }) {
+  const text = String(question || "").toLowerCase();
 
+  const complex =
+    task !== "chat" ||
+    hasImages ||
+    hasDocuments ||
+    text.length > 450 ||
+    /\b(solve|calculate|prove|derive|analyze|compare|equation|theorem|explain why|step by step)\b/i.test(text);
+
+  const models = complex
+    ? [MODEL, FAST_CHAT_MODEL, ...FALLBACK_MODELS]
+    : [FAST_CHAT_MODEL, MODEL, ...FALLBACK_MODELS];
+
+  console.log(`Smart model routing: ${complex ? "accuracy priority" : "speed priority"}`);
+
+  return [...new Set(models)];
+}
 async function generateChatWithFallback(request) {
   const models = [
     ...new Set([MODEL, ...FALLBACK_MODELS])
