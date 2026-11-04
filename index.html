@@ -892,6 +892,123 @@ body.menu-open .menu-backdrop{
   padding-top:calc(14px + env(safe-area-inset-top));
  }
 }
+ /* ZAQTIVO - MATCH CHATGPT CHAT THEME */
+body:not(.chat-open){
+ background:#212121!important;
+ color:#ececec!important;
+ background-attachment:fixed;
+}
+body:not(.chat-open):before{display:none!important}
+
+body:not(.chat-open) .glass,
+body:not(.chat-open) .panel,
+body:not(.chat-open) .create-panel,
+body:not(.chat-open) .history-card,
+body:not(.chat-open) .historyitem,
+body:not(.chat-open) .modal,
+body:not(.chat-open) .create-result{
+ background:#262626!important;
+ color:#ececec!important;
+ border:1px solid #383838!important;
+ box-shadow:none!important;
+ backdrop-filter:none!important;
+}
+
+body:not(.chat-open) .topbar{
+ background:#212121;
+ color:#f5f5f5;
+}
+
+body:not(.chat-open) .roundbtn,
+body:not(.chat-open) .avatar,
+body:not(.chat-open) .backbtn,
+body:not(.chat-open) .smallbtn,
+body:not(.chat-open) .history-actions button,
+body:not(.chat-open) .modal-actions button,
+body:not(.chat-open) .download-link{
+ background:#303030!important;
+ color:#eee!important;
+ border:1px solid #454545!important;
+}
+
+body:not(.chat-open) .probtn,
+body:not(.chat-open) .sendbtn,
+body:not(.chat-open) .upgrade button,
+body:not(.chat-open) .create-action,
+body:not(.chat-open) .create-tabs button.active,
+body:not(.chat-open) .modal-actions .primary{
+ background:linear-gradient(135deg,#8b5cf6,#6041c9)!important;
+ color:white!important;
+ border:0!important;
+}
+
+body:not(.chat-open) .hero,
+body:not(.chat-open) .hero h1,
+body:not(.chat-open) .hero p,
+body:not(.chat-open) .section-title,
+body:not(.chat-open) .feature strong,
+body:not(.chat-open) .prompt,
+body:not(.chat-open) .empty,
+body:not(.chat-open) .history-card-title{
+ color:#f1f1f1!important;
+}
+
+body:not(.chat-open) .askbox,
+body:not(.chat-open) .chatinput,
+body:not(.chat-open) .history-toolbar input,
+body:not(.chat-open) .modal input,
+body:not(.chat-open) .modal select,
+body:not(.chat-open) .create-panel textarea,
+body:not(.chat-open) .create-panel select,
+body:not(.chat-open) .settingrow select{
+ background:#303030!important;
+ color:#f5f5f5!important;
+ border:1px solid #494949!important;
+}
+
+body:not(.chat-open) input::placeholder,
+body:not(.chat-open) textarea::placeholder{
+ color:#a3a3a3!important;
+}
+
+body:not(.chat-open) .feature,
+body:not(.chat-open) .prompt{
+ background:#292929!important;
+ color:#eee!important;
+ border:1px solid #3d3d3d!important;
+}
+
+body:not(.chat-open) .settingrow{
+ border-bottom:1px solid #383838!important;
+ color:#eee!important;
+}
+
+body:not(.chat-open) .status,
+body:not(.chat-open) .history-card-preview,
+body:not(.chat-open) .history-card-date,
+body:not(.chat-open) .search-count,
+body:not(.chat-open) .photo-count,
+body:not(.chat-open) .document-size{
+ color:#aaa!important;
+}
+
+body:not(.chat-open) .upgrade{
+ background:#30283e!important;
+ color:#eee!important;
+ border:1px solid #51416b!important;
+}
+
+body:not(.chat-open) .progress-track{
+ background:#383838!important;
+}
+body:not(.chat-open) .progress-bar{
+ background:linear-gradient(90deg,#8b5cf6,#6041c9)!important;
+}
+
+body:not(.chat-open) .menu{
+ background:#171717!important;
+ color:#eee!important;
+ }
 </style>
 </head>
 
