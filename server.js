@@ -2469,23 +2469,26 @@ function shutdown(signal) {
 }
 // ANDROID DIGITAL ASSET LINKS
 app.get("/.well-known/assetlinks.json", (req, res) => {
-  const assetLinksPath = path.join(
-    __dirname,
-    "public",
-    ".well-known",
-    "assetlinks.json"
-  );
-
-  if (!fs.existsSync(assetLinksPath)) {
-    return res.status(404).json({
-      success: false,
-      error: "assetlinks.json not found"
-    });
-  }
-
   res.setHeader("Content-Type", "application/json");
   res.setHeader("Cache-Control", "public, max-age=3600");
-  return res.sendFile(assetLinksPath);
+
+  return res.json([
+    {
+      relation: [
+        "delegate_permission/common.handle_all_urls"
+      ],
+      target: {
+        namespace: "android_app",
+        package_name: "com.onrender.studyworld_ai.twa",
+        sha256_cert_fingerprints: [
+          "F0:73:4B:90:25:A1:BE:8B:5B:D1:6A:3F:2E:EE:94:6B:2B:E8:3B:B1:82:AE:10:75:3D:20:A2:C4:D4:09:B0:C6"
+        ]
+      }
+    }
+  ]);
 });
+
+process.on("SIGTERM", () => shutdown("SIGTERM"));
+process.on("SIGINT", () => shutdown("SIGINT"));
 process.on("SIGTERM", () => shutdown("SIGTERM"));
 process.on("SIGINT", () => shutdown("SIGINT"));
