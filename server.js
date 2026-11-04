@@ -844,33 +844,53 @@ async function extractDocumentText(file) {
 
 // ========================================
 // 15. PROCESS MULTIPLE DOCUMENTS
+// OPTIMIZED PARALLEL PROCESSING
 // ========================================
 
 async function processDocuments(files) {
+  if (!files || files.length === 0) {
+    return [];
+  }
+
+  // Read all uploaded documents simultaneously.
+  // Promise.all keeps the original file order.
+  const extractedDocuments = await Promise.all(
+    files.map(async file => {
+      const extractedText =
+        await extractDocumentText(file);
+
+      if (!extractedText) {
+        throw new Error(
+          `${file.originalname} does not contain readable text.`
+        );
+      }
+
+      return {
+        name: file.originalname,
+        text: extractedText,
+        originalCharacters: extractedText.length
+      };
+    })
+  );
+
   const documents = [];
   let totalCharacters = 0;
 
-  for (const file of files) {
-    const extractedText =
-      await extractDocumentText(file);
-
-    if (!extractedText) {
-      throw new Error(
-        `${file.originalname} does not contain readable text.`
-      );
-    }
-
+  // Keep the original per-document and total text limits.
+  for (const document of extractedDocuments) {
     const remainingCharacters =
       MAX_TOTAL_DOCUMENT_TEXT - totalCharacters;
 
-    if (remainingCharacters <= 0) break;
+    if (remainingCharacters <= 0) {
+      break;
+    }
 
     const allowedCharacters = Math.min(
       MAX_DOCUMENT_TEXT,
       remainingCharacters
     );
 
-    const limitedText = extractedText.slice(
+    const limitedText = document.text.slice(
       0,
       allowedCharacters
     );
@@ -878,12 +898,12 @@ async function processDocuments(files) {
     totalCharacters += limitedText.length;
 
     documents.push({
-      name: file.originalname,
+      name: document.name,
       text: limitedText,
-      originalCharacters: extractedText.length,
+      originalCharacters: document.originalCharacters,
       processedCharacters: limitedText.length,
       truncated:
-        extractedText.length > limitedText.length
+        document.originalCharacters > limitedText.length
     });
   }
 
@@ -1483,8 +1503,7 @@ app.post(
         } catch (error) {
           lastError = error;
 
-          // Once text has reached the user, do not switch models.
-          // This prevents duplicate or contradictory answers.
+          // Do not switch models after answer text has been sent.
           if (streamStarted) {
             throw error;
           }
@@ -2148,6 +2167,7 @@ const server = app.listen(PORT, () => {
 
   console.log("Photo understanding enabled");
   console.log("Document understanding enabled");
+  console.log("Parallel document processing enabled");
   console.log("Image generation enabled");
   console.log("Video generation enabled");
   console.log(`Media client timeout: ${MEDIA_TIMEOUT}ms`);
