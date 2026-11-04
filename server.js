@@ -1784,57 +1784,52 @@ app.post(
 
       res.flushHeaders?.();
 
-      const models = [
-  ...new Set([FAST_CHAT_MODEL, MODEL, ...FALLBACK_MODELS])
-];
-
-      let lastError = null;
+            let lastError = null;
       let selectedModel = null;
 
-      for (const model of models) {
-        if (clientDisconnected) return;
-
+      if (openai) {
         try {
-          console.log(
-            "Starting streaming chat with model:",
-            model
-          );
+          console.log("Starting OpenAI streaming chat");
 
-          const modelRequestStartedAt = Date.now();
+          const content = request.contents[0].parts.map(part => {
+            if (part.text) {
+              return { type: "text", text: part.text };
+            }
 
-          const stream =
-            await chatAI.models.generateContentStream({
-              ...request,
-              model
-            });
+            if (part.inlineData) {
+              return {
+                type: "image_url",
+                image_url: {
+                  url: `data:${part.inlineData.mimeType};base64,${part.inlineData.data}`
+                }
+              };
+            }
 
-          console.log(
-            `Streaming connection opened for ${model} in ${
-              Date.now() - modelRequestStartedAt
-            }ms`
-          );
+            return null;
+          }).filter(Boolean);
 
-          let modelProducedText = false;
-          let firstTokenLogged = false;
+          const stream = await openai.chat.completions.create({
+            model: "gpt-5-mini",
+            stream: true,
+            messages: [
+              {
+                role: "system",
+                content: request.config.systemInstruction || SYSTEM_PROMPT
+              },
+              { role: "user", content }
+            ],
+            max_completion_tokens: request.config.maxOutputTokens || 2048
+          });
+
+          let producedText = false;
 
           for await (const chunk of stream) {
             if (clientDisconnected) return;
 
-            const chunkText = getResponseText(chunk);
-
+            const chunkText = chunk.choices?.[0]?.delta?.content || "";
             if (!chunkText) continue;
 
-            if (!firstTokenLogged) {
-              firstTokenLogged = true;
-
-              console.log(
-                `First answer token received from ${model} after ${
-                  Date.now() - modelRequestStartedAt
-                }ms`
-              );
-            }
-
-            modelProducedText = true;
+            producedText = true;
             streamStarted = true;
 
             sendEvent({
@@ -1843,53 +1838,81 @@ app.post(
             });
           }
 
-          if (!modelProducedText) {
-            throw new Error(
-              "The AI returned an empty streaming response."
-            );
+          if (!producedText) {
+            throw new Error("OpenAI returned an empty response.");
           }
 
-          selectedModel = model;
-          break;
+          selectedModel = "OpenAI GPT-5 mini";
 
         } catch (error) {
+          if (streamStarted) throw error;
+
           lastError = error;
-
-          if (streamStarted) {
-            throw error;
-          }
-
-          const dailyQuota =
-            isDailyModelQuotaError(error);
-
-          const fallbackError =
-            isFallbackError(error);
-
-          if (
-            dailyQuota ||
-            (!isQuotaError(error) && fallbackError)
-          ) {
-            console.warn(
-              "Streaming model failed before first token; trying fallback:",
-              model,
-              error?.message || error
-            );
-
-            continue;
-          }
-
-          throw error;
+          console.warn("OpenAI streaming failed; switching to Gemini:", error.message);
         }
       }
 
       if (!selectedModel) {
-        throw (
-          lastError ||
-          new Error(
-            "All configured streaming chat models are unavailable."
-          )
-        );
+        const models = [
+          ...new Set([FAST_CHAT_MODEL, MODEL, ...FALLBACK_MODELS])
+        ];
+
+        for (const model of models) {
+          if (clientDisconnected) return;
+
+          try {
+            console.log("Starting Gemini streaming chat:", model);
+
+            const stream = await chatAI.models.generateContentStream({
+              ...request,
+              model
+            });
+
+            let modelProducedText = false;
+
+            for await (const chunk of stream) {
+              if (clientDisconnected) return;
+
+              const chunkText = getResponseText(chunk);
+              if (!chunkText) continue;
+
+              modelProducedText = true;
+              streamStarted = true;
+
+              sendEvent({
+                type: "chunk",
+                text: chunkText
+              });
+            }
+
+            if (!modelProducedText) {
+              throw new Error("Gemini returned an empty response.");
+            }
+
+            selectedModel = model;
+            break;
+
+          } catch (error) {
+            lastError = error;
+
+            if (streamStarted) throw error;
+
+            const dailyQuota = isDailyModelQuotaError(error);
+            const fallbackError = isFallbackError(error);
+
+            if (dailyQuota || (!isQuotaError(error) && fallbackError)) {
+              console.warn("Gemini model failed; trying next:", model);
+              continue;
+            }
+
+            throw error;
+          }
+        }
       }
+
+      if (!selectedModel) {
+        throw lastError || new Error("All streaming AI providers are unavailable.");
+                }
 
       const totalDuration =
         Date.now() - requestStartedAt;
