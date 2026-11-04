@@ -1092,14 +1092,43 @@ body:not(.chat-open) .menu{
  <div id="homeDocumentCount" class="document-count"></div>
  <div id="homeVoiceStatus" class="voice-status"></div>
 
- <div class="features">
-  <button class="feature glass" onclick="newChat()"><span class="emoji">💬</span><strong>New Chat</strong></button>
-  <button class="feature glass" onclick="document.getElementById('photoInput').click()"><span class="emoji">🖼️</span><strong>Upload Photos</strong></button>
-  <button class="feature glass" onclick="document.getElementById('homeCamera').click()"><span class="emoji">📷</span><strong>Use Camera</strong></button>
-  <button class="feature glass" onclick="startVoice('question','homeVoiceStatus')"><span class="emoji">🎙️</span><strong>Voice Input</strong></button>
-  <button class="feature glass" onclick="quickPrompt('Give me a short and clear answer to my question: ')"><span class="emoji">⚡</span><strong>Quick Answers</strong></button>
-  <button class="feature glass" onclick="quickPrompt('Help me understand this topic step by step: ')"><span class="emoji">📖</span><strong>Study Help</strong></button>
- </div>
+<div class="section-title">
+ <span>✦ Explore ZAQTIVO AI</span>
+</div>
+
+<div class="features">
+ <button class="feature glass" onclick="quickPrompt('Help me write an email, letter or professional document: ')">
+  <span class="emoji">✍️</span><strong>Writing & Email</strong>
+ </button>
+
+ <button class="feature glass" onclick="quickPrompt('Help me learn and understand this topic: ')">
+  <span class="emoji">📚</span><strong>Learn & Education</strong>
+ </button>
+
+ <button class="feature glass" onclick="quickPrompt('Help me with my business or office work: ')">
+  <span class="emoji">💼</span><strong>Business & Work</strong>
+ </button>
+
+ <button class="feature glass" onclick="quickPrompt('Help me write, understand or debug code: ')">
+  <span class="emoji">💻</span><strong>Coding & Tech</strong>
+ </button>
+
+ <button class="feature glass" onclick="quickPrompt('Research this topic and explain with reliable sources: ')">
+  <span class="emoji">🔎</span><strong>Research</strong>
+ </button>
+
+ <button class="feature glass" onclick="quickPrompt('Help me plan my day and organize my tasks: ')">
+  <span class="emoji">📅</span><strong>Daily Planner</strong>
+ </button>
+
+ <button class="feature glass" onclick="quickPrompt('Translate this into the language I specify: ')">
+  <span class="emoji">🌍</span><strong>Translation</strong>
+ </button>
+
+ <button class="feature glass" onclick="quickPrompt('Help me create something creative: ')">
+  <span class="emoji">🎨</span><strong>Creative Studio</strong>
+ </button>
+</div>
 
  <div class="section-title"><span>✨ Create with AI</span></div>
 
