@@ -40,12 +40,18 @@ const VIDEO_MODEL =
   process.env.GEMINI_VIDEO_MODEL || "gemini-omni-1.1-flash";
 
 const apiKey = process.env.GEMINI_API_KEY;
-
+const openaiApiKey = process.env.OPENAI_API_KEY;
 const CHAT_TIMEOUT = Math.max(
   15000,
   Number(process.env.GEMINI_CHAT_TIMEOUT) || 60000
 );
-
+const openai = openaiApiKey
+  ? new OpenAI({
+      apiKey: openaiApiKey,
+      timeout: CHAT_TIMEOUT,
+      maxRetries: 0
+    })
+  : null;
 const MEDIA_TIMEOUT = Math.max(
   15000,
   Number(process.env.GEMINI_MEDIA_TIMEOUT) || 60000
