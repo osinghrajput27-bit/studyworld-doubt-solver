@@ -1,6 +1,7 @@
 import express from "express";
 import multer from "multer";
 import { GoogleGenAI } from "@google/genai";
+import OpenAI from "openai";
 import * as OfficeParserModule from "officeparser";
 import path from "path";
 import os from "os";
