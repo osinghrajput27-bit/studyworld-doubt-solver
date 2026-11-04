@@ -427,7 +427,14 @@ const videoJobs = new Map();
 
 app.disable("x-powered-by");
 app.set("trust proxy", 1);
-
+// Basic security headers
+app.use((req, res, next) => {
+  res.setHeader("X-Content-Type-Options", "nosniff");
+  res.setHeader("X-Frame-Options", "DENY");
+  res.setHeader("Referrer-Policy", "strict-origin-when-cross-origin");
+  res.setHeader("X-Permitted-Cross-Domain-Policies", "none");
+  next();
+});
 app.use(express.json({ limit: "2mb" }));
 
 app.use(express.urlencoded({
