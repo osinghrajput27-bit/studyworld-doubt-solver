@@ -21,6 +21,7 @@ const PORT = Number(process.env.PORT) || 3000;
 
 const MODEL = process.env.GEMINI_MODEL || "gemini-3.8-flash";
 
+const FAST_CHAT_MODEL =
   process.env.GEMINI_FAST_MODEL || "gemini-3.5-flash-lite";
 
 const FALLBACK_MODELS = (
