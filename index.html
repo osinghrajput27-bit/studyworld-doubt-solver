@@ -1560,6 +1560,35 @@ body:not(.chat-open) .attach-toolbar .smallbtn{
   border-radius:22px!important;
   color:#eee!important;
  }
+ /* CHATGPT STYLE HOME CONTENT ALIGNMENT */
+body:not(.chat-open) #homeScreen{
+  width:calc(100% - 32px);
+  max-width:900px;
+  margin:0 auto;
+  padding-bottom:40px;
+}
+
+body:not(.chat-open) .attach-toolbar{
+  justify-content:center;
+  flex-wrap:wrap;
+}
+
+body:not(.chat-open) .section-title{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+}
+
+body:not(.chat-open) .features,
+body:not(.chat-open) .prompts{
+  width:100%;
+}
+
+@media(max-width:480px){
+  body:not(.chat-open) #homeScreen{
+    width:calc(100% - 24px);
+  }
+}
 </style>
 </head>
 
