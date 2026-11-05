@@ -2538,10 +2538,12 @@ function removeMessagesFromEditedMessage(){
 
 /* COPY AND FAVORITES */
 
+
+/* COPY AND FAVORITES */
+
 function copyText(text){
- if(navigator.clipboard&&navigator.clipboard.writeText){
+ if(navigator.clipboard && navigator.clipboard.writeText){
   navigator.clipboard.writeText(text)
-   .then(()=>alert("Copied!"))
    .catch(()=>fallbackCopy(text));
  }else{
   fallbackCopy(text);
@@ -2551,15 +2553,13 @@ function copyText(text){
 function fallbackCopy(text){
  const el=document.createElement("textarea");
  el.value=text;
-
  document.body.appendChild(el);
  el.select();
 
  try{
   document.execCommand("copy");
-  alert("Copied!");
  }catch(error){
-  alert("Could not copy.");
+  console.warn("Copy failed:",error);
  }
 
  el.remove();
@@ -2567,15 +2567,13 @@ function fallbackCopy(text){
 
 function saveFavorite(answer){
  if(favorites.includes(answer)){
-  alert("Already saved.");
   return;
  }
 
  favorites.unshift(answer);
  saveData();
-
- alert("Saved to Favorites!");
 }
+
 
 /* BACKEND STREAMING CHAT REQUEST */
 
