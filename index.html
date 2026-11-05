@@ -1589,6 +1589,42 @@ body:not(.chat-open) .prompts{
     width:calc(100% - 24px);
   }
 }
+ #sidebarRecentChats{
+ display:flex;
+ flex-direction:column;
+ gap:5px;
+ max-height:38vh;
+ overflow-y:auto;
+}
+
+#sidebarRecentChats:empty{
+ display:none;
+}
+
+#sidebarRecentChats:not(:has(button)){
+ color:#999;
+ font-size:13px;
+ padding:10px;
+}
+
+#sidebarRecentChats .sidebar-chat-item{
+ width:100%;
+ min-height:42px;
+ padding:10px 12px;
+ border:0;
+ border-radius:10px;
+ background:transparent;
+ color:#ddd;
+ text-align:left;
+ font-size:13px;
+ overflow:hidden;
+ text-overflow:ellipsis;
+ white-space:nowrap;
+}
+
+#sidebarRecentChats .sidebar-chat-item:active{
+ background:#303030;
+}
 </style>
 </head>
 
@@ -1624,7 +1660,9 @@ body:not(.chat-open) .prompts{
  <button onclick="goHome();closeMenu()">⌂ Home</button>
  <button onclick="showHistory();closeMenu()">◷ Chat History</button>
  <button onclick="showFavorites();closeMenu()">☆ Favorites</button>
-
+ <button onclick="showFavorites();closeMenu()">☆ Favorites</button>
+<div class="menu-label">RECENT CHATS</div>
+<div id="sidebarRecentChats"></div>
  <div class="menu-label">PREFERENCES</div>
 
  <button onclick="showSettings();closeMenu()">⚙ Settings</button>
