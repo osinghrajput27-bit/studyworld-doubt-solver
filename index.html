@@ -1386,6 +1386,33 @@ body:not(.chat-open) .create-action{
   color:white;
   font-weight:700;
  }
+ /* CHATGPT STYLE POPULAR PROMPTS */
+body:not(.chat-open) .prompts{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:12px;
+}
+
+body:not(.chat-open) .prompt{
+  min-height:65px;
+  padding:15px;
+  border-radius:16px;
+  background:#20202b!important;
+  border:1px solid #383846!important;
+  color:#f5f5fa!important;
+  font-size:14px;
+  text-align:left;
+  box-shadow:none!important;
+}
+
+body:not(.chat-open) .prompt .emoji{
+  font-size:23px;
+  margin-right:8px;
+}
+
+body:not(.chat-open) .seeall{
+  color:#a78bfa!important;
+}
 </style>
 </head>
 
