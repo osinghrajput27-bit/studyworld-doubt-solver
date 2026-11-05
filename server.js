@@ -625,7 +625,7 @@ function getThinkingLevel(
 
   // Longer questions retain balanced reasoning.
   if (text.length > 180) {
-    return "medium";
+  return "low";
   }
 
   // Keep more reasoning for questions that need calculations,
