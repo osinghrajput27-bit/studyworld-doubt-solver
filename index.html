@@ -382,45 +382,44 @@ body.chat-open #messages{
  scroll-behavior:smooth;
 }
 
+
+/* PREMIUM MINIMAL FUTURISTIC CHAT */
+
 body.chat-open .msg{
  position:relative;
- max-width:min(82%,700px);
- padding:14px 17px;
- border-radius:21px;
+ max-width:min(85%,720px);
+ padding:15px 19px;
+ border-radius:22px;
  font-size:15px;
- line-height:1.65;
- box-shadow:0 5px 18px #02042e33;
+ line-height:1.7;
+ box-shadow:0 3px 14px rgba(0,0,0,.06);
 }
 
 body.chat-open .msg.user{
  align-self:flex-end;
  margin-left:auto;
- color:white;
- background:linear-gradient(135deg,#a52cff,#6b35ff,#175fe9);
- border:1px solid #ffffff35;
- border-bottom-right-radius:5px;
+ color:#fff;
+ background:linear-gradient(135deg,#7657ff,#3978f6);
+ border:0;
+ border-radius:22px 22px 6px 22px;
 }
 
 body.chat-open .msg.ai{
  align-self:flex-start;
  margin-left:43px;
- max-width:min(82%,700px);
- width:auto;
- padding:14px 17px;
- color:white;
- background:linear-gradient(135deg,#ffffff22,#ffffff12);
- border:1px solid #ffffff40;
+ max-width:min(85%,720px);
+ color:#202124;
+ background:#fff;
+ border:0;
  border-radius:20px;
- border-top-left-radius:5px;
- font-size:15px;
- line-height:1.7;
+ box-shadow:none;
 }
 
 body.chat-open .msg.ai:before{
  content:"✦";
  position:absolute;
  left:-43px;
- top:0;
+ top:2px;
  width:33px;
  height:33px;
  display:grid;
@@ -429,9 +428,9 @@ body.chat-open .msg.ai:before{
  color:white;
  font-size:18px;
  background:linear-gradient(135deg,#00cfff,#792dff);
- border:1px solid #ffffff88;
- box-shadow:0 0 13px #8b35ff66;
+ box-shadow:0 0 17px #8b35ff77;
 }
+
 
 body.chat-open .msg-actions{
  display:flex;
