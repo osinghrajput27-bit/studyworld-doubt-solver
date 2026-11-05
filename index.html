@@ -431,7 +431,35 @@ body.chat-open .msg.ai:before{
  box-shadow:0 0 17px #8b35ff77;
 }
 
+/* PREMIUM AI TYPING INDICATOR */
 
+body.chat-open .ai-typing{
+ display:inline-flex;
+ align-items:center;
+ gap:6px;
+ padding:10px 14px;
+}
+
+body.chat-open .ai-typing span{
+ width:7px;
+ height:7px;
+ border-radius:50%;
+ background:#7957ed;
+ animation:aiTyping 1s infinite ease-in-out;
+}
+
+body.chat-open .ai-typing span:nth-child(2){
+ animation-delay:.15s;
+}
+
+body.chat-open .ai-typing span:nth-child(3){
+ animation-delay:.3s;
+}
+
+@keyframes aiTyping{
+ 0%,60%,100%{transform:translateY(0);opacity:.4}
+ 30%{transform:translateY(-6px);opacity:1}
+ }
 body.chat-open .msg-actions{
  display:flex;
  gap:7px;
