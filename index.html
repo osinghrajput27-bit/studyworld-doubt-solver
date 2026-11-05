@@ -1318,33 +1318,23 @@ body:not(.chat-open) .section-title{
 <main>
 
 <section id="homeScreen">
-<div class="hero">
+<div class="hero home-welcome">
   <div class="brain">✦</div>
-
-  <h1>ZAQTIVO AI</h1>
-
-  <p>Your World. Your Ideas. One AI.</p>
-
-  <div class="hero-banner">
-    <img src="https://aixnetwork.net/images/features-recruiting-new.jpg"
-         alt="ZAQTIVO AI Assistant">
-  </div>
-
-  <p>Ask • Create • Learn • Discover • Explore</p>
+  <h1>What can I help with?</h1>
+  <p>Your AI assistant for anything.</p>
 </div>
 
- <div class="askbox glass">
-  <div class="askicon">💬</div>
-  <textarea id="question" placeholder="Ask me anything..."></textarea>
+<div class="askbox glass">
+  <div class="askicon">＋</div>
+  <textarea id="question" placeholder="Ask anything"></textarea>
   <button class="sendbtn" onclick="sendQuestion()">➤</button>
- </div>
+</div>
 
- <div class="attach-toolbar">
+<div class="attach-toolbar">
   <button class="smallbtn" onclick="document.getElementById('photoInput').click()">＋ Add Photos</button>
   <button class="smallbtn" onclick="document.getElementById('homeCamera').click()">📷 Camera</button>
   <button class="smallbtn" onclick="document.getElementById('homeDocument').click()">📄 Add Documents</button>
- </div>
-
+</div>
  <input id="photoInput" type="file" accept="image/jpeg,image/png,image/webp" multiple hidden onchange="photoSelected(event)">
  <input id="homeCamera" type="file" accept="image/jpeg,image/png,image/webp" capture="environment" hidden onchange="photoSelected(event)">
  <input id="homeDocument" type="file" accept=".pdf,.docx,.xlsx,.pptx,.csv,.txt,.rtf" multiple hidden onchange="homeDocumentsSelected(event)">
