@@ -634,7 +634,7 @@ function getThinkingLevel(
     /\b(solve|calculate|equation|prove|derive|step by step|in detail|explain why|compare|difference between|analyze|analyse|evaluate|justify|essay|long answer|detailed|mathematics|maths|physics|chemistry|biology|code|debug|programming)\b/i;
 
   if (complexQuestionPattern.test(text)) {
-    return "medium";
+  return "low";
   }
 
   // Simple messages and ordinary short questions get lower latency.
