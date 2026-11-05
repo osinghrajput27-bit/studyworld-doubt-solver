@@ -1880,9 +1880,12 @@ app.post(
       }
 
       if (!selectedModel) {
-        const models = [
-          ...new Set([FAST_CHAT_MODEL, MODEL, ...FALLBACK_MODELS])
-        ];
+        const models = getStreamingChatModels({
+  question,
+  task,
+  hasImages: images.length > 0,
+  hasDocuments: documentFiles.length > 0
+});
 
         for (const model of models) {
           if (clientDisconnected) return;
