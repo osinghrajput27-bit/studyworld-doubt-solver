@@ -1178,6 +1178,117 @@ body:not(.chat-open) .menu{
   border-radius:16px;
  }
 }
+ /* ZAQTIVO PREMIUM HOME REDESIGN */
+
+body:not(.chat-open){
+ background:#101018!important;
+ color:#f7f7ff!important;
+}
+
+body:not(.chat-open) .topbar{
+ max-width:1200px;
+ padding:20px 24px;
+}
+
+body:not(.chat-open) .roundbtn,
+body:not(.chat-open) .avatar{
+ width:54px;
+ height:54px;
+ border-radius:50%;
+ background:#252535!important;
+ border:1px solid #48445f!important;
+}
+
+body:not(.chat-open) .probtn{
+ border:0!important;
+ border-radius:30px;
+ padding:13px 23px;
+ background:linear-gradient(120deg,#a855f7,#5741df)!important;
+ box-shadow:0 0 24px #7848ff55;
+}
+
+body:not(.chat-open) main{
+ width:min(100% - 30px,1050px);
+}
+
+body:not(.chat-open) .hero{
+ padding:35px 0 30px;
+}
+
+body:not(.chat-open) .brain{
+ font-size:105px;
+ filter:drop-shadow(0 0 28px #8b5cf6);
+}
+
+body:not(.chat-open) .hero h1{
+ font-size:clamp(38px,8vw,64px);
+ letter-spacing:2px;
+}
+
+body:not(.chat-open) .hero-banner{
+ height:260px;
+ border-radius:25px;
+ border:1px solid #7653bb;
+ box-shadow:0 0 35px #713bff22;
+}
+
+body:not(.chat-open) .askbox{
+ padding:15px;
+ border-radius:30px;
+ background:#252535!important;
+ border:1px solid #51446f!important;
+ box-shadow:0 8px 35px #0005;
+}
+
+body:not(.chat-open) .askbox textarea{
+ min-height:58px;
+ font-size:17px;
+}
+
+body:not(.chat-open) .sendbtn{
+ width:65px;
+ height:65px;
+ background:linear-gradient(135deg,#a855f7,#4359e8)!important;
+ box-shadow:0 0 20px #7650ff66;
+}
+
+body:not(.chat-open) .attach-toolbar{
+ gap:12px;
+ margin:16px 0;
+}
+
+body:not(.chat-open) .smallbtn{
+ border-radius:17px;
+ padding:13px 17px;
+}
+
+body:not(.chat-open) .feature{
+ min-height:145px;
+ border-radius:22px;
+ background:linear-gradient(145deg,#29263b,#1d2031)!important;
+ border:1px solid #49405e!important;
+}
+
+body:not(.chat-open) .feature .emoji{
+ font-size:36px;
+}
+
+body:not(.chat-open) .section-title{
+ margin-top:35px;
+}
+
+@media(max-width:600px){
+ body:not(.chat-open) .hero-banner{
+  height:190px;
+ }
+ body:not(.chat-open) .features{
+  grid-template-columns:repeat(2,minmax(0,1fr));
+ }
+ body:not(.chat-open) .askbox{
+  gap:8px;
+  padding:10px;
+ }
+ }
 </style>
 </head>
 
