@@ -1609,10 +1609,30 @@ body:not(.chat-open) .prompts{
 </header>
 
 <div class="menu glass" id="menu">
- <button onclick="goHome()">⌂ Home</button>
- <button onclick="showHistory()">◷ Chat History</button>
- <button onclick="showFavorites()">☆ Favorites</button>
- <button onclick="showSettings()">⚙ Settings</button>
+
+ <div class="menu-brand">
+  <strong>✦ ZAQTIVO AI</strong>
+  <span>Your AI workspace</span>
+ </div>
+
+ <button onclick="newChat();closeMenu()">＋ New Chat</button>
+
+ <button onclick="showHistory();closeMenu()">⌕ Search Chats</button>
+
+ <div class="menu-label">YOUR SPACE</div>
+
+ <button onclick="goHome();closeMenu()">⌂ Home</button>
+ <button onclick="showHistory();closeMenu()">◷ Chat History</button>
+ <button onclick="showFavorites();closeMenu()">☆ Favorites</button>
+
+ <div class="menu-label">PREFERENCES</div>
+
+ <button onclick="showSettings();closeMenu()">⚙ Settings</button>
+
+ <div class="menu-footer">
+  ZAQTIVO AI
+ </div>
+
 </div>
 
 <main>
