@@ -774,9 +774,11 @@ function getStreamingChatModels({ question, task, hasImages, hasDocuments }) {
     text.length > 450 ||
     /\b(solve|calculate|prove|derive|analyze|compare|equation|theorem|explain why|step by step)\b/i.test(text);
 
-  const models = complex
-    ? [MODEL, FAST_CHAT_MODEL, ...FALLBACK_MODELS]
-    : [FAST_CHAT_MODEL, MODEL, ...FALLBACK_MODELS];
+  const models = [
+  FAST_CHAT_MODEL,
+  MODEL,
+  ...FALLBACK_MODELS
+];
 
   console.log(`Smart model routing: ${complex ? "accuracy priority" : "speed priority"}`);
 
