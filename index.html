@@ -916,7 +916,13 @@ body.chat-open #chatVoiceStatus{
 
  /* ZAQTIVO AI SIDEBAR FIX */
 .menu-backdrop{display:none}
-
+body.menu-open .menu{
+  display:flex!important;
+  visibility:visible!important;
+  opacity:1!important;
+  transform:translateX(0)!important;
+  pointer-events:auto!important;
+}
 .menu{
  display:flex;
  flex-direction:column;
