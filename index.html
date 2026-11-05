@@ -1289,6 +1289,58 @@ body:not(.chat-open) .section-title{
   padding:10px;
  }
  }
+ /* CHATGPT STYLE FEATURE CARDS */
+body:not(.chat-open) .section-title{
+  font-size:20px;
+  font-weight:700;
+  color:#f5f3ff;
+  margin:32px 0 16px;
+}
+
+body:not(.chat-open) .features{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:12px;
+}
+
+body:not(.chat-open) .feature{
+  min-height:105px;
+  display:flex;
+  flex-direction:row;
+  align-items:center;
+  justify-content:flex-start;
+  gap:13px;
+  padding:18px;
+  border-radius:18px;
+  background:#20202b!important;
+  border:1px solid #383846!important;
+  box-shadow:none!important;
+  transition:background .2s,border-color .2s;
+}
+
+body:not(.chat-open) .feature:active{
+  background:#303044!important;
+}
+
+body:not(.chat-open) .feature .emoji{
+  font-size:27px;
+}
+
+body:not(.chat-open) .feature strong{
+  font-size:14px;
+  color:#f4f4fa;
+  text-align:left;
+}
+
+@media(max-width:420px){
+  body:not(.chat-open) .feature{
+    padding:13px 10px;
+    gap:9px;
+  }
+  body:not(.chat-open) .feature strong{
+    font-size:12px;
+  }
+ }
 </style>
 </head>
 
