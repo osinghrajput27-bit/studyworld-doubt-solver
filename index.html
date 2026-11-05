@@ -2224,6 +2224,39 @@ function quickPrompt(prompt){
 
 function toggleMenu(){
  document.body.classList.toggle("menu-open");
+ if(document.body.classList.contains("menu-open")){
+  renderSidebarChats();
+ }
+}
+
+function renderSidebarChats(){
+ const box=document.getElementById("sidebarRecentChats");
+ if(!box)return;
+
+ box.innerHTML="";
+
+ const recent=[...sessions].sort((a,b)=>
+  new Date(b.updatedAt)-new Date(a.updatedAt)
+ ).slice(0,8);
+
+ if(!recent.length){
+  box.textContent="No recent chats yet.";
+  return;
+ }
+
+ recent.forEach(session=>{
+  const button=document.createElement("button");
+  button.type="button";
+  button.className="sidebar-chat-item";
+  button.textContent=session.title||"New chat";
+
+  button.addEventListener("click",()=>{
+   openSession(session.id);
+   closeMenu();
+  });
+
+  box.appendChild(button);
+ });
 }
 
 function closeMenu(){
