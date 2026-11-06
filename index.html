@@ -945,6 +945,13 @@ body.chat-open #chatVoiceStatus{
 #sidebarRecentChats{
  overscroll-behavior:contain;
 }
+ .menu-logout{
+ flex-shrink:0;
+ color:#ff7777!important;
+ border:1px solid #493333!important;
+ background:#2b2020!important;
+ margin-top:8px;
+ }
 body.menu-open .menu{
   display:flex!important;
   visibility:visible!important;
@@ -1725,6 +1732,9 @@ body:not(.chat-open) .prompts{
  <button onclick="showSettings();closeMenu()"><span>⚙</span> Settings</button>
  <button class="menu-profile" onclick="showProfile();closeMenu()">
   <span>👤</span> Profile
+ </button>
+ <button class="menu-logout" onclick="signOutGoogleUser();closeMenu()">
+ <span>↪</span> Log Out
  </button>
  <div class="menu-footer">ZAQTIVO AI</div>
 </div>
