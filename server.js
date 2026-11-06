@@ -681,6 +681,20 @@ app.post("/api/auth/google", async (req, res) => {
     });
   }
 });
+// REQUIRE SIGN-IN FOR ALL AI APIs
+app.use("/api", (req, res, next) => {
+  const user = getSessionUser(req);
+
+  if (!user) {
+    return res.status(401).json({
+      success: false,
+      error: "Please sign in with Google to continue."
+    });
+  }
+
+  req.user = user;
+  next();
+});
 // ========================================
 // 8. MULTER UPLOAD CONFIGURATION
 // ========================================
