@@ -105,7 +105,7 @@ function getSessionUser(req) {
   return readSessionToken(
     sessionCookie.trim().slice(SESSION_COOKIE_NAME.length + 1)
   );
-        
+}
 const openaiApiKey = process.env.OPENAI_API_KEY;
 const CHAT_TIMEOUT = Math.max(
   15000,
@@ -570,32 +570,7 @@ app.use("/api", (req, res, next) => {
 
   let record = requestCounts.get(ip);
 
-  if (!SESSION_SECRET) {
-  return res.status(503).json({
-    success: false,
-    error: "Session configuration is missing."
-  });
-}
-
-const user = {
-  id: payload.sub,
-  name: payload.name || "",
-  email: payload.email,
-  picture: payload.picture || "",
-  emailVerified: payload.email_verified === true
-};
-
-const sessionToken = createSessionToken(user);
-
-res.setHeader(
-  "Set-Cookie",
-  `${SESSION_COOKIE_NAME}=${sessionToken}; HttpOnly; Secure; SameSite=Lax; Path=/; Max-Age=${SESSION_MAX_AGE}`
-);
-
-return res.json({
-  success: true,
-  user
-});
+  
 
   record.count++;
 
@@ -666,24 +641,56 @@ app.post("/api/auth/google", async (req, res) => {
       });
     }
 
-    return res.json({
-      success: true,
-      user: {
-        id: payload.sub,
-        name: payload.name || "",
-        email: payload.email,
-        picture: payload.picture || "",
-        emailVerified: payload.email_verified === true
-      }
-    });
-  } catch (error) {
-    console.error("Google sign-in verification failed:", error.message);
+if (!SESSION_SECRET) {
+  return res.status(503).json({
+    success: false,
+    error: "Session configuration is missing."
+  });
+}
 
-    return res.status(401).json({
-      success: false,
-      error: "Google Sign-In verification failed."
-    });
-  }
+const user = {
+  id: payload.sub,
+  name: payload.name || "",
+  email: payload.email,
+  picture: payload.picture || "",
+  emailVerified: payload.email_verified === true
+};
+
+const sessionToken = createSessionToken(user);
+
+res.setHeader(
+  "Set-Cookie",
+  `${SESSION_COOKIE_NAME}=${sessionToken}; HttpOnly; Secure; SameSite=Lax; Path=/; Max-Age=${SESSION_MAX_AGE}`
+);
+
+return res.json({
+  success: true,
+  user
+if (!SESSION_SECRET) {
+  return res.status(503).json({
+    success: false,
+    error: "Session configuration is missing."
+  });
+}
+
+const user = {
+  id: payload.sub,
+  name: payload.name || "",
+  email: payload.email,
+  picture: payload.picture || "",
+  emailVerified: payload.email_verified === true
+};
+
+const sessionToken = createSessionToken(user);
+
+res.setHeader(
+  "Set-Cookie",
+  `${SESSION_COOKIE_NAME}=${sessionToken}; HttpOnly; Secure; SameSite=Lax; Path=/; Max-Age=${SESSION_MAX_AGE}`
+);
+
+return res.json({
+  success: true,
+  user
 });
 
 // ========================================
