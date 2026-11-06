@@ -4545,7 +4545,7 @@ async function handleGoogleCredential(response){
       alert(data.error || "Google Sign-In failed.");
       return;
     }
-initializeGoogleSignIn();
+
     signedInUser = data.user;
     showProfile();
 
@@ -4569,8 +4569,8 @@ function showProfile(){
       <div class="profile-card">
         <div class="profile-avatar">👤</div>
         <div>
-          <strong>${escapeHtml(signedInUser.name)}</strong>
-          <div class="status">${escapeHtml(signedInUser.email)}</div>
+          <strong>${escapeHTML(signedInUser.name)}</strong>
+          <div class="status">${escapeHTML(signedInUser.email)}</div>
           <div class="status">Google account verified</div>
         </div>
       </div>
