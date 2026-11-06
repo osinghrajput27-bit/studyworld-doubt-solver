@@ -529,7 +529,14 @@ rateLimitCleanup.unref?.();
 // ========================================
 // GOOGLE SIGN-IN VERIFICATION
 // ========================================
+// Public Google Sign-In configuration
+app.get("/api/config", (req, res) => {
+  res.setHeader("Cache-Control", "no-store");
 
+  res.json({
+    googleClientId: GOOGLE_CLIENT_ID || null
+  });
+});
 app.post("/api/auth/google", async (req, res) => {
   try {
     if (!googleOAuthClient || !GOOGLE_CLIENT_ID) {
