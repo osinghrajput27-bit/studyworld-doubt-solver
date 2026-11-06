@@ -935,7 +935,30 @@ function isDailyModelQuotaError(error) {
     )
   );
 }
+function isModelSpecificQuotaError(error) {
+  if (!isQuotaError(error)) return false;
 
+  let details = "";
+
+  try {
+    details = JSON.stringify([
+      error?.details,
+      error?.errorDetails,
+      error?.response?.data
+    ]).toLowerCase();
+  } catch {
+    details = "";
+  }
+
+  const message = String(error?.message || "").toLowerCase();
+  const combined = message + " " + details;
+
+  return (
+    combined.includes("permodel") ||
+    combined.includes("per_model") ||
+    combined.includes("per model")
+  );
+      }
 // ========================================
 // 11. CHAT MODEL FALLBACK
 // ========================================
@@ -1004,8 +1027,11 @@ async function generateChatWithFallback(request) {
       const dailyQuota = isDailyModelQuotaError(error);
       const fallbackError = isFallbackError(error);
 
-      if (dailyQuota || (!isQuotaError(error) && fallbackError)) {
-        failedModels.push({
+      if (
+  dailyQuota ||
+  isModelSpecificQuotaError(error) ||
+  (!isQuotaError(error) && fallbackError)
+) {
           model,
           reason: dailyQuota
             ? "daily_model_quota_exhausted"
@@ -2112,7 +2138,11 @@ app.post(
             const dailyQuota = isDailyModelQuotaError(error);
             const fallbackError = isFallbackError(error);
 
-            if (dailyQuota || (!isQuotaError(error) && fallbackError)) {
+            if (
+  dailyQuota ||
+  isModelSpecificQuotaError(error) ||
+  (!isQuotaError(error) && fallbackError)
+) {
               console.warn("Gemini model failed; trying next:", model);
               continue;
             }
