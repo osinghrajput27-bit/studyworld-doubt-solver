@@ -7,7 +7,7 @@ import * as OfficeParserModule from "officeparser";
 import path from "path";
 import os from "os";
 import fs from "fs";
-import { randomUUID } from "crypto";
+import { createHmac, randomUUID, timingSafeEqual } from "crypto";
 import { fileURLToPath } from "url";
 
 const app = express();
@@ -42,10 +42,70 @@ const VIDEO_MODEL =
 
 const apiKey = process.env.GEMINI_API_KEY;
 const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
-
+const SESSION_SECRET = process.env.SESSION_SECRET;
 const googleOAuthClient = GOOGLE_CLIENT_ID
   ? new OAuth2Client(GOOGLE_CLIENT_ID)
   : null;
+const SESSION_COOKIE_NAME = "zaqtivo_session";
+const SESSION_MAX_AGE = 7 * 24 * 60 * 60;
+
+function signSession(value) {
+  return createHmac("sha256", SESSION_SECRET)
+    .update(value)
+    .digest("base64url");
+}
+
+function createSessionToken(user) {
+  const payload = Buffer.from(JSON.stringify({
+    user,
+    exp: Math.floor(Date.now() / 1000) + SESSION_MAX_AGE
+  })).toString("base64url");
+
+  return `${payload}.${signSession(payload)}`;
+}
+
+function readSessionToken(token) {
+  if (!SESSION_SECRET || !token) return null;
+
+  try {
+    const [payload, signature] = token.split(".");
+    if (!payload || !signature) return null;
+
+    const expected = Buffer.from(signSession(payload));
+    const received = Buffer.from(signature);
+
+    if (
+      expected.length !== received.length ||
+      !timingSafeEqual(expected, received)
+    ) return null;
+
+    const data = JSON.parse(
+      Buffer.from(payload, "base64url").toString("utf8")
+    );
+
+    if (!data.user || data.exp < Math.floor(Date.now() / 1000)) {
+      return null;
+    }
+
+    return data.user;
+  } catch {
+    return null;
+  }
+}
+
+function getSessionUser(req) {
+  const cookies = (req.headers.cookie || "").split(";");
+
+  const sessionCookie = cookies.find(cookie =>
+    cookie.trim().startsWith(SESSION_COOKIE_NAME + "=")
+  );
+
+  if (!sessionCookie) return null;
+
+  return readSessionToken(
+    sessionCookie.trim().slice(SESSION_COOKIE_NAME.length + 1)
+  );
+        
 const openaiApiKey = process.env.OPENAI_API_KEY;
 const CHAT_TIMEOUT = Math.max(
   15000,
@@ -476,7 +536,27 @@ const requestCounts = new Map();
 
 const RATE_LIMIT_WINDOW = 60 * 1000;
 const MAX_REQUESTS_PER_WINDOW = 40;
+app.get("/api/auth/session", (req, res) => {
+  res.setHeader("Cache-Control", "no-store");
 
+  const user = getSessionUser(req);
+
+  return res.json({
+    success: true,
+    user: user || null
+  });
+});
+
+app.post("/api/auth/logout", (req, res) => {
+  res.setHeader("Cache-Control", "no-store");
+
+  res.setHeader(
+    "Set-Cookie",
+    `${SESSION_COOKIE_NAME}=; HttpOnly; Secure; SameSite=Lax; Path=/; Max-Age=0`
+  );
+
+  return res.json({ success: true });
+});
 app.use("/api", (req, res, next) => {
   res.setHeader("Cache-Control", "no-store");
   res.setHeader("Pragma", "no-cache");
@@ -490,15 +570,32 @@ app.use("/api", (req, res, next) => {
 
   let record = requestCounts.get(ip);
 
-  if (
-    !record ||
-    now - record.start > RATE_LIMIT_WINDOW
-  ) {
-    record = {
-      start: now,
-      count: 0
-    };
-  }
+  if (!SESSION_SECRET) {
+  return res.status(503).json({
+    success: false,
+    error: "Session configuration is missing."
+  });
+}
+
+const user = {
+  id: payload.sub,
+  name: payload.name || "",
+  email: payload.email,
+  picture: payload.picture || "",
+  emailVerified: payload.email_verified === true
+};
+
+const sessionToken = createSessionToken(user);
+
+res.setHeader(
+  "Set-Cookie",
+  `${SESSION_COOKIE_NAME}=${sessionToken}; HttpOnly; Secure; SameSite=Lax; Path=/; Max-Age=${SESSION_MAX_AGE}`
+);
+
+return res.json({
+  success: true,
+  user
+});
 
   record.count++;
 
