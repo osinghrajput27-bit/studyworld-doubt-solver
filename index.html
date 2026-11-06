@@ -1683,12 +1683,102 @@ body:not(.chat-open) .prompts{
  border-top:1px solid #383838!important;
  padding-top:16px!important;
  }
+ body.auth-required{
+ overflow:hidden!important;
+}
+
+body.auth-required>header,
+body.auth-required>main,
+body.auth-required>.menu,
+body.auth-required>.menu-backdrop{
+ display:none!important;
+}
+
+#authGate{
+ display:none;
+}
+
+body.auth-required #authGate{
+ display:grid;
+ position:fixed;
+ inset:0;
+ z-index:99999;
+ place-items:center;
+ padding:22px;
+ background:#080818;
+ background-image:
+ radial-gradient(ellipse at 15% 15%,#6425a8,transparent 45%),
+ radial-gradient(ellipse at 85% 80%,#123d85,transparent 45%);
+}
+
+.auth-card{
+ width:100%;
+ max-width:410px;
+ padding:34px 24px;
+ text-align:center;
+ border:1px solid #ffffff30;
+ border-radius:24px;
+ background:#15152bea;
+ box-shadow:0 20px 70px #0008;
+}
+
+.auth-logo{
+ width:64px;
+ height:64px;
+ margin:0 auto 20px;
+ display:grid;
+ place-items:center;
+ border-radius:20px;
+ background:linear-gradient(135deg,#9b35ff,#087bff);
+ font-size:34px;
+}
+
+.auth-card h1{
+ font-size:25px;
+ margin:10px 0;
+}
+
+.auth-card p,.auth-note{
+ color:#b9b9c8;
+ font-size:14px;
+ line-height:1.6;
+}
+
+.auth-card h2{
+ font-size:17px;
+ margin:30px 0 18px;
+}
+
+#loginGoogleSignInButton{
+ display:flex;
+ justify-content:center;
+ min-height:42px;
+}
+
+.auth-footer{
+ margin-top:35px;
+ color:#85859b;
+ font-size:12px;
+ letter-spacing:2px;
+}
 </style>
  <script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
 
-<body>
-
+<body class="auth-required">
+<div id="authGate">
+ <div class="auth-card">
+  <div class="auth-logo">✦</div>
+  <h1>Welcome to ZAQTIVO AI</h1>
+  <p>Your AI workspace for everything.</p>
+  <h2>Sign in to continue</h2>
+  <div id="loginGoogleSignInButton"></div>
+  <div class="auth-note">
+   Sign in with your Google account to use ZAQTIVO AI.
+  </div>
+  <div class="auth-footer">ZAQTIVO AI</div>
+ </div>
+</div>
 <header class="topbar">
  <div class="top-left">
   <button class="roundbtn" onclick="toggleMenu()" aria-label="Open menu">☰</button>
