@@ -4481,7 +4481,22 @@ function showSettings(){
 let googleClientId = null;
 let googleSignInInitialized = false;
 let signedInUser = null;
+async function restoreGoogleSession() {
+  try {
+    const response = await fetch("/api/auth/session", {
+      credentials: "same-origin",
+      cache: "no-store"
+    });
 
+    const data = await response.json();
+
+    if (response.ok && data.success && data.user) {
+      signedInUser = data.user;
+    }
+  } catch (error) {
+    console.error("Session restore failed:", error);
+  }
+ }
 async function initializeGoogleSignIn(){
   try{
     const response = await fetch("/api/config");
@@ -4545,15 +4560,31 @@ async function handleGoogleCredential(response){
       })
     });
 
-    const data = await result.json();
+    async function signOutGoogleUser(){
+  try {
+    const response = await fetch("/api/auth/logout", {
+      method: "POST",
+      credentials: "same-origin",
+      cache: "no-store"
+    });
 
-    if(!result.ok || !data.success){
-      alert(data.error || "Google Sign-In failed.");
-      return;
+    if (!response.ok) {
+      throw new Error("Logout request failed");
     }
 
-    signedInUser = data.user;
+    signedInUser = null;
+
+    if(window.google?.accounts?.id){
+      google.accounts.id.disableAutoSelect();
+    }
+
     showProfile();
+
+  } catch(error) {
+    console.error("Google logout error:", error);
+    alert("Sign Out failed. Please try again.");
+  }
+    }
 
   }catch(error){
     console.error("Google login error:", error);
@@ -4666,6 +4697,7 @@ document.getElementById("renameModal").addEventListener(
 /* INITIALIZATION */
 
 loadData();
+restoreGoogleSession();
 initializeGoogleSignIn();
 if(!LANGUAGE_OPTIONS.includes(selectedLanguage)){
  selectedLanguage="Auto Detect";
