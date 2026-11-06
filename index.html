@@ -1589,10 +1589,12 @@ body:not(.chat-open) .prompts{
     width:calc(100% - 24px);
   }
 }
- #sidebarRecentChats{
+#sidebarRecentChats{
  display:flex;
  flex-direction:column;
  gap:5px;
+ flex:1;
+ min-height:80px;
  max-height:38vh;
  overflow-y:auto;
 }
@@ -1622,9 +1624,29 @@ body:not(.chat-open) .prompts{
  white-space:nowrap;
 }
 
-#sidebarRecentChats .sidebar-chat-item:active{
+#sidebarRecentChats .sidebar-chat-item:hover{
  background:#303030;
 }
+
+.sidebar-search{
+ width:100%;
+ padding:11px 12px;
+ border:1px solid #444;
+ border-radius:10px;
+ background:#252525;
+ color:white;
+ outline:none;
+}
+
+.sidebar-search::placeholder{
+ color:#999;
+}
+
+.menu .menu-profile{
+ margin-top:auto!important;
+ border-top:1px solid #383838!important;
+ padding-top:16px!important;
+ }
 </style>
 </head>
 
@@ -1649,25 +1671,47 @@ body:not(.chat-open) .prompts{
   <span>Your AI workspace</span>
  </div>
 
- <button onclick="newChat();closeMenu()">＋ New Chat</button>
+ <button class="menu-new-chat"
+ onclick="newChat();closeMenu()">
+  ＋ New Chat
+ </button>
 
- <button onclick="showHistory();closeMenu()">⌕ Search Chats</button>
+ <button onclick="focusSidebarSearch()">
+  ⌕ Search Chats
+ </button>
 
  <div class="menu-label">YOUR SPACE</div>
 
- <button onclick="goHome();closeMenu()">⌂ Home</button>
- <button onclick="showHistory();closeMenu()">◷ Chat History</button>
- <button onclick="showFavorites();closeMenu()">☆ Favorites</button>
- <button onclick="showFavorites();closeMenu()">☆ Favorites</button>
-<div class="menu-label">RECENT CHATS</div>
-<div id="sidebarRecentChats"></div>
+ <button onclick="goHome();closeMenu()">
+  ⌂ Home
+ </button>
+
+ <button onclick="showFavorites();closeMenu()">
+  ☆ Favorites
+ </button>
+
+ <div class="menu-label">RECENT CHATS</div>
+
+ <input
+  id="sidebarSearch"
+  class="sidebar-search"
+  type="search"
+  placeholder="Search your chats..."
+  oninput="renderSidebarChats(this.value)"
+ >
+
+ <div id="sidebarRecentChats"></div>
+
  <div class="menu-label">PREFERENCES</div>
 
- <button onclick="showSettings();closeMenu()">⚙ Settings</button>
+ <button onclick="showSettings();closeMenu()">
+  ⚙ Settings
+ </button>
 
- <div class="menu-footer">
-  ZAQTIVO AI
- </div>
+ <button class="menu-profile"
+ onclick="showProfile();closeMenu()">
+  👤 Profile
+ </button>
 
 </div>
 
@@ -2222,28 +2266,51 @@ function quickPrompt(prompt){
 
 function toggleMenu(){
  document.body.classList.toggle("menu-open");
+
  if(document.body.classList.contains("menu-open")){
   renderSidebarChats();
  }
 }
 
-function renderSidebarChats(){
+function focusSidebarSearch(){
+ const input=document.getElementById("sidebarSearch");
+
+ if(input){
+  input.focus();
+ }
+}
+
+function renderSidebarChats(query=""){
  const box=document.getElementById("sidebarRecentChats");
  if(!box)return;
 
  box.innerHTML="";
 
+ const search=query.trim().toLowerCase();
+
  const recent=[...sessions].sort((a,b)=>
   new Date(b.updatedAt)-new Date(a.updatedAt)
- ).slice(0,8);
+ );
 
- if(!recent.length){
-  box.textContent="No recent chats yet.";
+ const filtered=recent.filter(session=>{
+  const content=[
+   session.title,
+   ...session.messages.map(message=>message.text)
+  ].join(" ").toLowerCase();
+
+  return content.includes(search);
+ });
+
+ if(!filtered.length){
+  box.textContent=search
+   ?"No matching chats found."
+   :"No recent chats yet.";
   return;
  }
 
- recent.forEach(session=>{
+ filtered.forEach(session=>{
   const button=document.createElement("button");
+
   button.type="button";
   button.className="sidebar-chat-item";
   button.textContent=session.title||"New chat";
@@ -2257,6 +2324,9 @@ function renderSidebarChats(){
  });
 }
 
+function closeMenu(){
+ document.body.classList.remove("menu-open");
+}
 function closeMenu(){
  document.body.classList.remove("menu-open");
  }
@@ -4402,7 +4472,34 @@ function showSettings(){
   }
  };
 }
+function showProfile(){
+ document.body.classList.remove("chat-open");
+ hideScreens();
 
+ document.getElementById("otherScreen").style.display="block";
+ document.getElementById("otherTitle").textContent="Profile";
+
+ const box=document.getElementById("otherContent");
+
+ box.innerHTML=`
+  <div class="profile-card">
+   <div class="profile-avatar">👤</div>
+   <div>
+    <strong>ZAQTIVO AI</strong>
+    <div class="status">Guest Profile</div>
+   </div>
+  </div>
+
+  <div class="status">
+   No sign-in account is configured.
+   Your chats and favorites are saved in this browser.
+  </div>
+
+  <button class="smallbtn" onclick="showSettings()">
+   ⚙ Open Settings
+  </button>
+ `;
+ }
 /* KEYBOARD EVENTS */
 
 document.getElementById("question").addEventListener(
