@@ -1032,6 +1032,7 @@ async function generateChatWithFallback(request) {
   isModelSpecificQuotaError(error) ||
   (!isQuotaError(error) && fallbackError)
 ) {
+        failedModels.push({
           model,
           reason: dailyQuota
             ? "daily_model_quota_exhausted"
