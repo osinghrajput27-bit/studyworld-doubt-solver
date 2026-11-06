@@ -570,7 +570,12 @@ app.use("/api", (req, res, next) => {
 
   let record = requestCounts.get(ip);
 
-  
+  if (!record || now - record.start >= RATE_LIMIT_WINDOW) {
+  record = {
+    count: 0,
+    start: now
+  };
+}
 
   record.count++;
 
