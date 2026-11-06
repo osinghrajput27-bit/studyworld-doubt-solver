@@ -4496,15 +4496,17 @@ async function initializeGoogleSignIn(){
       if(!googleSignInInitialized){
         google.accounts.id.initialize({
           client_id: googleClientId,
-          callback: handleGoogleCredential
-        });
-
+callback: handleGoogleCredential,
+auto_select: true
+});
+      auto_select: true
         googleSignInInitialized = true;
       }
 
       renderGoogleSignInButton();
+     google.accounts.id.prompt();
     };
-
+      google.accounts.id.prompt();
     startGoogle();
   }catch(error){
     console.error("Google Sign-In setup failed:", error);
