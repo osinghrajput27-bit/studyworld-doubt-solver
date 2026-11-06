@@ -4473,34 +4473,138 @@ function showSettings(){
   }
  };
 }
+
+let googleClientId = null;
+let googleSignInInitialized = false;
+let signedInUser = null;
+
+async function initializeGoogleSignIn(){
+  try{
+    const response = await fetch("/api/config");
+    const config = await response.json();
+
+    googleClientId = config.googleClientId;
+
+    if(!googleClientId) return;
+
+    const startGoogle = () => {
+      if(!window.google?.accounts?.id){
+        setTimeout(startGoogle, 200);
+        return;
+      }
+
+      if(!googleSignInInitialized){
+        google.accounts.id.initialize({
+          client_id: googleClientId,
+          callback: handleGoogleCredential
+        });
+
+        googleSignInInitialized = true;
+      }
+
+      renderGoogleSignInButton();
+    };
+
+    startGoogle();
+  }catch(error){
+    console.error("Google Sign-In setup failed:", error);
+  }
+}
+
+function renderGoogleSignInButton(){
+  const button = document.getElementById("googleSignInButton");
+
+  if(!button || !googleSignInInitialized) return;
+
+  button.innerHTML = "";
+
+  google.accounts.id.renderButton(button, {
+    theme: "outline",
+    size: "large",
+    shape: "pill",
+    text: "continue_with",
+    width: 280
+  });
+}
+
+async function handleGoogleCredential(response){
+  try{
+    const result = await fetch("/api/auth/google", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        credential: response.credential
+      })
+    });
+
+    const data = await result.json();
+
+    if(!result.ok || !data.success){
+      alert(data.error || "Google Sign-In failed.");
+      return;
+    }
+initializeGoogleSignIn();
+    signedInUser = data.user;
+    showProfile();
+
+  }catch(error){
+    console.error("Google login error:", error);
+    alert("Login failed. Please try again.");
+  }
+}
+
 function showProfile(){
- document.body.classList.remove("chat-open");
- hideScreens();
+  document.body.classList.remove("chat-open");
+  hideScreens();
 
- document.getElementById("otherScreen").style.display="block";
- document.getElementById("otherTitle").textContent="Profile";
+  document.getElementById("otherScreen").style.display="block";
+  document.getElementById("otherTitle").textContent="Profile";
 
- const box=document.getElementById("otherContent");
+  const box=document.getElementById("otherContent");
 
- box.innerHTML=`
-  <div class="profile-card">
-   <div class="profile-avatar">👤</div>
-   <div>
-    <strong>ZAQTIVO AI</strong>
-    <div class="status">Guest Profile</div>
-   </div>
-  </div>
+  if(signedInUser){
+    box.innerHTML=`
+      <div class="profile-card">
+        <div class="profile-avatar">👤</div>
+        <div>
+          <strong>${escapeHtml(signedInUser.name)}</strong>
+          <div class="status">${escapeHtml(signedInUser.email)}</div>
+          <div class="status">Google account verified</div>
+        </div>
+      </div>
+    `;
+    return;
+  }
 
-  <div class="status">
-   No sign-in account is configured.
-   Your chats and favorites are saved in this browser.
-  </div>
+  box.innerHTML=`
+    <div class="profile-card">
+      <div class="profile-avatar">👤</div>
+      <div>
+        <strong>ZAQTIVO AI</strong>
+        <div class="status">Guest Profile</div>
+      </div>
+    </div>
 
-  <button class="smallbtn" onclick="showSettings()">
-   ⚙ Open Settings
-  </button>
- `;
- }
+    <div class="status">
+      Continue with your Google account.
+    </div>
+
+    <div id="googleSignInButton"></div>
+
+    <div class="status">
+      Your existing chats remain saved in this browser.
+    </div>
+
+    <button class="smallbtn" onclick="showSettings()">
+      ⚙ Open Settings
+    </button>
+  `;
+
+  renderGoogleSignInButton();
+}
+
 /* KEYBOARD EVENTS */
 
 document.getElementById("question").addEventListener(
