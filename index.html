@@ -4710,6 +4710,7 @@ async function handleGoogleCredential(response){
     document.body.classList.remove("auth-required");
 
     goHome();
+   showFirstLanguageSetup();
   }catch(error){
     console.error("Google login error:", error);
     alert("Login failed. Please try again.");
