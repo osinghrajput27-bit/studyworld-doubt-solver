@@ -4535,19 +4535,6 @@ async function initializeGoogleSignIn(){
 function renderGoogleSignInButton(){
   const button = document.getElementById("googleSignInButton");
 
-  if(!button || !googleSignInInitialized) return;
-
-  button.innerHTML = "";
-
-  google.accounts.id.renderButton(button, {
-    theme: "outline",
-    size: "large",
-    shape: "pill",
-    text: "continue_with",
-    width: 280
-  });
-}
-
 async function handleGoogleCredential(response){
   try{
     const result = await fetch("/api/auth/google", {
@@ -4555,12 +4542,29 @@ async function handleGoogleCredential(response){
       headers: {
         "Content-Type": "application/json"
       },
+      credentials: "same-origin",
       body: JSON.stringify({
         credential: response.credential
       })
     });
 
-    async function signOutGoogleUser(){
+    const data = await result.json();
+
+    if(!result.ok || !data.success){
+      alert(data.error || "Google Sign-In failed.");
+      return;
+    }
+
+    signedInUser = data.user;
+    showProfile();
+
+  }catch(error){
+    console.error("Google login error:", error);
+    alert("Login failed. Please try again.");
+  }
+}
+
+async function signOutGoogleUser(){
   try {
     const response = await fetch("/api/auth/logout", {
       method: "POST",
@@ -4584,22 +4588,7 @@ async function handleGoogleCredential(response){
     console.error("Google logout error:", error);
     alert("Sign Out failed. Please try again.");
   }
-    }
-
-  }catch(error){
-    console.error("Google login error:", error);
-    alert("Login failed. Please try again.");
-  }
-}
-function signOutGoogleUser(){
-  signedInUser = null;
-
-  if(window.google?.accounts?.id){
-    google.accounts.id.disableAutoSelect();
-  }
-
-  showProfile();
- }
+   }
 function showProfile(){
   document.body.classList.remove("chat-open");
   hideScreens();
