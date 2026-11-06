@@ -527,6 +527,62 @@ const rateLimitCleanup = setInterval(() => {
 rateLimitCleanup.unref?.();
 
 // ========================================
+// GOOGLE SIGN-IN VERIFICATION
+// ========================================
+
+app.post("/api/auth/google", async (req, res) => {
+  try {
+    if (!googleOAuthClient || !GOOGLE_CLIENT_ID) {
+      return res.status(503).json({
+        success: false,
+        error: "Google Sign-In is not configured."
+      });
+    }
+
+    const idToken = req.body?.credential || req.body?.idToken;
+
+    if (!idToken || typeof idToken !== "string") {
+      return res.status(400).json({
+        success: false,
+        error: "Google ID token is required."
+      });
+    }
+
+    const ticket = await googleOAuthClient.verifyIdToken({
+      idToken,
+      audience: GOOGLE_CLIENT_ID
+    });
+
+    const payload = ticket.getPayload();
+
+    if (!payload || !payload.sub || !payload.email) {
+      return res.status(401).json({
+        success: false,
+        error: "Invalid Google account."
+      });
+    }
+
+    return res.json({
+      success: true,
+      user: {
+        id: payload.sub,
+        name: payload.name || "",
+        email: payload.email,
+        picture: payload.picture || "",
+        emailVerified: payload.email_verified === true
+      }
+    });
+  } catch (error) {
+    console.error("Google sign-in verification failed:", error.message);
+
+    return res.status(401).json({
+      success: false,
+      error: "Google Sign-In verification failed."
+    });
+  }
+});
+
+// ========================================
 // 8. MULTER UPLOAD CONFIGURATION
 // ========================================
 
