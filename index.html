@@ -4600,8 +4600,9 @@ function showSettings(){
 let googleClientId = null;
 let googleSignInInitialized = false;
 let signedInUser = null;
-async function restoreGoogleSession() {
-  try {
+
+async function restoreGoogleSession(){
+  try{
     const response = await fetch("/api/auth/session", {
       credentials: "same-origin",
       cache: "no-store"
@@ -4609,21 +4610,36 @@ async function restoreGoogleSession() {
 
     const data = await response.json();
 
-    if (response.ok && data.success && data.user) {
+    if(response.ok && data.success && data.user){
       signedInUser = data.user;
+      document.body.classList.remove("auth-required");
+    }else{
+      signedInUser = null;
+      document.body.classList.add("auth-required");
     }
-  } catch (error) {
+  }catch(error){
     console.error("Session restore failed:", error);
+    signedInUser = null;
+    document.body.classList.add("auth-required");
   }
- }
+}
+
 async function initializeGoogleSignIn(){
   try{
-    const response = await fetch("/api/config");
-    const config = await response.json();
+    const response = await fetch("/api/config", {
+      credentials: "same-origin",
+      cache: "no-store"
+    });
 
+    if(!response.ok) throw new Error("Could not load Google configuration.");
+
+    const config = await response.json();
     googleClientId = config.googleClientId;
 
-    if(!googleClientId) return;
+    if(!googleClientId){
+      console.error("Google Client ID is missing.");
+      return;
+    }
 
     const startGoogle = () => {
       if(!window.google?.accounts?.id){
@@ -4631,38 +4647,42 @@ async function initializeGoogleSignIn(){
         return;
       }
 
-                  if(!googleSignInInitialized){
+      if(!googleSignInInitialized){
         google.accounts.id.initialize({
           client_id: googleClientId,
           callback: handleGoogleCredential,
-          auto_select: true
+          auto_select: false
         });
 
         googleSignInInitialized = true;
       }
 
       renderGoogleSignInButton();
-      
     };
+
     startGoogle();
-  
   }catch(error){
     console.error("Google Sign-In setup failed:", error);
   }
 }
+
 function renderGoogleSignInButton(){
-  const button = document.getElementById("googleSignInButton");
+  if(!googleSignInInitialized) return;
 
-  if(!button || !googleSignInInitialized) return;
+  ["loginGoogleSignInButton", "googleSignInButton"].forEach(id => {
+    const button = document.getElementById(id);
 
-  button.innerHTML = "";
+    if(!button) return;
 
-  google.accounts.id.renderButton(button, {
-    theme: "outline",
-    size: "large",
-    shape: "pill",
-    text: "continue_with",
-    width: 280
+    button.innerHTML = "";
+
+    google.accounts.id.renderButton(button, {
+      theme: "outline",
+      size: "large",
+      shape: "pill",
+      text: "continue_with",
+      width: 280
+    });
   });
 }
 
@@ -4687,8 +4707,9 @@ async function handleGoogleCredential(response){
     }
 
     signedInUser = data.user;
-    showProfile();
+    document.body.classList.remove("auth-required");
 
+    goHome();
   }catch(error){
     console.error("Google login error:", error);
     alert("Login failed. Please try again.");
@@ -4696,30 +4717,29 @@ async function handleGoogleCredential(response){
 }
 
 async function signOutGoogleUser(){
-  try {
+  try{
     const response = await fetch("/api/auth/logout", {
       method: "POST",
       credentials: "same-origin",
       cache: "no-store"
     });
 
-    if (!response.ok) {
+    if(!response.ok){
       throw new Error("Logout request failed");
     }
 
     signedInUser = null;
+    document.body.classList.add("auth-required");
 
     if(window.google?.accounts?.id){
       google.accounts.id.disableAutoSelect();
     }
-
-    showProfile();
-
-  } catch(error) {
+  }catch(error){
     console.error("Google logout error:", error);
     alert("Sign Out failed. Please try again.");
   }
-     }
+}
+
 function showProfile(){
   document.body.classList.remove("chat-open");
   hideScreens();
