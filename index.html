@@ -4554,7 +4554,15 @@ async function handleGoogleCredential(response){
     alert("Login failed. Please try again.");
   }
 }
+function signOutGoogleUser(){
+  signedInUser = null;
 
+  if(window.google?.accounts?.id){
+    google.accounts.id.disableAutoSelect();
+  }
+
+  showProfile();
+ }
 function showProfile(){
   document.body.classList.remove("chat-open");
   hideScreens();
