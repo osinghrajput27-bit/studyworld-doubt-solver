@@ -916,6 +916,35 @@ body.chat-open #chatVoiceStatus{
 
  /* ZAQTIVO AI SIDEBAR FIX */
 .menu-backdrop{display:none}
+ body.menu-open{
+ overflow:hidden;
+}
+
+.menu-brand{
+ flex-shrink:0;
+}
+
+.menu-close{
+ flex-shrink:0;
+ cursor:pointer;
+}
+
+.menu-footer{
+ flex-shrink:0;
+ text-align:center;
+ letter-spacing:.3px;
+}
+
+.menu>button span{
+ width:20px;
+ display:inline-flex;
+ justify-content:center;
+ font-size:18px;
+}
+
+#sidebarRecentChats{
+ overscroll-behavior:contain;
+}
 body.menu-open .menu{
   display:flex!important;
   visibility:visible!important;
@@ -1666,58 +1695,39 @@ body:not(.chat-open) .prompts{
 </header>
 
 <div class="menu glass" id="menu">
+<div class="menu-backdrop" id="menuBackdrop" onclick="closeMenu()" aria-hidden="true"></div>
 
+<div class="menu glass" id="menu" aria-label="Main navigation" aria-hidden="true">
  <div class="menu-brand">
-  <strong>✦ ZAQTIVO AI</strong>
-  <span>Your AI workspace</span>
+  <div class="menu-brand-icon">✦</div>
+  <div>
+   <strong>ZAQTIVO AI</strong>
+   <span>Your AI workspace</span>
+  </div>
+  <button class="menu-close" onclick="closeMenu()" aria-label="Close menu">×</button>
  </div>
 
- <button class="menu-new-chat"
- onclick="newChat();closeMenu()">
-  ＋ New Chat
+ <button class="menu-new-chat" onclick="newChat();closeMenu()">
+  <span>＋</span> New Chat
  </button>
 
- <button onclick="focusSidebarSearch()">
-  ⌕ Search Chats
- </button>
+ <button onclick="focusSidebarSearch()"><span>⌕</span> Search Chats</button>
 
  <div class="menu-label">YOUR SPACE</div>
-
- <button onclick="goHome();closeMenu()">
-  ⌂ Home
- </button>
-
- <button onclick="showFavorites();closeMenu()">
-  ☆ Favorites
- </button>
+ <button onclick="goHome();closeMenu()"><span>⌂</span> Home</button>
+ <button onclick="showFavorites();closeMenu()"><span>☆</span> Favorites</button>
 
  <div class="menu-label">RECENT CHATS</div>
-
- <input
-  id="sidebarSearch"
-  class="sidebar-search"
-  type="search"
-  placeholder="Search your chats..."
-  oninput="renderSidebarChats(this.value)"
- >
-
+ <input id="sidebarSearch" class="sidebar-search" type="search"
+  placeholder="Search your chats..." oninput="renderSidebarChats(this.value)">
  <div id="sidebarRecentChats"></div>
 
  <div class="menu-label">PREFERENCES</div>
-
- <button onclick="showSettings();closeMenu()">
-  ⚙ Settings
+ <button onclick="showSettings();closeMenu()"><span>⚙</span> Settings</button>
+ <button class="menu-profile" onclick="showProfile();closeMenu()">
+  <span>👤</span> Profile
  </button>
-
- <button class="menu-profile"
- onclick="showProfile();closeMenu()">
-  👤 Profile
- </button>
- <button
-  onclick="closeMenu()"
-  style="margin-top:auto;justify-content:center;background:#292929;border-color:#555;color:white;">
-  ← Back
- </button>
+ <div class="menu-footer">ZAQTIVO AI</div>
 </div>
 
 <main>
@@ -2270,9 +2280,13 @@ function quickPrompt(prompt){
 }
 
 function toggleMenu(){
- document.body.classList.toggle("menu-open");
+ const opening=!document.body.classList.contains("menu-open");
+ document.body.classList.toggle("menu-open",opening);
 
- if(document.body.classList.contains("menu-open")){
+ const menu=document.getElementById("menu");
+ if(menu)menu.setAttribute("aria-hidden",String(!opening));
+
+ if(opening){
   renderSidebarChats();
  }
 }
@@ -2331,10 +2345,16 @@ function renderSidebarChats(query=""){
 
 function closeMenu(){
  document.body.classList.remove("menu-open");
+
+ const menu=document.getElementById("menu");
+ if(menu)menu.setAttribute("aria-hidden","true");
 }
-function closeMenu(){
- document.body.classList.remove("menu-open");
+
+document.addEventListener("keydown",event=>{
+ if(event.key==="Escape"&&document.body.classList.contains("menu-open")){
+  closeMenu();
  }
+});
 
 function showUpgrade(){
  alert("Pro features are not available yet. Existing service limits still apply.");
