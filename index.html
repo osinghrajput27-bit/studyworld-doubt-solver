@@ -4835,23 +4835,37 @@ document.getElementById("renameModal").addEventListener(
  }
 );
 
+
 /* INITIALIZATION */
 
-loadData();
-restoreGoogleSession();
-initializeGoogleSignIn();
-if(!LANGUAGE_OPTIONS.includes(selectedLanguage)){
- selectedLanguage="Auto Detect";
+async function startZAQTIVO(){
+  loadData();
+
+  initializeGoogleSignIn();
+
+  await restoreGoogleSession();
+
+  if(!LANGUAGE_OPTIONS.includes(selectedLanguage)){
+    selectedLanguage = "Auto Detect";
+  }
+
+  renderImagePreviews("home");
+  renderImagePreviews("chat");
+
+  renderDocumentPreviews("home");
+  renderDocumentPreviews("chat");
+
+  if(signedInUser){
+    document.body.classList.remove("auth-required");
+    goHome();
+    showFirstLanguageSetup();
+  }else{
+    document.body.classList.add("auth-required");
+  }
 }
 
-renderImagePreviews("home");
-renderImagePreviews("chat");
+startZAQTIVO();
 
-renderDocumentPreviews("home");
-renderDocumentPreviews("chat");
-
-goHome();
-showFirstLanguageSetup();
 
 </script>
 </body>
