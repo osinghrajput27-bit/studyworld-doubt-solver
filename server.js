@@ -2,6 +2,7 @@ import express from "express";
 import multer from "multer";
 import { GoogleGenAI } from "@google/genai";
 import OpenAI from "openai";
+import { OAuth2Client } from "google-auth-library";
 import * as OfficeParserModule from "officeparser";
 import path from "path";
 import os from "os";
@@ -40,6 +41,11 @@ const VIDEO_MODEL =
   process.env.GEMINI_VIDEO_MODEL || "gemini-omni-1.1-flash";
 
 const apiKey = process.env.GEMINI_API_KEY;
+const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
+
+const googleOAuthClient = GOOGLE_CLIENT_ID
+  ? new OAuth2Client(GOOGLE_CLIENT_ID)
+  : null;
 const openaiApiKey = process.env.OPENAI_API_KEY;
 const CHAT_TIMEOUT = Math.max(
   15000,
