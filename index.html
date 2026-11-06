@@ -4493,21 +4493,21 @@ async function initializeGoogleSignIn(){
         return;
       }
 
-      if(!googleSignInInitialized){
+                  if(!googleSignInInitialized){
         google.accounts.id.initialize({
           client_id: googleClientId,
-callback: handleGoogleCredential,
-auto_select: true
-});
-      auto_select: true
+          callback: handleGoogleCredential,
+          auto_select: true
+        });
+
         googleSignInInitialized = true;
       }
 
       renderGoogleSignInButton();
-     google.accounts.id.prompt();
-    };
       google.accounts.id.prompt();
+    };
     startGoogle();
+  
   }catch(error){
     console.error("Google Sign-In setup failed:", error);
   }
