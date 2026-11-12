@@ -3428,7 +3428,14 @@ async function askBackend(
 
  formData.append("question",question);
  formData.append("language",selectedLanguage);
+const vaultMemory = JSON.parse(
+ localStorage.getItem("zaqtivo_knowledge_vault") || "[]"
+);
 
+formData.append(
+ "knowledgeVault",
+ JSON.stringify(vaultMemory.slice(0, 10))
+);
  imageFiles.forEach(file=>{
   formData.append("images",file,file.name);
  });
