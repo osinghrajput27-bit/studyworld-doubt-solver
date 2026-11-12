@@ -2328,6 +2328,43 @@ body:not(.chat-open) .askbox{
 body:not(.chat-open) .attach-toolbar{
  margin-top:18px!important;
  }
+ 
+/* ZAQTIVO HERO TEXT POLISH */
+body:not(.chat-open) .hero-copy{
+  position:relative;
+  z-index:2;
+  text-align:left;
+}
+
+body:not(.chat-open) .hero-copy h1{
+  color:#fff!important;
+  font-size:clamp(32px,7vw,48px)!important;
+  font-weight:800!important;
+  line-height:1.12!important;
+  letter-spacing:-1.5px!important;
+}
+
+body:not(.chat-open) .hero-copy h1 span{
+  background:linear-gradient(90deg,#d18aff,#7b5cff,#35aaff);
+  -webkit-background-clip:text;
+  background-clip:text;
+  color:transparent!important;
+}
+
+body:not(.chat-open) .hero-copy p{
+  color:#d8d9ff!important;
+  font-size:17px!important;
+  line-height:1.5!important;
+  margin-top:18px!important;
+}
+
+@media(max-width:600px){
+  body:not(.chat-open) .home-welcome{
+    grid-template-columns:1fr 1fr!important;
+    min-height:250px!important;
+  }
+}
+
 </style>
  <script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
