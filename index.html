@@ -1761,6 +1761,163 @@ body.auth-required #authGate{
  font-size:12px;
  letter-spacing:2px;
 }
+ /* ZAQTIVO FUTURISTIC HOME DESIGN */
+body:not(.chat-open){
+ background:
+ radial-gradient(ellipse at 15% 10%,#351078 0,transparent 40%),
+ radial-gradient(ellipse at 90% 35%,#071c70 0,transparent 42%),
+ linear-gradient(145deg,#070522,#080b35 60%,#12052e)!important;
+ color:#fff!important;
+}
+
+body:not(.chat-open):before{display:block!important;opacity:.35}
+
+body:not(.chat-open) .topbar{
+ max-width:1200px;
+ padding:18px 20px;
+ background:transparent!important;
+}
+
+body:not(.chat-open) .brand-name strong{
+ font-size:25px;
+ letter-spacing:1px;
+ background:linear-gradient(90deg,#fff,#b58aff,#38dfff);
+ -webkit-background-clip:text;
+ color:transparent;
+}
+
+body:not(.chat-open) .brand-name span{color:#c8c5ff}
+
+body:not(.chat-open) .probtn{
+ background:linear-gradient(120deg,#a42aff,#4b36ff)!important;
+ border:1px solid #bd8aff!important;
+ box-shadow:0 0 22px #8b35ff66;
+}
+
+body:not(.chat-open) main{
+ width:min(100% - 26px,1050px);
+}
+
+body:not(.chat-open) .hero{
+ padding:22px 0 20px;
+ text-align:left;
+}
+
+body:not(.chat-open) .brain{
+ font-size:75px;
+ filter:drop-shadow(0 0 25px #00cfff);
+}
+
+body:not(.chat-open) .hero h1{
+ font-size:clamp(32px,7vw,52px);
+ background:linear-gradient(90deg,#fff,#c49aff,#54eaff);
+ -webkit-background-clip:text;
+ color:transparent!important;
+}
+
+body:not(.chat-open) .hero p{
+ color:#d8dcff!important;
+ font-size:17px;
+}
+
+body:not(.chat-open) .askbox{
+ background:linear-gradient(120deg,#21135b,#111b59)!important;
+ border:1px solid #a34cff!important;
+ border-radius:35px;
+ box-shadow:0 0 25px #712cff55;
+}
+
+body:not(.chat-open) .askbox textarea{
+ color:white!important;
+}
+
+body:not(.chat-open) .askbox textarea::placeholder{
+ color:#c8c7ed!important;
+}
+
+body:not(.chat-open) .sendbtn{
+ background:linear-gradient(135deg,#bd2aff,#4c36ff,#078dff)!important;
+ box-shadow:0 0 20px #8c38ff77;
+}
+
+body:not(.chat-open) .attach-toolbar{
+ display:grid;
+ grid-template-columns:repeat(3,minmax(0,1fr));
+ gap:10px;
+}
+
+body:not(.chat-open) .attach-toolbar .smallbtn{
+ min-height:82px;
+ border-radius:19px;
+ background:linear-gradient(145deg,#5420a8,#172e85)!important;
+ border:1px solid #8264ff!important;
+ color:white!important;
+ font-weight:bold;
+}
+
+body:not(.chat-open) .section-title{
+ color:white!important;
+ font-size:21px;
+ margin:28px 4px 15px;
+}
+
+body:not(.chat-open) .features{
+ grid-template-columns:repeat(2,minmax(0,1fr));
+ gap:12px;
+}
+
+body:not(.chat-open) .feature{
+ min-height:115px;
+ border-radius:21px;
+ background:linear-gradient(145deg,#25145c,#10245c)!important;
+ border:1px solid #6650c9!important;
+ box-shadow:0 5px 20px #0005;
+ color:white!important;
+}
+
+body:not(.chat-open) .feature .emoji{
+ font-size:34px;
+ filter:drop-shadow(0 0 8px #9e6cff);
+}
+
+body:not(.chat-open) .feature strong{
+ color:white!important;
+ font-size:15px;
+}
+
+body:not(.chat-open) .create-panel{
+ background:linear-gradient(145deg,#1b1450,#10234d)!important;
+ border:1px solid #6551bd!important;
+ border-radius:22px;
+}
+
+body:not(.chat-open) .prompts .prompt{
+ background:#171b50!important;
+ border:1px solid #5148a7!important;
+ color:white!important;
+}
+
+body:not(.chat-open) .upgrade{
+ background:linear-gradient(110deg,#24115d,#101c60)!important;
+ color:white!important;
+ border:1px solid #884cff!important;
+ border-radius:22px;
+ box-shadow:0 0 22px #692dff44;
+}
+
+@media(max-width:600px){
+ body:not(.chat-open) .topbar{padding:14px 8px}
+ body:not(.chat-open) .hero{padding:18px 4px}
+ body:not(.chat-open) .brain{font-size:65px}
+ body:not(.chat-open) .hero h1{font-size:34px}
+ body:not(.chat-open) .hero p{font-size:15px}
+ body:not(.chat-open) .attach-toolbar .smallbtn{
+  min-height:75px;
+  padding:9px 5px;
+  font-size:12px;
+ }
+ body:not(.chat-open) .feature{min-height:105px}
+ }
 </style>
  <script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
