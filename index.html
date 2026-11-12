@@ -2219,6 +2219,115 @@ body:not(.chat-open) .create-panel{
  body:not(.chat-open) .feature{min-height:125px!important}
  body:not(.chat-open) .section-title{font-size:20px!important}
  }
+ /* ZAQTIVO PREMIUM HEADER */
+body:not(.chat-open) .topbar{
+ width:100%!important;
+ max-width:1100px!important;
+ display:flex!important;
+ align-items:center!important;
+ justify-content:space-between!important;
+ padding:18px 20px!important;
+ gap:10px!important;
+}
+
+body:not(.chat-open) .top-left{
+ display:flex!important;
+ align-items:center!important;
+ gap:14px!important;
+ min-width:0;
+}
+
+body:not(.chat-open) .brand-name{
+ display:flex!important;
+ flex-direction:column!important;
+ gap:2px!important;
+}
+
+body:not(.chat-open) .brand-name strong{
+ font-size:clamp(23px,5vw,36px)!important;
+ letter-spacing:-1px!important;
+ white-space:nowrap;
+ background:linear-gradient(90deg,#fff,#b58aff,#358cff)!important;
+ -webkit-background-clip:text!important;
+ color:transparent!important;
+}
+
+body:not(.chat-open) .brand-name .brand-ai{
+ color:#a65cff!important;
+}
+
+body:not(.chat-open) .brand-name span{
+ color:#e0dcff!important;
+ font-size:12px!important;
+ letter-spacing:.5px!important;
+ white-space:nowrap;
+}
+
+body:not(.chat-open) .top-right{
+ display:flex!important;
+ align-items:center!important;
+ gap:12px!important;
+}
+
+body:not(.chat-open) .avatar{
+ width:55px!important;
+ height:55px!important;
+ border-radius:50%!important;
+ background:linear-gradient(135deg,#6816db,#171b91)!important;
+ border:1px solid #a65cff!important;
+ color:white!important;
+ font-size:25px!important;
+ box-shadow:0 0 18px #762cff88!important;
+}
+
+body:not(.chat-open) .probtn{
+ padding:13px 22px!important;
+ border-radius:30px!important;
+ font-size:17px!important;
+ }
+ /* ZAQTIVO COSMIC HERO DESIGN */
+body:not(.chat-open){
+ background-color:#030522!important;
+ background-image:
+ radial-gradient(circle at 75% 18%,#142b9b88 0,transparent 28%),
+ radial-gradient(circle at 15% 55%,#5810a866 0,transparent 35%),
+ radial-gradient(circle at 85% 75%,#1711a855 0,transparent 30%),
+ linear-gradient(145deg,#02031c,#08063d,#02031c)!important;
+}
+
+body:not(.chat-open) .home-welcome{
+ position:relative;
+ min-height:300px!important;
+ grid-template-columns:1fr 1.2fr!important;
+ align-items:center!important;
+ gap:4px!important;
+ overflow:hidden;
+}
+
+body:not(.chat-open) .home-welcome h1{
+ font-size:clamp(29px,6vw,43px)!important;
+ line-height:1.18!important;
+}
+
+body:not(.chat-open) .home-welcome p{
+ font-size:16px!important;
+ line-height:1.5!important;
+}
+
+body:not(.chat-open) .home-welcome .hero-robot{
+ font-size:clamp(115px,28vw,190px)!important;
+ filter:drop-shadow(0 0 18px #267dff)
+        drop-shadow(0 0 30px #762cff)!important;
+ animation:zaqtivoFloat 3s ease-in-out infinite;
+}
+
+body:not(.chat-open) .askbox{
+ margin-top:5px!important;
+}
+
+body:not(.chat-open) .attach-toolbar{
+ margin-top:18px!important;
+ }
 </style>
  <script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
@@ -2239,14 +2348,16 @@ body:not(.chat-open) .create-panel{
 </div>
 <header class="topbar">
  <div class="top-left">
-  <button class="roundbtn" onclick="toggleMenu()" aria-label="Open menu">☰</button>
+  <button class="roundbtn" onclick="toggleMenu()" aria-label="Open menu">🧠</button>
   <div class="brand-name">
-   <strong>ZAQTIVO</strong>
-   <span>AI ASSISTANT</span>
+   <strong>ZAQTIVO <span class="brand-ai">AI</span></strong>
+   <span>Ask • Learn • Create • Explore</span>
   </div>
-<div class="top-right">
- <button class="probtn" onclick="showUpgrade()">✦ PRO</button>
-</div>
+ </div>
+ <div class="top-right">
+  <button class="probtn" onclick="showUpgrade()">👑 Pro</button>
+  <button class="avatar" onclick="showProfile()" aria-label="Profile">👤</button>
+ </div>
 </header>
 
 <div class="menu-backdrop" id="menuBackdrop" onclick="closeMenu()" aria-hidden="true"></div>
