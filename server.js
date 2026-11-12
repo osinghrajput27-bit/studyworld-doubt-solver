@@ -1733,7 +1733,19 @@ app.post(
         req.body?.language || "auto",
         100
       );
+      let knowledgeVault = [];
 
+      try {
+        const vaultData = JSON.parse(
+          req.body?.knowledgeVault || "[]"
+        );
+
+        if (Array.isArray(vaultData)) {
+          knowledgeVault = vaultData.slice(0, 10);
+        }
+      } catch (error) {
+        knowledgeVault = [];
+      }
       const images = req.files?.images || [];
       const documentFiles = req.files?.documents || [];
 
@@ -1799,11 +1811,12 @@ app.post(
       }
 
       const prompt = buildPrompt(
-        finalQuestion,
-        documents,
-        task,
-        language
-      );
+  finalQuestion,
+  documents,
+  task,
+  language,
+  knowledgeVault
+);
 
       const parts = [{ text: prompt }];
 
