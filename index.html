@@ -2364,6 +2364,49 @@ body:not(.chat-open) .hero-copy p{
     min-height:250px!important;
   }
 }
+ 
+/* ZAQTIVO PREMIUM FEATURE CARDS */
+body:not(.chat-open) .section-title{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin:28px 4px 16px!important;
+  color:#fff!important;
+  font-size:19px!important;
+  font-weight:800!important;
+}
+
+body:not(.chat-open) .features{
+  display:grid!important;
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  gap:14px!important;
+}
+
+body:not(.chat-open) .feature{
+  min-height:112px!important;
+  padding:18px 10px!important;
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:center!important;
+  justify-content:center!important;
+  gap:12px!important;
+  border:1px solid #8d70ff66!important;
+  border-radius:20px!important;
+  background:linear-gradient(145deg,#25205cbb,#101b48cc)!important;
+  box-shadow:0 8px 25px #0005, inset 0 1px 0 #ffffff20!important;
+  color:white!important;
+}
+
+body:not(.chat-open) .feature .emoji{
+  font-size:32px!important;
+  filter:drop-shadow(0 0 9px #8d64ff);
+}
+
+body:not(.chat-open) .feature strong{
+  font-size:13px!important;
+  color:#fff!important;
+  text-align:center;
+}
 
 </style>
  <script src="https://accounts.google.com/gsi/client" async defer></script>
