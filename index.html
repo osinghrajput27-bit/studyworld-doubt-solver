@@ -2291,24 +2291,25 @@ body:not(.chat-open) .create-panel{
 
 <section id="homeScreen">
 
- <div class="hero home-welcome" style="text-align:center;padding:35px 12px 25px">
-  <div class="brain" style="font-size:65px;color:#a98aff;text-shadow:0 0 30px #8b5cff">✦</div>
-  <h1 style="font-size:clamp(32px,7vw,48px);font-weight:800">
-   Your Ideas.<br>Our Intelligence.
-  </h1>
-  <p style="font-size:16px;opacity:.8">Welcome to ZAQTIVO AI — your world of possibilities.</p>
+ <div class="hero home-welcome">
+  <div>
+   <h1>Hello! 👋<br>How can I <span style="color:#a65cff">help</span> you today?</h1>
+   <p>Your Smart AI Assistant<br>for Study, Work and Beyond!</p>
+  </div>
+  <div class="hero-robot">🤖</div>
  </div>
 
- <div class="askbox glass" style="border-radius:25px;padding:15px">
-  <div class="askicon">✦</div>
-  <textarea id="question" placeholder="Ask anything. Imagine, create, explore..." rows="3"></textarea>
+ <div class="askbox glass">
+  <div class="askicon">💬</div>
+  <textarea id="question" placeholder="Ask anything..." rows="2"></textarea>
   <button class="sendbtn" onclick="sendQuestion()">➤</button>
  </div>
 
  <div class="attach-toolbar">
-  <button class="smallbtn" onclick="document.getElementById('photoInput').click()">＋ Add Photos</button>
-  <button class="smallbtn" onclick="document.getElementById('homeCamera').click()">📷 Camera</button>
-  <button class="smallbtn" onclick="document.getElementById('homeDocument').click()">📄 Documents</button>
+  <button class="smallbtn" onclick="document.getElementById('photoInput').click()">🖼️<span>Add Photos</span></button>
+  <button class="smallbtn" onclick="document.getElementById('homeCamera').click()">📷<span>Open Camera</span></button>
+  <button class="smallbtn" onclick="document.getElementById('homeDocument').click()">📄<span>Add Documents</span></button>
+  <button class="smallbtn" onclick="quickPrompt('Help me choose and use the right ZAQTIVO AI tool for my task: ')">⚡<span>Quick Tools</span></button>
  </div>
 
  <input id="photoInput" type="file" accept="image/jpeg,image/png,image/webp" multiple hidden onchange="photoSelected(event)">
@@ -2322,50 +2323,28 @@ body:not(.chat-open) .create-panel{
  <div id="homeDocumentCount" class="document-count"></div>
  <div id="homeVoiceStatus" class="voice-status"></div>
 
- <div class="section-title"><span>✦ Explore AI Tools</span></div>
+ <div class="section-title">
+  <span>⭐ Popular Features</span>
+  <button class="seeall" onclick="showAllPrompts()">See All →</button>
+ </div>
 
  <div class="features">
+  <button class="feature glass" onclick="quickPrompt('I want to have a general conversation about: ')"><span class="emoji">💬</span><strong>General Chat</strong></button>
+  <button class="feature glass" onclick="quickPrompt('Help me study and understand: ')"><span class="emoji">🎓</span><strong>Study Helper</strong></button>
+  <button class="feature glass" onclick="quickPrompt('Solve this maths problem step by step: ')"><span class="emoji">🧮</span><strong>Math Solver</strong></button>
+  <button class="feature glass" onclick="quickPrompt('Create a clear summary of: ')"><span class="emoji">📋</span><strong>Summary Maker</strong></button>
+  <button class="feature glass" onclick="quickPrompt('Explain this concept in simple language: ')"><span class="emoji">💡</span><strong>Explain Concept</strong></button>
+  <button class="feature glass" onclick="quickPrompt('Create a quiz and MCQs about: ')"><span class="emoji">☑️</span><strong>MCQs & Quiz</strong></button>
+  <button class="feature glass" onclick="switchCreateMode('image');document.getElementById('createPrompt').scrollIntoView({behavior:'smooth'})"><span class="emoji">🖼️</span><strong>Image Generation</strong></button>
+  <button class="feature glass" onclick="switchCreateMode('video');document.getElementById('createPrompt').scrollIntoView({behavior:'smooth'})"><span class="emoji">▶️</span><strong>Video Generation</strong></button>
+ </div>
 
-  <button class="feature glass" onclick="quickPrompt('You are ZAQTIVO Do-It Mode. Help me complete my task. My task: ')">
-   <span class="emoji">⚡</span><strong>Do-It Mode</strong>
-  </button>
-
-  <button class="feature glass" onclick="quickPrompt('Help me write an email or professional document: ')">
-   <span class="emoji">✍️</span><strong>Writing Studio</strong>
-  </button>
-
-  <button class="feature glass" onclick="quickPrompt('Help me learn and understand this topic: ')">
-   <span class="emoji">📚</span><strong>Learn & Education</strong>
-  </button>
-
-  <button class="feature glass" onclick="quickPrompt('Help me with business and work: ')">
-   <span class="emoji">💼</span><strong>Business Assistant</strong>
-  </button>
-
-  <button class="feature glass" onclick="quickPrompt('Help me write or debug code: ')">
-   <span class="emoji">💻</span><strong>Coding & Tech</strong>
-  </button>
-
-  <button class="feature glass" onclick="quickPrompt('Research this topic: ')">
-   <span class="emoji">🔎</span><strong>Research</strong>
-  </button>
-
-  <button class="feature glass" onclick="quickPrompt('Help me plan my day: ')">
-   <span class="emoji">📅</span><strong>Daily Planner</strong>
-  </button>
-
-  <button class="feature glass" onclick="quickPrompt('Translate this: ')">
-   <span class="emoji">🌍</span><strong>Translation</strong>
-  </button>
-
-  <button class="feature glass" onclick="quickPrompt('Help me create something creative: ')">
-   <span class="emoji">🎨</span><strong>Creative Studio</strong>
-  </button>
-
-  <button class="feature glass" onclick="showKnowledgeVault()">
-   <span class="emoji">📚</span><strong>Knowledge Vault</strong>
-  </button>
-
+ <div class="knowledge-banner">
+  <div>
+   <div style="font-size:19px;font-weight:bold">🚀 Knowledge Vault <span style="background:#26c65b;padding:3px 8px;border-radius:12px;font-size:11px">NEW</span></div>
+   <p style="font-size:13px;line-height:1.5">Save your important knowledge and access it anytime!</p>
+  </div>
+  <button onclick="showKnowledgeVault()">Open →</button>
  </div>
 
  <div class="section-title"><span>✨ Create with AI</span></div>
@@ -2375,10 +2354,8 @@ body:not(.chat-open) .create-panel{
    <button id="imageTab" class="active" onclick="switchCreateMode('image')">🖼️ Generate Image</button>
    <button id="videoTab" onclick="switchCreateMode('video')">🎬 Generate Video</button>
   </div>
-
   <label id="createPromptLabel" for="createPrompt"><strong>Describe what you want to create</strong></label>
   <textarea id="createPrompt" placeholder="Describe your imagination..." rows="3"></textarea>
-
   <label for="createRatio"><strong>Aspect Ratio</strong></label>
   <select id="createRatio">
    <option value="1:1">Square (1:1)</option>
@@ -2387,7 +2364,6 @@ body:not(.chat-open) .create-panel{
    <option value="4:3">Classic (4:3)</option>
    <option value="3:4">Portrait (3:4)</option>
   </select>
-
   <div id="imageSizeWrap">
    <label for="imageSize"><strong>Image Quality</strong></label>
    <select id="imageSize">
@@ -2396,27 +2372,19 @@ body:not(.chat-open) .create-panel{
     <option value="4K">Ultra (4K)</option>
    </select>
   </div>
-
   <button id="createButton" class="create-action" onclick="startCreation()">✨ Generate</button>
   <div id="createStatus" class="status" aria-live="polite"></div>
   <div id="createResult" class="create-result hidden"></div>
  </div>
 
- <div class="section-title"><span>🔥 Try Something New</span></div>
-
- <div class="prompts">
-  <button class="prompt glass" onclick="quickPrompt('Explain this topic simply: ')">💡 Explain anything →</button>
-  <button class="prompt glass" onclick="quickPrompt('Summarize this text: ')">📄 Summarize →</button>
-  <button class="prompt glass" onclick="quickPrompt('Solve this step by step: ')">🧮 Solve a problem →</button>
-  <button class="prompt glass" onclick="quickPrompt('Help me create a project: ')">🚀 Create a project →</button>
+ <div class="bottom-home-nav">
+  <button class="active" onclick="goHome()"><span>⌂</span>Home</button>
+  <button onclick="showHistory()"><span>◷</span>Chat History</button>
+  <button onclick="showFavorites()"><span>♡</span>Favorites</button>
+  <button onclick="showSettings()"><span>⚙</span>Settings</button>
  </div>
 
- <div class="upgrade">
-  <div><strong>👑 ZAQTIVO Pro</strong><p>Explore your AI experience.</p></div>
-  <button onclick="showUpgrade()">Explore ❯</button>
- </div>
-
-   </section>
+  </section>
 
 <section id="chatScreen">
  <div class="panel glass">
