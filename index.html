@@ -1812,7 +1812,7 @@ body.auth-required #authGate{
  <div class="menu-label">YOUR SPACE</div>
  <button onclick="goHome();closeMenu()"><span>⌂</span> Home</button>
  <button onclick="showFavorites();closeMenu()"><span>☆</span> Favorites</button>
-
+<button onclick="showKnowledgeVault();closeMenu()"><span>▣</span> Knowledge Vault</button>
  <div class="menu-label">RECENT CHATS</div>
  <input id="sidebarSearch" class="sidebar-search" type="search"
   placeholder="Search your chats..." oninput="renderSidebarChats(this.value)">
@@ -4537,7 +4537,158 @@ function showFavorites(){
   box.appendChild(div);
  });
 }
+/* KNOWLEDGE VAULT */
 
+const ZAQTIVO_VAULT_KEY = "zaqtivo_knowledge_vault";
+
+function getVaultNotes(){
+ try{
+  const data=JSON.parse(
+   localStorage.getItem(ZAQTIVO_VAULT_KEY)||"[]"
+  );
+  return Array.isArray(data)?data:[];
+ }catch(error){
+  return [];
+ }
+}
+
+function saveVaultNotes(notes){
+ localStorage.setItem(
+  ZAQTIVO_VAULT_KEY,
+  JSON.stringify(notes)
+ );
+}
+
+function showKnowledgeVault(){
+ document.body.classList.remove("chat-open");
+ hideScreens();
+
+ document.getElementById("otherScreen").style.display="block";
+ document.getElementById("otherTitle").textContent="Knowledge Vault";
+
+ const box=document.getElementById("otherContent");
+
+ box.innerHTML=`
+  <div class="glass" style="padding:16px;border-radius:16px">
+   <h3>📚 Your Personal Knowledge Vault</h3>
+   <p>Save your important notes and find them whenever you need.</p>
+
+   <input id="vaultTitle"
+    placeholder="Note title"
+    maxlength="100"
+    style="width:100%;padding:12px;margin:8px 0">
+
+   <textarea id="vaultText"
+    placeholder="Write your note here..."
+    rows="5"
+    maxlength="20000"
+    style="width:100%;padding:12px;margin:8px 0"></textarea>
+
+   <button id="vaultSave"
+    style="padding:12px 20px">Save Note</button>
+
+   <input id="vaultSearch"
+    placeholder="Search your saved notes..."
+    style="width:100%;padding:12px;margin:18px 0">
+  </div>
+
+  <div id="vaultNotesList"></div>
+ `;
+
+ document.getElementById("vaultSave").onclick=()=>{
+  const title=document.getElementById("vaultTitle").value.trim();
+  const content=document.getElementById("vaultText").value.trim();
+
+  if(!title||!content){
+   alert("Please enter a title and note.");
+   return;
+  }
+
+  const notes=getVaultNotes();
+
+  notes.unshift({
+   id:Date.now().toString(),
+   title:title,
+   content:content,
+   createdAt:new Date().toISOString()
+  });
+
+  try{
+   saveVaultNotes(notes);
+   document.getElementById("vaultTitle").value="";
+   document.getElementById("vaultText").value="";
+   renderVaultNotes();
+  }catch(error){
+   alert("Storage is full. Please remove some old notes.");
+  }
+ };
+
+ document.getElementById("vaultSearch").oninput=renderVaultNotes;
+
+ renderVaultNotes();
+}
+
+function renderVaultNotes(){
+ const list=document.getElementById("vaultNotesList");
+ if(!list)return;
+
+ const query=document.getElementById("vaultSearch").value
+  .trim().toLowerCase();
+
+ const notes=getVaultNotes().filter(note=>
+  (note.title+" "+note.content).toLowerCase().includes(query)
+ );
+
+ list.innerHTML="";
+
+ if(!notes.length){
+  list.textContent="No saved notes found.";
+  return;
+ }
+
+ notes.forEach(note=>{
+  const card=document.createElement("div");
+  card.className="historyitem glass";
+  card.style.padding="14px";
+  card.style.marginTop="12px";
+
+  const title=document.createElement("h3");
+  title.textContent=note.title;
+
+  const content=document.createElement("p");
+  content.textContent=note.content;
+  content.style.whiteSpace="pre-wrap";
+
+  const date=document.createElement("small");
+  date.textContent=new Date(note.createdAt).toLocaleString();
+
+  const copy=document.createElement("button");
+  copy.textContent="Copy";
+  copy.className="smallbtn";
+  copy.onclick=()=>copyText(note.title+"\n\n"+note.content);
+
+  const remove=document.createElement("button");
+  remove.textContent="Delete";
+  remove.className="smallbtn";
+  remove.style.marginLeft="8px";
+
+  remove.onclick=()=>{
+   if(!confirm("Delete this note?"))return;
+
+   const updated=getVaultNotes().filter(
+    item=>item.id!==note.id
+   );
+
+   saveVaultNotes(updated);
+   renderVaultNotes();
+  };
+
+  card.append(title,content,date,document.createElement("br"),copy,remove);
+  list.appendChild(card);
+ });
+}
+
+/* SETTINGS */
 /* SETTINGS */
 
 function showSettings(){
