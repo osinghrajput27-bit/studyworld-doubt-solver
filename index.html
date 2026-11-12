@@ -2499,6 +2499,40 @@ body:not(.chat-open) .create-action{
   box-shadow:0 0 20px #754cff88!important;
 }
 
+/* ZAQTIVO FLOATING BOTTOM NAV */
+body:not(.chat-open) .bottom-home-nav{
+  left:12px!important;
+  right:12px!important;
+  bottom:12px!important;
+  padding:12px 5px!important;
+  border:1px solid #9975ff99!important;
+  border-radius:25px!important;
+  background:linear-gradient(120deg,#171044ee,#101b4fee)!important;
+  box-shadow:0 0 25px #703dff66,
+             inset 0 1px 0 #ffffff30!important;
+  backdrop-filter:blur(22px)!important;
+}
+
+body:not(.chat-open) .bottom-home-nav button{
+  color:#c9c5ed!important;
+  font-size:11px!important;
+  font-weight:600!important;
+  transition:all .2s ease;
+}
+
+body:not(.chat-open) .bottom-home-nav button span:first-child{
+  font-size:24px!important;
+}
+
+body:not(.chat-open) .bottom-home-nav button.active{
+  color:#c69aff!important;
+  text-shadow:0 0 12px #a65cff!important;
+}
+
+body:not(.chat-open) .bottom-home-nav button.active span:first-child{
+  filter:drop-shadow(0 0 8px #a65cff);
+}
+
 </style>
  <script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
