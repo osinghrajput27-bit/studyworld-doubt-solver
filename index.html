@@ -2655,8 +2655,25 @@ body:not(.chat-open) .bottom-home-nav button.active span:first-child{
   <button class="feature glass" onclick="quickPrompt('Create a quiz and MCQs about: ')"><span class="emoji">☑️</span><strong>MCQs & Quiz</strong></button>
   <button class="feature glass" onclick="switchCreateMode('image');document.getElementById('createPrompt').scrollIntoView({behavior:'smooth'})"><span class="emoji">🖼️</span><strong>Image Generation</strong></button>
   <button class="feature glass" onclick="switchCreateMode('video');document.getElementById('createPrompt').scrollIntoView({behavior:'smooth'})"><span class="emoji">▶️</span><strong>Video Generation</strong></button>
+<button class="feature glass" onclick="openAgentPlanner()">
+  <span class="emoji">🚀</span>
+  <strong>Do It For Me</strong>
+</button>
  </div>
+<div id="agentPlannerPanel" class="create-panel glass" style="display:none;border-radius:24px;padding:18px;margin:18px 0">
+  <h2>🚀 Do It For Me</h2>
+  <p>Tell ZAQTIVO what you want to accomplish. It will create a practical action plan.</p>
 
+  <textarea id="agentTaskInput" rows="4" maxlength="3000"
+    placeholder="Example: Help me plan a website for my business..."></textarea>
+
+  <button id="agentPlanButton" class="create-action" onclick="createAgentPlan()">
+    ✨ Create My Action Plan
+  </button>
+
+  <div id="agentPlanStatus" class="status" aria-live="polite"></div>
+  <div id="agentPlanResult" style="white-space:pre-wrap;line-height:1.7"></div>
+</div>
  <div class="knowledge-banner">
   <div>
    <div style="font-size:19px;font-weight:bold">🚀 Knowledge Vault <span style="background:#26c65b;padding:3px 8px;border-radius:12px;font-size:11px">NEW</span></div>
@@ -4372,7 +4389,63 @@ function regenerateAnswer(aiMessage){
 
  sendToAI(question,[],[]);
 }
+/* ZAQTIVO DO IT FOR ME */
 
+function openAgentPlanner(){
+ const panel=document.getElementById("agentPlannerPanel");
+
+ panel.style.display="block";
+
+ panel.scrollIntoView({
+  behavior:"smooth",
+  block:"center"
+ });
+
+ document.getElementById("agentTaskInput").focus();
+}
+
+async function createAgentPlan(){
+ const task=document.getElementById("agentTaskInput").value.trim();
+ const button=document.getElementById("agentPlanButton");
+ const status=document.getElementById("agentPlanStatus");
+ const result=document.getElementById("agentPlanResult");
+
+ if(!task){
+  status.textContent="Please describe your task first.";
+  return;
+ }
+
+ button.disabled=true;
+ status.textContent="ZAQTIVO is creating your action plan...";
+ result.textContent="";
+
+ try{
+  const response=await fetch("/api/agent-plan",{
+   method:"POST",
+   headers:{
+    "Content-Type":"application/json"
+   },
+   body:JSON.stringify({
+    task:task,
+    language:selectedLanguage
+   })
+  });
+
+  const data=await response.json();
+
+  if(!response.ok||!data.success){
+   throw new Error(data.error||"Could not create the plan.");
+  }
+
+  result.textContent=data.plan;
+  status.textContent="Your action plan is ready!";
+
+ }catch(error){
+  status.textContent=error.message||"Something went wrong. Please try again.";
+ }finally{
+  button.disabled=false;
+ }
+ }
 /* SEND HOME */
 
 async function sendQuestion(){
