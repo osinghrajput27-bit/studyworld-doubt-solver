@@ -3068,12 +3068,16 @@ function hideScreens(){
 }
 
 function goHome(){
+ localStorage.setItem("zaqtivo_last_screen","home");
  document.body.classList.remove("chat-open");
  hideScreens();
  document.getElementById("homeScreen").style.display="block";
 }
 
 function openChat(){
+ localStorage.setItem("zaqtivo_last_screen","chat");
+ localStorage.setItem("zaqtivo_active_session",activeSessionId||"");
+
  hideScreens();
  document.body.classList.add("chat-open");
  document.getElementById("chatScreen").style.display="block";
@@ -5089,7 +5093,7 @@ async function startCreation(){
 
 /* HISTORY */
 
-function showHistory(){
+function showHistory(){ localStorage.setItem("zaqtivo_last_screen","history");
  document.body.classList.remove("chat-open");
 
  hideScreens();
@@ -5324,7 +5328,7 @@ async function shareSession(sessionId){
 
 /* FAVORITES */
 
-function showFavorites(){
+function showFavorites(){ localStorage.setItem("zaqtivo_last_screen","favorites");
  document.body.classList.remove("chat-open");
 
  hideScreens();
