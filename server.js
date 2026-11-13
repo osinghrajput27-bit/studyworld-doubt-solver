@@ -2792,7 +2792,7 @@ Rules:
 - Keep the plan practical and easy to follow.
 `;
 
-    const result = await generateChatWithProviders({
+    const result = await generateChatWithFallback({
       contents: [
         {
           role: "user",
