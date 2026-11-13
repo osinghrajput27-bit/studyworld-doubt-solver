@@ -2751,6 +2751,93 @@ app.get(
 );
 
 // ========================================
+// ZAQTIVO DO IT FOR ME - TASK PLANNER
+// ========================================
+
+app.post("/api/agent-plan", async (req, res) => {
+  const startedAt = Date.now();
+
+  try {
+    if (!requireChatAI(res)) return;
+
+    const task = cleanString(req.body?.task, 3000);
+    const language = cleanString(
+      req.body?.language || "auto",
+      100
+    );
+
+    if (!task) {
+      return res.status(400).json({
+        success: false,
+        error: "Please describe the task you want help with."
+      });
+    }
+
+    const systemInstruction = `
+You are ZAQTIVO DO IT FOR ME, a practical AI task planning assistant.
+
+Your job is to turn the user's task into a clear, realistic action plan.
+
+Rules:
+- Reply in the requested language.
+- Understand the user's actual goal.
+- Break the work into simple numbered steps.
+- Mention useful tools or materials when relevant.
+- Give a realistic effort estimate, not a guarantee.
+- Include a final completion checklist.
+- Mention important limitations or risks honestly.
+- Never claim that you performed an action.
+- Never access external accounts or perform external actions.
+- Do not invent completed results.
+- Keep the plan practical and easy to follow.
+`;
+
+    const result = await generateChatWithProviders({
+      contents: [
+        {
+          role: "user",
+          parts: [{
+            text:
+              "USER TASK:\n" + task +
+              "\n\nRESPONSE LANGUAGE: " + language +
+              "\n\nCreate the complete action plan."
+          }]
+        }
+      ],
+      config: {
+        systemInstruction,
+        temperature: 0.3,
+        maxOutputTokens: 2048
+      }
+    });
+
+    const plan = getResponseText(result.response);
+
+    if (!plan.trim()) {
+      return res.status(502).json({
+        success: false,
+        error: "Could not create a task plan. Please try again."
+      });
+    }
+
+    return res.json({
+      success: true,
+      plan,
+      model: result.model,
+      responseTimeMs: Date.now() - startedAt
+    });
+
+  } catch (error) {
+    console.error(
+      "DO IT FOR ME ERROR:",
+      error?.message || error
+    );
+
+    return handleAIError(error, res);
+  }
+});
+
+// ========================================
 // 25. API INFORMATION
 // ========================================
 
