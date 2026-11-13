@@ -2850,6 +2850,7 @@ app.get("/api", (req, res) => {
       health: "GET /health",
       solve: "POST /api/solve",
       solveStream: "POST /api/solve-stream",
+      agentPlan: "POST /api/agent-plan",
       generateImage: "POST /api/generate-image",
       generateVideo: "POST /api/generate-video",
       videoStatus: "GET /api/video-status/:jobId",
