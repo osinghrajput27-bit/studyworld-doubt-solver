@@ -2818,6 +2818,7 @@ body:not(.chat-open) .bottom-home-nav button.active span:first-child{
    <button class="smallbtn" onclick="document.getElementById('chatCamera').click()">📷 Camera</button>
    <button class="smallbtn" onclick="document.getElementById('chatDocument').click()">📄 Documents</button>
    <button class="smallbtn" onclick="startVoice('chatQuestion','chatVoiceStatus')">🎙 Voice</button>
+   <button class="smallbtn" id="liveVoiceBtn" onclick="toggleLiveVoiceChat()">🔴 Live Voice</button>
   </div>
 
   <input id="chatPhoto" type="file" accept="image/jpeg,image/png,image/webp" multiple hidden onchange="chatPhotoSelected(event)">
@@ -3652,7 +3653,91 @@ function startVoice(target="question",statusId="homeVoiceStatus"){
   alert("Could not start voice input.");
  }
 }
+/* LIVE VOICE CHAT */
 
+let liveVoiceChatActive = false;
+
+function toggleLiveVoiceChat(){
+  const button = document.getElementById("liveVoiceBtn");
+
+  if(liveVoiceChatActive){
+    liveVoiceChatActive = false;
+
+    if(activeRecognition){
+      activeRecognition.stop();
+      activeRecognition = null;
+    }
+
+    button.textContent = "🔴 Live Voice";
+    document.getElementById("chatVoiceStatus").textContent = "";
+    return;
+  }
+
+  const SpeechRecognition =
+    window.SpeechRecognition ||
+    window.webkitSpeechRecognition;
+
+  if(!SpeechRecognition){
+    alert("Live Voice is not supported in this browser.");
+    return;
+  }
+
+  liveVoiceChatActive = true;
+  button.textContent = "⏹ Stop Voice";
+
+  const recognition = new SpeechRecognition();
+  recognition.lang =
+    selectedLanguage === "Auto Detect"
+      ? (navigator.language || "en-US")
+      : (SPEECH_LOCALES[selectedLanguage] || "en-US");
+
+  recognition.continuous = false;
+  recognition.interimResults = false;
+
+  activeRecognition = recognition;
+
+  document.getElementById("chatVoiceStatus").textContent =
+    "🎙 Listening... Speak now.";
+
+  recognition.onresult = event => {
+    const transcript = event.results[0][0].transcript.trim();
+
+    if(transcript){
+      document.getElementById("chatQuestion").value = transcript;
+      document.getElementById("chatVoiceStatus").textContent =
+        "Processing your question...";
+    }
+  };
+
+  recognition.onerror = event => {
+    if(event.error === "not-allowed"){
+      liveVoiceChatActive = false;
+      button.textContent = "🔴 Live Voice";
+      alert("Please allow microphone access.");
+    }
+  };
+
+  recognition.onend = () => {
+    if(activeRecognition === recognition){
+      activeRecognition = null;
+    }
+
+    const question = document.getElementById("chatQuestion").value.trim();
+
+    if(liveVoiceChatActive && question && !isGenerating){
+      sendChatQuestion();
+    }
+  };
+
+  try{
+    recognition.start();
+  }catch(error){
+    liveVoiceChatActive = false;
+    button.textContent = "🔴 Live Voice";
+    activeRecognition = null;
+    alert("Could not start Live Voice.");
+  }
+ }
 /* SAFE MARKDOWN */
 
 function convertSubSuper(value,type){
@@ -4070,6 +4155,39 @@ function scrollMessagesToBottom(){
  }
 }
 
+function speakZAQTIVOAnswer(text){
+  if(!("speechSynthesis" in window)) return;
+
+  speechSynthesis.cancel();
+
+  const cleanText = String(text)
+    .replace(/```[\s\S]*?```/g, "Code omitted")
+    .replace(/[*#`_]/g, "");
+
+  const message = new SpeechSynthesisUtterance(cleanText);
+  message.lang = "hi-IN";
+  message.rate = 1;
+  message.pitch = 1.1;
+
+  speechSynthesis.speak(message);
+}
+speakZAQTIVOAnswer(text);
+ function speakZAQTIVOAnswer(text){
+  if(!("speechSynthesis" in window)) return;
+
+  speechSynthesis.cancel();
+
+  const cleanText = String(text)
+    .replace(/```[\s\S]*?```/g, "Code omitted")
+    .replace(/[*#`_]/g, "");
+
+  const message = new SpeechSynthesisUtterance(cleanText);
+  message.lang = "hi-IN";
+  message.rate = 1;
+  message.pitch = 1.1;
+
+  speechSynthesis.speak(message);
+                           }
 function addMessageActions(wrap,text){
  const oldActions=wrap.querySelector(".msg-actions");
 
@@ -5891,6 +6009,7 @@ document.getElementById("renameModal").addEventListener(
 
 
 
+
 function finishZAQTIVOWelcome(){
   const screen = document.getElementById("zaqtivoWelcome");
 
@@ -5899,7 +6018,7 @@ function finishZAQTIVOWelcome(){
     screen.style.display = "none";
   }
 
-  goHome();
+  openChat();
   showFirstLanguageSetup();
 }
 
@@ -5936,26 +6055,6 @@ function showZAQTIVOWelcome(){
 }
 
 
-  message.lang = "hi-IN";
-  message.rate = 1;
-  message.pitch = 1.15;
-
-  message.onend = finishZAQTIVOWelcome;
-  message.onerror = finishZAQTIVOWelcome;
-
-  synth.speak(message);
-}
-
-function showZAQTIVOWelcome(){
-  document.getElementById("zaqtivoWelcome").style.display = "flex";
-  speakZAQTIVOWelcome();
-}
-
-  
-
-  document.getElementById("zaqtivoWelcome").style.display = "flex";
-  speakZAQTIVOWelcome();
- }
 /* INITIALIZATION */
 
 async function startZAQTIVO(){
