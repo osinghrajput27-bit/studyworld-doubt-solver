@@ -5933,9 +5933,7 @@ function speakZAQTIVOWelcome(){
 function finishZAQTIVOWelcome(){
   document.getElementById("zaqtivoWelcome").style.display = "none";
 
-  try{
-    localStorage.setItem("zaqtivo_welcome_seen","yes");
-  }catch(error){}
+  
 
   if("speechSynthesis" in window){
     speechSynthesis.cancel();
@@ -5954,17 +5952,7 @@ function startZAQTIVOWelcome(){
 }
 
 function showZAQTIVOWelcome(){
-  let alreadySeen = false;
-
-  try{
-    alreadySeen = localStorage.getItem("zaqtivo_welcome_seen") === "yes";
-  }catch(error){}
-
-  if(alreadySeen){
-    goHome();
-    showFirstLanguageSetup();
-    return;
-  }
+  
 
   document.getElementById("zaqtivoWelcome").style.display = "flex";
   speakZAQTIVOWelcome();
