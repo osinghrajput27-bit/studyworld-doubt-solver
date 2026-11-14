@@ -5884,28 +5884,51 @@ document.getElementById("renameModal").addEventListener(
  }
 );
 
+
 function speakZAQTIVOWelcome(){
   if(!("speechSynthesis" in window)) return;
 
-  speechSynthesis.cancel();
+  const synth = window.speechSynthesis;
+  const welcomeText = "Hello! Aapka ZAQTIVO mein swagat hai! Main hoon aapki personal AI assistant. Aapke ideas ko reality mein badalne, mushkil kaam aasaan karne aur naye possibilities explore karne mein main aapki madad karungi. Aap sawaal poochiye, apna goal bataiye ya bas mujhse baat shuru kijiye. Toh chaliye, aapki journey shuru karte hain!";
 
-  const message = new SpeechSynthesisUtterance(
-    "Hello! Aapka ZAQTIVO mein swagat hai! Main hoon aapki personal AI assistant. Aapke ideas ko reality mein badalne, mushkil kaam aasaan karne aur naye possibilities explore karne mein main aapki madad karungi. Aap sawaal poochiye, apna goal bataiye ya bas mujhse baat shuru kijiye. Toh chaliye, aapki journey shuru karte hain!"
-  );
+  synth.cancel();
 
-  message.lang = "hi-IN";
-  message.rate = 0.95;
-  message.pitch = 1.15;
+  const speak = () => {
+    const message = new SpeechSynthesisUtterance(welcomeText);
+    const voices = synth.getVoices();
 
-  const voices = speechSynthesis.getVoices();
-  const femaleVoice = voices.find(v =>
-    /female|woman|zira|samantha|heera|google हिन्दी/i.test(v.name)
-  );
+    message.lang = "hi-IN";
+    message.rate = 0.95;
+    message.pitch = 1.15;
 
-  if(femaleVoice) message.voice = femaleVoice;
+    const hindiFemale = voices.find(v =>
+      /^hi[-_]IN$/i.test(v.lang) &&
+      /female|woman|zira|samantha|heera/i.test(v.name)
+    );
 
-  speechSynthesis.speak(message);
+    const hindiVoice = voices.find(v =>
+      /^hi[-_]IN$/i.test(v.lang)
+    );
+
+    const femaleVoice = voices.find(v =>
+      /female|woman|zira|samantha|heera/i.test(v.name)
+    );
+
+    message.voice = hindiFemale || hindiVoice || femaleVoice || null;
+    synth.speak(message);
+  };
+
+  if(synth.getVoices().length){
+    speak();
+  }else{
+    const onVoices = () => {
+      synth.removeEventListener("voiceschanged", onVoices);
+      speak();
+    };
+    synth.addEventListener("voiceschanged", onVoices);
+  }
 }
+
 
 function finishZAQTIVOWelcome(){
   document.getElementById("zaqtivoWelcome").style.display = "none";
