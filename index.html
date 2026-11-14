@@ -2569,6 +2569,16 @@ body:not(.chat-open) .bottom-home-nav button.active span:first-child{
   box-shadow:none;
 }
 
+/* TALKING ANIMATION */
+#zaqtivoWelcome.is-speaking img{
+  animation: zaqtivoTalking 0.45s ease-in-out infinite alternate;
+}
+
+@keyframes zaqtivoTalking{
+  from{transform:scale(1);}
+  to{transform:scale(1.012);}
+}
+
 #zaqtivoWelcome .welcome-actions{
   display:none;
 }
@@ -5880,11 +5890,14 @@ document.getElementById("renameModal").addEventListener(
 );
 
 
-function speakZAQTIVOWelcome(){
 
 function finishZAQTIVOWelcome(){
   const screen = document.getElementById("zaqtivoWelcome");
-  if(screen) screen.style.display = "none";
+
+  if(screen){
+    screen.classList.remove("is-speaking");
+    screen.style.display = "none";
+  }
 
   goHome();
   showFirstLanguageSetup();
@@ -5899,9 +5912,29 @@ function speakZAQTIVOWelcome(){
   const synth = window.speechSynthesis;
   synth.cancel();
 
+  const screen = document.getElementById("zaqtivoWelcome");
+  screen.classList.add("is-speaking");
+
   const message = new SpeechSynthesisUtterance(
     "Hello! Aapka ZAQTIVO mein swagat hai! Main hoon aapki personal AI assistant. Aapke ideas ko reality mein badalne aur mushkil kaam aasaan karne mein main aapki madad karungi. Chaliye shuru karte hain!"
   );
+
+  message.lang = "hi-IN";
+  message.rate = 1;
+  message.pitch = 1.15;
+
+  message.onend = finishZAQTIVOWelcome;
+  message.onerror = finishZAQTIVOWelcome;
+
+  synth.speak(message);
+}
+
+function showZAQTIVOWelcome(){
+  const screen = document.getElementById("zaqtivoWelcome");
+  screen.style.display = "flex";
+  speakZAQTIVOWelcome();
+}
+
 
   message.lang = "hi-IN";
   message.rate = 1;
