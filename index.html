@@ -5759,8 +5759,7 @@ async function handleGoogleCredential(response){
     signedInUser = data.user;
     document.body.classList.remove("auth-required");
 
-    goHome();
-   showFirstLanguageSetup();
+    showZAQTIVOWelcome();
   }catch(error){
     console.error("Google login error:", error);
     alert("Login failed. Please try again.");
@@ -5968,8 +5967,7 @@ async function startZAQTIVO(){
 
   if(signedInUser){
     document.body.classList.remove("auth-required");
-    goHome();
-    showFirstLanguageSetup();
+    showZAQTIVOWelcome();
   }else{
     document.body.classList.add("auth-required");
   }
