@@ -4171,11 +4171,7 @@ function speakZAQTIVOAnswer(text){
 
   speechSynthesis.speak(message);
 }
- function speakZAQTIVOAnswer(text){
-  if(!("speechSynthesis" in window)) return;
-
-
-                           }
+ 
 function addMessageActions(wrap,text){
  const oldActions=wrap.querySelector(".msg-actions");
 
