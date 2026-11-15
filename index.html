@@ -4174,18 +4174,7 @@ function speakZAQTIVOAnswer(text){
  function speakZAQTIVOAnswer(text){
   if(!("speechSynthesis" in window)) return;
 
-  speechSynthesis.cancel();
 
-  const cleanText = String(text)
-    .replace(/```[\s\S]*?```/g, "Code omitted")
-    .replace(/[*#`_]/g, "");
-
-  const message = new SpeechSynthesisUtterance(cleanText);
-  message.lang = "hi-IN";
-  message.rate = 1;
-  message.pitch = 1.1;
-
-  speechSynthesis.speak(message);
                            }
 function addMessageActions(wrap,text){
  const oldActions=wrap.querySelector(".msg-actions");
