@@ -2590,6 +2590,35 @@ body:not(.chat-open) .bottom-home-nav button.active span:first-child{
   #zaqtivoWelcome{padding:10px}
   #zaqtivoWelcome img{max-height:72vh}
  }
+ 
+let zaqtivoCurrentMode = localStorage.getItem("zaqtivoMode") || "general";
+
+function setZAQTIVOMode(mode) {
+  if (!["general", "education"].includes(mode)) return;
+
+  zaqtivoCurrentMode = mode;
+  localStorage.setItem("zaqtivoMode", mode);
+
+  const generalBtn = document.getElementById("generalModeBtn");
+  const educationBtn = document.getElementById("educationModeBtn");
+  const status = document.getElementById("zaqtivoModeStatus");
+
+  if (!generalBtn || !educationBtn || !status) return;
+
+  generalBtn.style.borderColor =
+    mode === "general" ? "#8bd5ff" : "#ffffff55";
+
+  educationBtn.style.borderColor =
+    mode === "education" ? "#8bd5ff" : "#ffffff55";
+
+  status.textContent =
+    mode === "general" ? "General AI selected" : "Education AI selected";
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  setZAQTIVOMode(zaqtivoCurrentMode);
+});
+
 </style>
  <script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
@@ -2680,6 +2709,32 @@ body:not(.chat-open) .bottom-home-nav button.active span:first-child{
     <p>Your AI assistant<br>for anything.</p>
   </div>
   <div class="hero-robot">🤖</div>
+</div>
+
+<div id="zaqtivoModeSelector" style="margin:12px 0 22px">
+  <h3 style="margin:0 0 12px;font-size:19px">Choose Your AI Mode</h3>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+    <button id="generalModeBtn"
+      onclick="setZAQTIVOMode('general')"
+      style="padding:18px 10px;border-radius:18px;border:2px solid #ffffff55;background:#ffffff18;color:white;text-align:left">
+      <div style="font-size:32px">🤖</div>
+      <strong>General AI</strong>
+      <div style="font-size:12px;margin-top:7px">Ask anything, explore ideas and get help.</div>
+    </button>
+
+    <button id="educationModeBtn"
+      onclick="setZAQTIVOMode('education')"
+      style="padding:18px 10px;border-radius:18px;border:2px solid #ffffff55;background:#ffffff18;color:white;text-align:left">
+      <div style="font-size:32px">🎓</div>
+      <strong>Education AI</strong>
+      <div style="font-size:12px;margin-top:7px">Learn subjects, solve questions and practice.</div>
+    </button>
+  </div>
+
+  <div id="zaqtivoModeStatus" style="font-size:12px;color:#bfeaff;margin-top:10px">
+    General AI selected
+  </div>
 </div>
 
 
@@ -2867,6 +2922,7 @@ body:not(.chat-open) .bottom-home-nav button.active span:first-child{
   </div>
  </div>
 </div>
+ 
 
 <script>
 /* CONFIGURATION */
