@@ -2579,33 +2579,33 @@ body:not(.chat-open) .bottom-home-nav button.active span:first-child{
   to{transform:scale(1.012);}
 }
 
-#zaqtivoWelcome .welcome-actions{
-  display:none;
-}
 
-  font-weight:700;
+#zaqtivoWelcome .welcome-actions{
+  display:none !important;
 }
 
 @media(max-width:480px){
-  #zaqtivoWelcome{padding:10px}
-  #zaqtivoWelcome img{max-height:72vh}
- }
- 
-let zaqtivoCurrentMode = localStorage.getItem("zaqtivoMode") || "general";
+  #zaqtivoWelcome{
+    padding:0;
+    margin:0;
+    width:100vw;
+    height:100dvh;
+  }
 
-function setZAQTIVOMode(mode) {
-  if (!["general", "education"].includes(mode)) return;
+  #zaqtivoWelcome .welcome-content{
+    width:100%;
+    height:100%;
+  }
 
-  zaqtivoCurrentMode = mode;
-  localStorage.setItem("zaqtivoMode", mode);
+  #zaqtivoWelcome img{
+    width:100%;
+    height:100%;
+    max-height:none;
+    object-fit:cover;
+    border-radius:0;
+  }
+}
 
-  const generalBtn = document.getElementById("generalModeBtn");
-  const educationBtn = document.getElementById("educationModeBtn");
-  const status = document.getElementById("zaqtivoModeStatus");
-
-  if (!generalBtn || !educationBtn || !status) return;
-
-  generalBtn.style.borderColor =
     mode === "general" ? "#8bd5ff" : "#ffffff55";
 
   educationBtn.style.borderColor =
