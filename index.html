@@ -6113,7 +6113,33 @@ async function startZAQTIVO(){
 
 startZAQTIVO();
 
+let zaqtivoCurrentMode = localStorage.getItem("zaqtivoMode") || "general";
 
+function setZAQTIVOMode(mode) {
+  if (!["general", "education"].includes(mode)) return;
+
+  zaqtivoCurrentMode = mode;
+  localStorage.setItem("zaqtivoMode", mode);
+
+  const generalBtn = document.getElementById("generalModeBtn");
+  const educationBtn = document.getElementById("educationModeBtn");
+  const status = document.getElementById("zaqtivoModeStatus");
+
+  if (!generalBtn || !educationBtn || !status) return;
+
+  generalBtn.style.borderColor =
+    mode === "general" ? "#8bd5ff" : "#ffffff55";
+
+  educationBtn.style.borderColor =
+    mode === "education" ? "#8bd5ff" : "#ffffff55";
+
+  status.textContent =
+    mode === "general" ? "General AI selected" : "Education AI selected";
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  setZAQTIVOMode(zaqtivoCurrentMode);
+});
 </script>
 </body>
  </html>
