@@ -4413,6 +4413,7 @@ async function askBackend(
 
  formData.append("question",question);
  formData.append("language",selectedLanguage);
+ formData.append("mode", zaqtivoCurrentMode);
 const vaultMemory = JSON.parse(
  localStorage.getItem("zaqtivo_knowledge_vault") || "[]"
 );
