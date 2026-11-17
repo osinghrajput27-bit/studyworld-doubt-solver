@@ -2629,9 +2629,10 @@ body:not(.chat-open) .bottom-home-nav button.active span:first-child{
  <div id="zaqtivoWelcome" style="display:none;">
   <div class="welcome-content">
     <img
-     https://raw.githubusercontent.com/osinghrajput27-bit/studyworld-doubt-solver/main/file_000000008010821194ccfaae54e750fb.png
+          <img
+      src="https://raw.githubusercontent.com/osinghrajput27-bit/studyworld-doubt-solver/main/file_000000008010821194ccfaae54e750fb.png"
       alt="ZAQTIVO AI Welcome"
-    >
+     >
 
   </div>
  </div>
@@ -3699,38 +3700,22 @@ function startVoice(target="question",statusId="homeVoiceStatus"){
  }
 }
 /* LIVE VOICE CHAT */
+ /* LIVE VOICE CHAT */
 
 let liveVoiceChatActive = false;
+let liveVoiceRecognition = null;
 
-function toggleLiveVoiceChat(){
-  const button = document.getElementById("liveVoiceBtn");
-
-  if(liveVoiceChatActive){
-    liveVoiceChatActive = false;
-
-    if(activeRecognition){
-      activeRecognition.stop();
-      activeRecognition = null;
-    }
-
-    button.textContent = "🔴 Live Voice";
-    document.getElementById("chatVoiceStatus").textContent = "";
-    return;
-  }
+function startLiveVoiceListening(){
+  if(!liveVoiceChatActive || isGenerating) return;
 
   const SpeechRecognition =
     window.SpeechRecognition ||
     window.webkitSpeechRecognition;
 
-  if(!SpeechRecognition){
-    alert("Live Voice is not supported in this browser.");
-    return;
-  }
-
-  liveVoiceChatActive = true;
-  button.textContent = "⏹ Stop Voice";
+  if(!SpeechRecognition) return;
 
   const recognition = new SpeechRecognition();
+
   recognition.lang =
     selectedLanguage === "Auto Detect"
       ? (navigator.language || "en-US")
@@ -3739,13 +3724,16 @@ function toggleLiveVoiceChat(){
   recognition.continuous = false;
   recognition.interimResults = false;
 
+  let transcript = "";
+
+  liveVoiceRecognition = recognition;
   activeRecognition = recognition;
 
   document.getElementById("chatVoiceStatus").textContent =
     "🎙 Listening... Speak now.";
 
   recognition.onresult = event => {
-    const transcript = event.results[0][0].transcript.trim();
+    transcript = event.results[0][0].transcript.trim();
 
     if(transcript){
       document.getElementById("chatQuestion").value = transcript;
@@ -3755,10 +3743,22 @@ function toggleLiveVoiceChat(){
   };
 
   recognition.onerror = event => {
-    if(event.error === "not-allowed"){
+    if(!liveVoiceChatActive) return;
+
+    if(event.error === "not-allowed" ||
+       event.error === "service-not-allowed"){
       liveVoiceChatActive = false;
-      button.textContent = "🔴 Live Voice";
-      alert("Please allow microphone access.");
+      document.getElementById("liveVoiceBtn").textContent =
+        "🔴 Live Voice";
+      document.getElementById("chatVoiceStatus").textContent =
+        "Microphone permission denied.";
+    }else if(event.error !== "no-speech" &&
+             event.error !== "aborted"){
+      liveVoiceChatActive = false;
+      document.getElementById("liveVoiceBtn").textContent =
+        "🔴 Live Voice";
+      document.getElementById("chatVoiceStatus").textContent =
+        "Voice input stopped. Try again.";
     }
   };
 
@@ -3767,10 +3767,21 @@ function toggleLiveVoiceChat(){
       activeRecognition = null;
     }
 
-    const question = document.getElementById("chatQuestion").value.trim();
+    if(liveVoiceRecognition === recognition){
+      liveVoiceRecognition = null;
+    }
 
-    if(liveVoiceChatActive && question && !isGenerating){
+    if(!liveVoiceChatActive) return;
+
+    if(transcript){
+      document.getElementById("chatQuestion").value = transcript;
       sendChatQuestion();
+    }else{
+      setTimeout(() => {
+        if(liveVoiceChatActive && !isGenerating){
+          startLiveVoiceListening();
+        }
+      }, 500);
     }
   };
 
@@ -3778,13 +3789,59 @@ function toggleLiveVoiceChat(){
     recognition.start();
   }catch(error){
     liveVoiceChatActive = false;
-    button.textContent = "🔴 Live Voice";
+    liveVoiceRecognition = null;
     activeRecognition = null;
-    alert("Could not start Live Voice.");
+
+    document.getElementById("liveVoiceBtn").textContent =
+      "🔴 Live Voice";
+
+    document.getElementById("chatVoiceStatus").textContent =
+      "Could not start Live Voice.";
   }
+}
+
+function toggleLiveVoiceChat(){
+  const button = document.getElementById("liveVoiceBtn");
+
+  if(liveVoiceChatActive){
+    liveVoiceChatActive = false;
+
+    if(liveVoiceRecognition){
+      liveVoiceRecognition.onend = null;
+      try{
+        liveVoiceRecognition.stop();
+      }catch(error){}
+    }
+
+    if(activeRecognition === liveVoiceRecognition){
+      activeRecognition = null;
+    }
+
+    liveVoiceRecognition = null;
+
+    if("speechSynthesis" in window){
+      speechSynthesis.cancel();
+    }
+
+    button.textContent = "🔴 Live Voice";
+    document.getElementById("chatVoiceStatus").textContent = "";
+    return;
+  }
+
+  if(!window.SpeechRecognition &&
+     !window.webkitSpeechRecognition){
+    alert("Live Voice is not supported in this browser.");
+    return;
+  }
+
+  liveVoiceChatActive = true;
+  document.getElementById("chatQuestion").value = "";
+
+  button.textContent = "⏹ Stop Voice";
+
+  startLiveVoiceListening();
  }
 /* SAFE MARKDOWN */
-
 function convertSubSuper(value,type){
  const sub={
   "0":"₀","1":"₁","2":"₂","3":"₃","4":"₄",
@@ -6040,7 +6097,16 @@ document.getElementById("renameModal").addEventListener(
 
 
 
+let zaqtivoWelcomeStarted = false;
+let zaqtivoWelcomeFinished = false;
+
+let zaqtivoWelcomeIsShowing = false;
+
 function finishZAQTIVOWelcome(){
+  if(!zaqtivoWelcomeIsShowing) return;
+
+  zaqtivoWelcomeIsShowing = false;
+
   const screen = document.getElementById("zaqtivoWelcome");
 
   if(screen){
@@ -6048,11 +6114,20 @@ function finishZAQTIVOWelcome(){
     screen.style.display = "none";
   }
 
-  openChat();
-  showFirstLanguageSetup();
+  if(signedInUser){
+    openChat();
+    showFirstLanguageSetup();
+  }
 }
 
 function speakZAQTIVOWelcome(){
+  const screen = document.getElementById("zaqtivoWelcome");
+
+  if(!screen){
+    finishZAQTIVOWelcome();
+    return;
+  }
+
   if(!("speechSynthesis" in window)){
     finishZAQTIVOWelcome();
     return;
@@ -6061,7 +6136,6 @@ function speakZAQTIVOWelcome(){
   const synth = window.speechSynthesis;
   synth.cancel();
 
-  const screen = document.getElementById("zaqtivoWelcome");
   screen.classList.add("is-speaking");
 
   const message = new SpeechSynthesisUtterance(
@@ -6075,20 +6149,37 @@ function speakZAQTIVOWelcome(){
   message.onend = finishZAQTIVOWelcome;
   message.onerror = finishZAQTIVOWelcome;
 
-  synth.speak(message);
+  try{
+    synth.speak(message);
+  }catch(error){
+    console.error("Welcome voice error:", error);
+    finishZAQTIVOWelcome();
+  }
 }
 
 function showZAQTIVOWelcome(){
+  if(!signedInUser || zaqtivoWelcomeIsShowing) return;
+
   const screen = document.getElementById("zaqtivoWelcome");
+
+  if(!screen){
+    openChat();
+    showFirstLanguageSetup();
+    return;
+  }
+
+  zaqtivoWelcomeIsShowing = true;
   screen.style.display = "flex";
+
   speakZAQTIVOWelcome();
-}
-
-
-/* INITIALIZATION */
+ }
+ 
+  * INITIALIZATION */
 
 async function startZAQTIVO(){
   loadData();
+
+  showZAQTIVOWelcome();
 
   initializeGoogleSignIn();
 
@@ -6106,14 +6197,17 @@ async function startZAQTIVO(){
 
   if(signedInUser){
     document.body.classList.remove("auth-required");
-    showZAQTIVOWelcome();
+
+    if(zaqtivoWelcomeFinished){
+      openChat();
+      showFirstLanguageSetup();
+    }
   }else{
     document.body.classList.add("auth-required");
   }
 }
 
 startZAQTIVO();
-
 let zaqtivoCurrentMode = localStorage.getItem("zaqtivoMode") || "general";
 
 function setZAQTIVOMode(mode) {
