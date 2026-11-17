@@ -2629,7 +2629,7 @@ body:not(.chat-open) .bottom-home-nav button.active span:first-child{
  <div id="zaqtivoWelcome" style="display:none;">
   <div class="welcome-content">
     <img
-          <img
+          
       src="https://raw.githubusercontent.com/osinghrajput27-bit/studyworld-doubt-solver/main/file_000000008010821194ccfaae54e750fb.png"
       alt="ZAQTIVO AI Welcome"
      >
@@ -4257,19 +4257,50 @@ function scrollMessagesToBottom(){
  }
 }
 
-function speakZAQTIVOAnswer(text){
-  if(!("speechSynthesis" in window)) return;
+function speakZAQTIVOAnswer(text, onFinished){
+  const finish = () => {
+    if(typeof onFinished === "function"){
+      onFinished();
+    }
+  };
+
+  if(!("speechSynthesis" in window)){
+    finish();
+    return;
+  }
 
   speechSynthesis.cancel();
 
-  const cleanText = String(text)
+  const cleanText = String(text || "")
     .replace(/```[\s\S]*?```/g, "Code omitted")
-    .replace(/[*#`_]/g, "");
+    .replace(/[*#`_]/g, "")
+    .trim();
+
+  if(!cleanText){
+    finish();
+    return;
+  }
 
   const message = new SpeechSynthesisUtterance(cleanText);
-  message.lang = "hi-IN";
+
+  message.lang =
+    selectedLanguage === "Auto Detect"
+      ? (navigator.language || "en-US")
+      : (SPEECH_LOCALES[selectedLanguage] || "en-US");
+
   message.rate = 1;
   message.pitch = 1.1;
+
+  let finished = false;
+
+  const finishOnce = () => {
+    if(finished) return;
+    finished = true;
+    finish();
+  };
+
+  message.onend = finishOnce;
+  message.onerror = finishOnce;
 
   speechSynthesis.speak(message);
 }
@@ -4790,7 +4821,7 @@ async function sendChatQuestion(){
 
  const images=[...chatImages];
  const documents=[...chatDocuments];
-
+let completedAnswer="";
  chatImages=[];
  chatDocuments=[];
 
@@ -4879,7 +4910,7 @@ async function sendToAI(question,images=[],documents=[]){
 
  let streamMessage=null;
  let accumulatedAnswer="";
-
+completedAnswer=answer;
  try{
   status.textContent="Waiting for the first response...";
 
@@ -4961,7 +4992,17 @@ async function sendToAI(question,images=[],documents=[]){
 
   stopRequested=false;
 
-  saveData();
+saveData();
+
+if(liveVoiceChatActive && completedAnswer.trim()){
+  speakZAQTIVOAnswer(completedAnswer, () => {
+    if(liveVoiceChatActive){
+      startLiveVoiceListening();
+    }
+  });
+}else if(liveVoiceChatActive){
+  startLiveVoiceListening();
+ }
  }
 }
 
@@ -6174,12 +6215,10 @@ function showZAQTIVOWelcome(){
   speakZAQTIVOWelcome();
  }
  
-  * INITIALIZATION */
+ /* INITIALIZATION */
 
 async function startZAQTIVO(){
   loadData();
-
-  showZAQTIVOWelcome();
 
   initializeGoogleSignIn();
 
@@ -6197,11 +6236,7 @@ async function startZAQTIVO(){
 
   if(signedInUser){
     document.body.classList.remove("auth-required");
-
-    if(zaqtivoWelcomeFinished){
-      openChat();
-      showFirstLanguageSetup();
-    }
+    showZAQTIVOWelcome();
   }else{
     document.body.classList.add("auth-required");
   }
