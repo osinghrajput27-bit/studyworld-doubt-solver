@@ -6217,6 +6217,7 @@ function showZAQTIVOWelcome(){
  
  /* INITIALIZATION */
 
+
 async function startZAQTIVO(){
   loadData();
 
@@ -6236,11 +6237,33 @@ async function startZAQTIVO(){
 
   if(signedInUser){
     document.body.classList.remove("auth-required");
-    showZAQTIVOWelcome();
+
+    const welcomeShown =
+      sessionStorage.getItem("zaqtivo_welcome_shown") === "true";
+
+    if(!welcomeShown){
+      sessionStorage.setItem("zaqtivo_welcome_shown", "true");
+      showZAQTIVOWelcome();
+    }else{
+      const lastScreen =
+        localStorage.getItem("zaqtivo_last_screen") || "home";
+
+      if(lastScreen === "chat"){
+        openChat();
+      }else if(lastScreen === "history"){
+        showHistory();
+      }else if(lastScreen === "favorites"){
+        showFavorites();
+      }else{
+        goHome();
+      }
+    }
+
   }else{
     document.body.classList.add("auth-required");
   }
 }
+
 
 startZAQTIVO();
 let zaqtivoCurrentMode = localStorage.getItem("zaqtivoMode") || "general";
